@@ -1,0 +1,40 @@
+---
+title: Introduction
+description: Nexotao gives you API access to AI models (Claude, GPT, DeepSeek), image generation, and transcription with a single Rupiah balance. Anthropic & OpenAI compatible.
+---
+
+# Introduction to Nexotao
+
+Nexotao is a reseller for AI model access. With **one account and one Rupiah
+balance**, you can use many top models for text, images, and transcription — via
+web chat, API, or Claude Code. No foreign credit card, no subscription.
+
+## How it works
+
+1. Top up your Rupiah balance via QRIS.
+2. Create an API key in the dashboard.
+3. Call the Nexotao endpoints with the SDKs you already know — costs are deducted
+   from your balance based on usage.
+
+## Base URL
+
+```
+https://api.nexotao.com
+```
+
+## Anthropic & OpenAI compatible
+
+Nexotao exposes endpoints compatible with both formats, so you only need to change
+the base URL and API key in your existing tools:
+
+- **Anthropic** — `POST /v1/messages`
+- **OpenAI** — `POST /v1/chat/completions`
+- **Image generation** — `POST /v1/images/generations`
+- **Transcribe** — `POST /v1/audio/transcriptions`
+
+## Next steps
+
+- [Quickstart](/quickstart) — from sign-up to your first request.
+- [Authentication](/autentikasi) — API keys and headers.
+- [Billing & Pricing](/penagihan) — the Rupiah balance system per modality.
+- [Claude Code](/claude-code) — use the Claude coding agent through Nexotao.

@@ -1,0 +1,46 @@
+---
+title: Billing & Pricing
+description: Token-based Rupiah balance system. Cost units per modality (text per token, images per megapixel, transcription per token or per minute). Live pricing table from GET /models.
+---
+
+import { LivePricing } from "../../components/live-pricing"
+
+# Billing & Pricing
+
+Nexotao uses a **token-based** system with **a single Rupiah balance**. There are no
+separate credits — every modality (text, image, transcribe) draws from the same
+balance.
+
+## Cost units per modality
+
+| Modality | Billing basis |
+| --- | --- |
+| Text / Chat | per token (input and output) |
+| Image Generation | per megapixel × number of successful images |
+| Transcribe (gpt-4o) | per audio token + output text tokens |
+| Transcribe (whisper) | per minute of audio duration |
+
+Everything is rounded up so small usage never becomes zero. For images, only
+images that are **successfully** generated are billed.
+
+## Cost headers
+
+Every response includes:
+
+- `X-Cost-Rp` — the actual cost of the request in Rupiah.
+- `X-Request-Id` — the request id for tracking.
+
+## Promo
+
+Nexotao's current rates are **well below official pricing**. Treat this as a promo
+price — top up while it lasts.
+
+## Live pricing
+
+The table below is pulled directly from the live `GET /models` catalog (sell prices
+only):
+
+<LivePricing />
+
+See also [Models & Pricing](/model-harga) for the full list, or
+[nexotao.com/harga](https://nexotao.com/harga).

@@ -1,11 +1,34 @@
 import React, { useEffect, useState } from "react"
-import { fetchModels, priceLines, MODALITY_LABEL, VENDOR, type Model, type Modality } from "../lib/models"
+import { useRouter } from "nextra/hooks"
+import { fetchModels, priceLines, modalityLabel, VENDOR, type Model, type Modality, type Locale } from "../lib/models"
 
 const ORDER: Modality[] = ["text", "image", "transcribe"]
+
+const T = {
+  id: {
+    model: "Model",
+    provider: "Provider",
+    rate: "Tarif",
+    loadFailed: "Gagal memuat harga live. Lihat harga terkini di",
+    loading: "Memuat harga live…",
+    note: "Harga diambil langsung dari katalog live. Promo: tarif saat ini jauh di bawah harga official.",
+  },
+  en: {
+    model: "Model",
+    provider: "Provider",
+    rate: "Rate",
+    loadFailed: "Failed to load live pricing. See current rates at",
+    loading: "Loading live pricing…",
+    note: "Prices are pulled directly from the live catalog. Promo: current rates are well below official pricing.",
+  },
+} as const
 
 // Tabel harga live dari GET /models. Client-side, dengan fallback bila gagal.
 // Hanya harga jual — tanpa cost/margin.
 export function LivePricing() {
+  const { locale } = useRouter()
+  const loc: Locale = locale === "en" ? "en" : "id"
+  const t = T[loc]
   const [models, setModels] = useState<Model[] | null>(null)
   const [error, setError] = useState(false)
 
@@ -22,7 +45,7 @@ export function LivePricing() {
   if (error) {
     return (
       <p className="nx-note" style={{ marginTop: "1rem" }}>
-        Gagal memuat harga live. Lihat harga terkini di{" "}
+        {t.loadFailed}{" "}
         <a href="https://nexotao.com/harga" style={{ color: "#BAE6FD" }}>
           nexotao.com/harga
         </a>
@@ -33,7 +56,7 @@ export function LivePricing() {
   if (!models) {
     return (
       <p className="nx-note" style={{ marginTop: "1rem" }}>
-        Memuat harga live…
+        {t.loading}
       </p>
     )
   }
@@ -46,13 +69,13 @@ export function LivePricing() {
     <div>
       {groups.map((g) => (
         <div key={g.mod}>
-          <p className="docs-group-label">{MODALITY_LABEL[g.mod]}</p>
+          <p className="docs-group-label">{modalityLabel(g.mod, loc)}</p>
           <table className="docs-table">
             <thead>
               <tr>
-                <th>Model</th>
-                <th>Provider</th>
-                <th style={{ textAlign: "right" }}>Tarif</th>
+                <th>{t.model}</th>
+                <th>{t.provider}</th>
+                <th style={{ textAlign: "right" }}>{t.rate}</th>
               </tr>
             </thead>
             <tbody>
@@ -67,7 +90,7 @@ export function LivePricing() {
                   </td>
                   <td style={{ color: "#A1A1AA" }}>{VENDOR[m.provider] ?? m.provider}</td>
                   <td className="num">
-                    {priceLines(m).map((line) => (
+                    {priceLines(m, loc).map((line) => (
                       <div key={line.label}>
                         <span style={{ color: "#A1A1AA" }}>{line.label}: </span>
                         {line.value}
@@ -81,7 +104,7 @@ export function LivePricing() {
         </div>
       ))}
       <p className="nx-note" style={{ marginTop: "0.75rem" }}>
-        Harga diambil langsung dari katalog live. Promo: tarif saat ini jauh di bawah harga official.
+        {t.note}
       </p>
     </div>
   )

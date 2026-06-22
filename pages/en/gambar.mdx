@@ -1,0 +1,76 @@
+---
+title: Image Generation
+description: Create images from text with FLUX.2-pro via the OpenAI-compatible /v1/images/generations endpoint. size and n parameters, per-megapixel billing, code examples.
+---
+
+# Image Generation
+
+Create images from text with **FLUX.2-pro** via the OpenAI-compatible endpoint. Use
+any OpenAI SDK — just point `base_url` at Nexotao.
+
+```
+POST https://api.nexotao.com/v1/images/generations
+```
+
+## Example
+
+```bash
+curl https://api.nexotao.com/v1/images/generations \
+  -H "Authorization: Bearer sk-nexo-..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "FLUX.2-pro",
+    "prompt": "studio photo of a cup of coffee on a wooden table, morning light",
+    "size": "1024x1024",
+    "n": 1
+  }'
+```
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+img = client.images.generate(
+    model="FLUX.2-pro",
+    prompt="studio photo of a cup of coffee on a wooden table, morning light",
+    size="1024x1024",
+    n=1,
+)
+print(img.data[0].url)
+```
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const img = await client.images.generate({
+  model: "FLUX.2-pro",
+  prompt: "studio photo of a cup of coffee on a wooden table, morning light",
+  size: "1024x1024",
+  n: 1,
+})
+console.log(img.data[0].url)
+```
+
+## Parameters
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `model` | yes | `FLUX.2-pro` |
+| `prompt` | yes | image description |
+| `size` | no | `1024x1024` (default), `1024x1536`, `1536x1024`, `512x512` |
+| `n` | no | number of images, 1–4 |
+
+## Billing
+
+Cost is computed **per megapixel**, multiplied by the number of images
+successfully generated:
+
+```
+cost (Rp) = (width × height / 1,000,000) × rate_per_megapixel × successful_count
+```
+
+Images that fail to generate are not billed. Exact rates are in
+[Models & Pricing](/model-harga).

@@ -1,5 +1,5 @@
 import React from "react"
-import { useRouter } from "next/router"
+import { useRouter } from "nextra/hooks"
 import { useConfig, type DocsThemeConfig } from "nextra-theme-docs"
 
 const SITE_URL = "https://docs.nexotao.com"
@@ -22,7 +22,13 @@ const config: DocsThemeConfig = {
   color: { hue: 199, saturation: 90 },
   darkMode: true,
   nextThemes: { defaultTheme: "dark", forcedTheme: undefined },
-  search: { placeholder: "Cari dokumentasi…" },
+  i18n: [
+    { locale: "id", name: "Bahasa Indonesia" },
+    { locale: "en", name: "English" },
+  ],
+  search: {
+    placeholder: () => (globalThis.location?.pathname?.startsWith("/en") ? "Search documentation…" : "Cari dokumentasi…"),
+  },
   feedback: { content: null },
   editLink: { content: null },
   gitTimestamp: null,
@@ -30,40 +36,74 @@ const config: DocsThemeConfig = {
     defaultMenuCollapseLevel: 1,
     toggleButton: true,
   },
-  toc: { title: "Di halaman ini", backToTop: true },
+  toc: {
+    title: function TocTitle() {
+      const { locale } = useRouter()
+      return locale === "en" ? "On this page" : "Di halaman ini"
+    },
+    backToTop: true,
+  },
   navigation: { prev: true, next: true },
   footer: {
-    content: (
-      <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 14 }}>
-        <span>
-          © {new Date().getFullYear()} Nexotao — reseller akses model AI. Bayar pakai Rupiah.
-        </span>
-        <span style={{ color: "#A1A1AA" }}>
-          <a href="https://nexotao.com" style={{ color: "#BAE6FD" }}>
-            nexotao.com
-          </a>{" "}
-          · Dokumentasi publik.
-        </span>
-      </div>
-    ),
+    content: function Footer() {
+      const { locale } = useRouter()
+      const year = new Date().getFullYear()
+      if (locale === "en") {
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 14 }}>
+            <span>© {year} Nexotao — reseller for AI model access. Pay in Rupiah.</span>
+            <span style={{ color: "#A1A1AA" }}>
+              <a href="https://nexotao.com" style={{ color: "#BAE6FD" }}>
+                nexotao.com
+              </a>{" "}
+              · Public documentation.
+            </span>
+          </div>
+        )
+      }
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 14 }}>
+          <span>© {year} Nexotao — reseller akses model AI. Bayar pakai Rupiah.</span>
+          <span style={{ color: "#A1A1AA" }}>
+            <a href="https://nexotao.com" style={{ color: "#BAE6FD" }}>
+              nexotao.com
+            </a>{" "}
+            · Dokumentasi publik.
+          </span>
+        </div>
+      )
+    },
   },
   head: function Head() {
     const { frontMatter, title } = useConfig()
-    const { asPath } = useRouter()
+    const { asPath, locale } = useRouter()
+    const isEn = locale === "en"
     const pageTitle = title && title !== "Index" ? `${title} — Nexotao Docs` : "Nexotao Docs"
     const description =
       frontMatter.description ||
-      "Dokumentasi Nexotao: akses API model AI (Claude, GPT, DeepSeek), generate gambar, dan transcribe dengan saldo Rupiah."
-    const url = `${SITE_URL}${asPath === "/" ? "" : asPath.split("#")[0].split("?")[0]}`
+      (isEn
+        ? "Nexotao documentation: access AI model APIs (Claude, GPT, DeepSeek), generate images, and transcribe with a Rupiah balance."
+        : "Dokumentasi Nexotao: akses API model AI (Claude, GPT, DeepSeek), generate gambar, dan transcribe dengan saldo Rupiah.")
+    const raw = asPath.split("#")[0].split("?")[0]
+    // With Nextra folder-based i18n the path is prefixed with /id or /en; strip it
+    // to get the bare slug. ID is served at the root, EN under /en.
+    const bare = raw.replace(/^\/(id|en)(?=\/|$)/, "")
+    const path = bare === "/" || bare === "" ? "" : bare
+    const idUrl = `${SITE_URL}${path}`
+    const enUrl = `${SITE_URL}/en${path}`
+    const url = isEn ? enUrl : idUrl
     return (
       <>
         <title>{pageTitle}</title>
-        <meta httpEquiv="Content-Language" content="id" />
+        <meta httpEquiv="Content-Language" content={isEn ? "en" : "id"} />
         <meta name="description" content={description} />
         <link rel="canonical" href={url} />
+        <link rel="alternate" hrefLang="id" href={idUrl} />
+        <link rel="alternate" hrefLang="en" href={enUrl} />
+        <link rel="alternate" hrefLang="x-default" href={idUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Nexotao Docs" />
-        <meta property="og:locale" content="id_ID" />
+        <meta property="og:locale" content={isEn ? "en_US" : "id_ID"} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={url} />

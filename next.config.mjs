@@ -10,4 +10,5 @@ const withNextra = nextra({
 export default withNextra({
   reactStrictMode: true,
   poweredByHeader: false,
+  i18n: { locales: ["id", "en"], defaultLocale: "id" },
 })

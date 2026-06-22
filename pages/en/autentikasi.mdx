@@ -1,0 +1,39 @@
+---
+title: Authentication
+description: Nexotao API keys (sk-nexo-...), how to send them via the Authorization or x-api-key header, and key security practices.
+---
+
+# Authentication
+
+Every request to the Nexotao API requires an **API key** in the form `sk-nexo-...`.
+Create and manage keys in the dashboard under the **API Keys** menu.
+
+## Sending the API key
+
+Two ways, depending on the format you use:
+
+- **OpenAI format** (`/v1/chat/completions`, `/v1/images/generations`,
+  `/v1/audio/transcriptions`): use the `Authorization: Bearer` header.
+
+  ```bash
+  -H "Authorization: Bearer sk-nexo-..."
+  ```
+
+- **Anthropic format** (`/v1/messages`): use the `x-api-key` header.
+
+  ```bash
+  -H "x-api-key: sk-nexo-..."
+  ```
+
+## Key security
+
+- Treat your key like a password. Do not embed it in client code (browser, mobile
+  apps) or public repos.
+- Store it in an environment variable or a secret manager on the server side.
+- If a key leaks, **revoke** it in the dashboard and create a new one. A revoked
+  key stops working immediately.
+- One account can have multiple keys — separate them per application so you can
+  revoke them individually.
+
+An invalid or revoked key returns `401 Unauthorized`. See
+[API Reference](/api-reference) for the list of error codes.

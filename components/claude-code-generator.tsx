@@ -1,5 +1,31 @@
 import React, { useEffect, useMemo, useState } from "react"
+import { useRouter } from "nextra/hooks"
 import { fetchModels, type Model } from "../lib/models"
+
+const T = {
+  id: {
+    copy: "Salin",
+    copied: "Tersalin",
+    keyLabel: "API key Nexotao",
+    keyHelp: "Tempel API key milikmu. Diproses di browser, tidak dikirim ke mana pun.",
+    modelLabel: "Model utama (ANTHROPIC_MODEL)",
+    modelHelpA: "Claude Code memakai endpoint Anthropic, jadi pilih model Claude. Background task (haiku) dipetakan ke ",
+    settingsLabel: "settings.json (~/.claude/settings.json)",
+    exportLabel: "export (shell)",
+  },
+  en: {
+    copy: "Copy",
+    copied: "Copied",
+    keyLabel: "Nexotao API key",
+    keyHelp: "Paste your own API key. Processed in the browser, never sent anywhere.",
+    modelLabel: "Primary model (ANTHROPIC_MODEL)",
+    modelHelpA: "Claude Code uses the Anthropic endpoint, so pick a Claude model. The background task (haiku) is mapped to ",
+    settingsLabel: "settings.json (~/.claude/settings.json)",
+    exportLabel: "export (shell)",
+  },
+} as const
+
+type Dict = { [K in keyof (typeof T)["id"]]: string }
 
 const ANTHROPIC_BASE_URL = "https://api.nexotao.com"
 const FALLBACK_OPUS = "claude-opus-4-8"
@@ -37,7 +63,7 @@ function buildExports(token: string, model: string, opus: string, sonnet: string
   ].join("\n")
 }
 
-function CopyBox({ label, code }: { label: string; code: string }) {
+function CopyBox({ label, code, t }: { label: string; code: string; t: Dict }) {
   const [copied, setCopied] = useState(false)
   const copy = () => {
     navigator.clipboard?.writeText(code).then(() => {
@@ -50,7 +76,7 @@ function CopyBox({ label, code }: { label: string; code: string }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
         <span className="nx-note">{label}</span>
         <button className="nx-btn secondary" style={{ height: "1.9rem" }} onClick={copy}>
-          {copied ? "Tersalin" : "Salin"}
+          {copied ? t.copied : t.copy}
         </button>
       </div>
       <pre
@@ -73,6 +99,8 @@ function CopyBox({ label, code }: { label: string; code: string }) {
 // Generator config Claude Code untuk Nexotao. Publik: pilih model Claude (live
 // dari GET /models) + tempel API key sendiri. Tak ada data ter-auth.
 export function ClaudeCodeGenerator() {
+  const { locale } = useRouter()
+  const t = locale === "en" ? T.en : T.id
   const [models, setModels] = useState<Model[]>([])
   const [model, setModel] = useState("")
   const [key, setKey] = useState("")
@@ -110,7 +138,7 @@ export function ClaudeCodeGenerator() {
       <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}>
         <div>
           <label className="nx-note" style={{ display: "block", marginBottom: 6, color: "#FAFAFA" }}>
-            API key Nexotao
+            {t.keyLabel}
           </label>
           <input
             className="nx-field"
@@ -120,12 +148,12 @@ export function ClaudeCodeGenerator() {
             spellCheck={false}
           />
           <p className="nx-note" style={{ marginTop: 6 }}>
-            Tempel API key milikmu. Diproses di browser, tidak dikirim ke mana pun.
+            {t.keyHelp}
           </p>
         </div>
         <div>
           <label className="nx-note" style={{ display: "block", marginBottom: 6, color: "#FAFAFA" }}>
-            Model utama (ANTHROPIC_MODEL)
+            {t.modelLabel}
           </label>
           <select className="nx-field" value={selectedModel} onChange={(e) => setModel(e.target.value)}>
             {claudeModels.length === 0 && <option value={FALLBACK_SONNET}>{FALLBACK_SONNET}</option>}
@@ -136,14 +164,14 @@ export function ClaudeCodeGenerator() {
             ))}
           </select>
           <p className="nx-note" style={{ marginTop: 6 }}>
-            Claude Code memakai endpoint Anthropic, jadi pilih model Claude. Background task (haiku)
-            dipetakan ke {sonnet}.
+            {t.modelHelpA}
+            {sonnet}.
           </p>
         </div>
       </div>
 
-      <CopyBox label="settings.json (~/.claude/settings.json)" code={settings} />
-      <CopyBox label="export (shell)" code={exports} />
+      <CopyBox label={t.settingsLabel} code={settings} t={t} />
+      <CopyBox label={t.exportLabel} code={exports} t={t} />
     </div>
   )
 }

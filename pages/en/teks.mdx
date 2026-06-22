@@ -1,0 +1,71 @@
+---
+title: Text & Chat
+description: Nexotao text endpoints — /v1/messages (Anthropic) and /v1/chat/completions (OpenAI), including SSE streaming. curl, Python, and Node examples.
+---
+
+# Text & Chat
+
+Two formats are supported for text conversations. Pick the one that fits your tool.
+
+## Anthropic — `POST /v1/messages`
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 512,
+    "messages": [{"role": "user", "content": "Explain what QRIS is"}]
+  }'
+```
+
+## OpenAI — `POST /v1/chat/completions`
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Explain what QRIS is"}],
+)
+print(resp.choices[0].message.content)
+```
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create({
+  model: "gpt-5-mini",
+  messages: [{ role: "user", content: "Explain what QRIS is" }],
+})
+console.log(resp.choices[0].message.content)
+```
+
+## Streaming (SSE)
+
+Set `stream: true` to receive the answer token by token over Server-Sent Events.
+
+```python
+stream = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Write a short poem"}],
+    stream=True,
+)
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end="", flush=True)
+```
+
+## Vision
+
+Models that support vision can accept images in a message (see the vision marker in
+[Models & Pricing](/model-harga)). Cost is still computed per token.
+
+Text usage is billed per token; see [Billing & Pricing](/penagihan).

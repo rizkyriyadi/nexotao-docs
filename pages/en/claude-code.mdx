@@ -1,0 +1,54 @@
+---
+title: Claude Code
+description: Use the Claude Code coding agent through Nexotao and pay in Rupiah. Per-OS steps plus an interactive settings.json config generator.
+---
+
+import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
+
+# Claude Code
+
+Run the **Claude Code** coding agent through Nexotao access and pay in Rupiah. Just
+point Claude Code at the Nexotao base URL and use your API key — no foreign credit
+card.
+
+## Config generator
+
+Pick a model and paste your API key; copy the result into
+`~/.claude/settings.json`, or use the `export` version for your shell.
+
+<ClaudeCodeGenerator />
+
+## Configuration notes
+
+- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
+- The background task (haiku) is mapped to `claude-sonnet-4-6` because the haiku
+  tier is not available.
+- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
+
+## Steps per operating system
+
+### macOS / Linux (Ubuntu)
+
+1. Install Claude Code (see Anthropic's official documentation).
+2. Save the config to `~/.claude/settings.json` from the generator above, **or**
+   paste the `export` block into `~/.zshrc` / `~/.bashrc`:
+
+   ```bash
+   source ~/.zshrc   # or ~/.bashrc
+   ```
+3. Run `claude` from your project directory.
+
+### Windows
+
+1. Install Claude Code.
+2. Create a `settings.json` file at `%USERPROFILE%\.claude\settings.json` with the
+   contents from the generator, or set environment variables via PowerShell:
+
+   ```powershell
+   setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
+   setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
+   ```
+3. Open a new terminal and run `claude`.
+
+Claude Code usage is deducted from your Rupiah balance, just like a regular text
+call. See [Billing & Pricing](/penagihan).
