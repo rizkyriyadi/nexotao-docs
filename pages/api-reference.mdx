@@ -1,0 +1,56 @@
+---
+title: API Reference
+description: Daftar endpoint Nexotao, header respons (X-Cost-Rp, X-Request-Id), dan kode error (400, 401, 402, 429).
+---
+
+# API Reference
+
+Base URL: `https://api.nexotao.com`. Autentikasi lewat API key — lihat
+[Autentikasi](/autentikasi).
+
+## Endpoint
+
+| Method | Path | Fungsi |
+| --- | --- | --- |
+| `GET` | `/models` | Katalog model aktif (publik, tanpa key) |
+| `POST` | `/v1/messages` | Chat format Anthropic |
+| `POST` | `/v1/chat/completions` | Chat format OpenAI |
+| `POST` | `/v1/images/generations` | Generate gambar |
+| `POST` | `/v1/audio/transcriptions` | Transcribe audio (multipart) |
+
+## Header respons
+
+Setiap permintaan berbayar mengembalikan:
+
+| Header | Arti |
+| --- | --- |
+| `X-Cost-Rp` | Biaya aktual permintaan dalam Rupiah |
+| `X-Request-Id` | Id permintaan untuk pelacakan |
+
+## Kode error
+
+| Status | Arti | Tindakan |
+| --- | --- | --- |
+| `400` | Permintaan tidak valid | Periksa body/parameter |
+| `401` | API key salah atau dicabut | Buat / pakai key yang aktif |
+| `402` | Saldo kurang | Top-up saldo Rupiah |
+| `429` | Terlalu banyak permintaan | Coba lagi dengan backoff |
+
+Body error berformat JSON, mis.:
+
+```json
+{ "error": "insufficient balance" }
+```
+
+## GET /models
+
+Mengembalikan daftar model aktif beserta harga jual (tanpa data biaya internal).
+Dipakai oleh tabel harga live di halaman [Penagihan](/penagihan) dan
+[Model & Harga](/model-harga).
+
+```bash
+curl https://api.nexotao.com/models
+```
+
+Setiap item memuat: `model`, `display_name`, `tier`, `provider`, `supports_vision`,
+`modality`, dan kolom harga `*_micro` (micro-rupiah; 1 Rp = 1.000.000 micro).

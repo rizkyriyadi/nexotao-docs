@@ -1,0 +1,40 @@
+---
+title: Pengantar
+description: Nexotao memberi akses API model AI (Claude, GPT, DeepSeek), generate gambar, dan transcribe dengan satu saldo Rupiah. Kompatibel Anthropic & OpenAI.
+---
+
+# Pengantar Nexotao
+
+Nexotao adalah reseller akses model AI. Dengan **satu akun dan satu saldo Rupiah**,
+kamu bisa memakai banyak model top untuk teks, gambar, dan transcribe — lewat web
+chat, API, atau Claude Code. Tanpa kartu kredit luar negeri, tanpa langganan.
+
+## Cara kerja
+
+1. Isi saldo Rupiah lewat QRIS.
+2. Buat API key di dashboard.
+3. Panggil endpoint Nexotao dengan SDK yang sudah kamu kenal — biaya dipotong dari
+   saldo sesuai pemakaian.
+
+## Base URL
+
+```
+https://api.nexotao.com
+```
+
+## Kompatibel Anthropic & OpenAI
+
+Nexotao mengekspos endpoint yang kompatibel dengan kedua format, jadi kamu cukup
+mengganti base URL dan API key pada tool yang sudah ada:
+
+- **Anthropic** — `POST /v1/messages`
+- **OpenAI** — `POST /v1/chat/completions`
+- **Generate gambar** — `POST /v1/images/generations`
+- **Transcribe** — `POST /v1/audio/transcriptions`
+
+## Langkah berikutnya
+
+- [Quickstart](/quickstart) — dari daftar sampai request pertama.
+- [Autentikasi](/autentikasi) — API key dan header.
+- [Penagihan & Harga](/penagihan) — sistem saldo Rupiah per modality.
+- [Claude Code](/claude-code) — pakai coding agent Claude lewat Nexotao.

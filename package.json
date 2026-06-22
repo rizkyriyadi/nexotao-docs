@@ -1,0 +1,23 @@
+{
+  "name": "nexotao-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dokumentasi publik Nexotao",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^14.2.5",
+    "nextra": "^3.3.1",
+    "nextra-theme-docs": "^3.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "@types/react": "^18.3.3",
+    "typescript": "^5.5.4"
+  }
+}

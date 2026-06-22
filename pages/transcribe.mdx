@@ -1,0 +1,70 @@
+---
+title: Transcribe
+description: Ubah audio jadi teks lewat /v1/audio/transcriptions (multipart). Model gpt-4o-transcribe, mini, atau whisper. Penagihan per token audio atau per menit.
+---
+
+# Transcribe
+
+Ubah audio menjadi teks lewat endpoint kompatibel OpenAI. Tiga model:
+`gpt-4o-transcribe` (paling akurat), `gpt-4o-mini-transcribe` (lebih murah), dan
+`whisper` (ditagih per menit).
+
+```
+POST https://api.nexotao.com/v1/audio/transcriptions   (multipart/form-data)
+```
+
+## Contoh
+
+```bash
+curl https://api.nexotao.com/v1/audio/transcriptions \
+  -H "Authorization: Bearer sk-nexo-..." \
+  -F file=@rapat.mp3 \
+  -F model=gpt-4o-transcribe \
+  -F language=id
+```
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+with open("rapat.mp3", "rb") as f:
+    t = client.audio.transcriptions.create(
+        model="gpt-4o-transcribe",
+        file=f,
+        language="id",
+    )
+print(t.text)
+```
+
+```javascript
+import OpenAI from "openai"
+import fs from "fs"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const t = await client.audio.transcriptions.create({
+  model: "gpt-4o-transcribe",
+  file: fs.createReadStream("rapat.mp3"),
+  language: "id",
+})
+console.log(t.text)
+```
+
+## Parameter & batas file
+
+| Parameter | Wajib | Keterangan |
+| --- | --- | --- |
+| `file` | ya | berkas audio (mp3, wav, m4a, webm, mp4, mpeg, mpga, ogg, flac) |
+| `model` | ya | `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, atau `whisper` |
+| `language` | tidak | kode ISO, mis. `id` untuk Indonesia — mempercepat & mempertajam hasil |
+
+Ukuran maksimum berkas: **25 MB**.
+
+## Penagihan
+
+- `gpt-4o-transcribe` / `mini`: per token audio + token teks keluaran.
+- `whisper`: per menit durasi audio.
+
+Tarif persis ada di [Model & Harga](/model-harga). Saldo dipotong setelah transkrip
+selesai.

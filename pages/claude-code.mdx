@@ -1,0 +1,54 @@
+---
+title: Claude Code
+description: Pakai coding agent Claude Code lewat Nexotao dan bayar pakai Rupiah. Langkah per sistem operasi plus generator config settings.json interaktif.
+---
+
+import { ClaudeCodeGenerator } from "../components/claude-code-generator"
+
+# Claude Code
+
+Jalankan coding agent **Claude Code** lewat akses Nexotao dan bayar pakai Rupiah.
+Cukup arahkan Claude Code ke base URL Nexotao dan pakai API key-mu — tanpa kartu
+kredit luar negeri.
+
+## Generator config
+
+Pilih model dan tempel API key; salin hasilnya ke `~/.claude/settings.json`, atau
+pakai versi `export` untuk shell.
+
+<ClaudeCodeGenerator />
+
+## Catatan konfigurasi
+
+- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
+- Background task (haiku) dipetakan ke `claude-sonnet-4-6` karena tier haiku tidak
+  tersedia.
+- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` agar kompatibel.
+
+## Langkah per sistem operasi
+
+### macOS / Linux (Ubuntu)
+
+1. Install Claude Code (lihat dokumentasi resmi Anthropic).
+2. Simpan config di `~/.claude/settings.json` dari generator di atas, **atau** tempel
+   blok `export` ke `~/.zshrc` / `~/.bashrc`:
+
+   ```bash
+   source ~/.zshrc   # atau ~/.bashrc
+   ```
+3. Jalankan `claude` dari direktori proyekmu.
+
+### Windows
+
+1. Install Claude Code.
+2. Buat berkas `settings.json` di `%USERPROFILE%\.claude\settings.json` dengan isi
+   dari generator, atau set environment variable lewat PowerShell:
+
+   ```powershell
+   setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
+   setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
+   ```
+3. Buka terminal baru lalu jalankan `claude`.
+
+Biaya pemakaian Claude Code dipotong dari saldo Rupiah, sama seperti panggilan teks
+biasa. Lihat [Penagihan & Harga](/penagihan).

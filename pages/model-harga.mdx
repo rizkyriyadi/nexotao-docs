@@ -1,0 +1,24 @@
+---
+title: Model & Harga
+description: Daftar semua model aktif Nexotao per modality (teks, gambar, transcribe) beserta tarif Rupiah, live dari GET /models.
+---
+
+import { LivePricing } from "../components/live-pricing"
+
+# Model & Harga
+
+Semua model aktif, dikelompokkan per modality, dengan tarif Rupiah sesuai satuan
+masing-masing. Diambil langsung dari `GET /models` — selalu sinkron dengan katalog
+live, tanpa harga yang di-hardcode.
+
+<LivePricing />
+
+## Cara membaca tarif
+
+- **Teks** — tarif per 1 juta token, terpisah untuk input dan output.
+- **Gambar** — tarif per megapiksel; biaya = (lebar × tinggi / 1jt) × tarif × jumlah
+  gambar.
+- **Transcribe** — `gpt-4o` ditagih per token audio + token teks keluaran; `whisper`
+  per menit.
+
+Detail penagihan ada di [Penagihan & Harga](/penagihan).

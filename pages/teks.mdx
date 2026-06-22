@@ -1,0 +1,71 @@
+---
+title: Teks & Chat
+description: Endpoint teks Nexotao — /v1/messages (Anthropic) dan /v1/chat/completions (OpenAI), termasuk streaming SSE. Contoh curl, Python, dan Node.
+---
+
+# Teks & Chat
+
+Dua format didukung untuk percakapan teks. Pilih yang cocok dengan tool-mu.
+
+## Anthropic — `POST /v1/messages`
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 512,
+    "messages": [{"role": "user", "content": "Jelaskan apa itu QRIS"}]
+  }'
+```
+
+## OpenAI — `POST /v1/chat/completions`
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Jelaskan apa itu QRIS"}],
+)
+print(resp.choices[0].message.content)
+```
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create({
+  model: "gpt-5-mini",
+  messages: [{ role: "user", content: "Jelaskan apa itu QRIS" }],
+})
+console.log(resp.choices[0].message.content)
+```
+
+## Streaming (SSE)
+
+Set `stream: true` untuk menerima jawaban token demi token lewat Server-Sent Events.
+
+```python
+stream = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Tulis pantun singkat"}],
+    stream=True,
+)
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end="", flush=True)
+```
+
+## Vision
+
+Model yang mendukung penglihatan bisa menerima gambar pada pesan (lihat penanda
+vision di [Model & Harga](/model-harga)). Biaya tetap dihitung per token.
+
+Pemakaian teks ditagih per token; lihat [Penagihan & Harga](/penagihan).

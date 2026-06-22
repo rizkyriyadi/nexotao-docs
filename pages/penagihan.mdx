@@ -1,0 +1,44 @@
+---
+title: Penagihan & Harga
+description: Sistem token-based saldo Rupiah. Satuan biaya per modality (teks per token, gambar per megapiksel, transcribe per token atau menit). Tabel harga live dari GET /models.
+---
+
+import { LivePricing } from "../components/live-pricing"
+
+# Penagihan & Harga
+
+Nexotao memakai sistem **token-based** dengan **satu saldo Rupiah**. Tidak ada kredit
+terpisah — semua modality (teks, gambar, transcribe) memotong dari saldo yang sama.
+
+## Satuan biaya per modality
+
+| Modality | Dasar penagihan |
+| --- | --- |
+| Teks / Chat | per token (input dan output) |
+| Generate Gambar | per megapiksel × jumlah gambar berhasil |
+| Transcribe (gpt-4o) | per token audio + token teks keluaran |
+| Transcribe (whisper) | per menit durasi audio |
+
+Semua pembulatan ke atas agar pemakaian kecil tidak pernah menjadi nol. Khusus
+gambar, hanya gambar yang **berhasil** dibuat yang ditagih.
+
+## Header biaya
+
+Setiap respons menyertakan:
+
+- `X-Cost-Rp` — biaya aktual permintaan dalam Rupiah.
+- `X-Request-Id` — id permintaan untuk pelacakan.
+
+## Promo
+
+Tarif Nexotao saat ini **jauh di bawah harga official**. Anggap ini harga promo —
+isi saldo selagi berlaku.
+
+## Harga live
+
+Tabel berikut diambil langsung dari katalog live `GET /models` (hanya harga jual):
+
+<LivePricing />
+
+Lihat juga [Model & Harga](/model-harga) untuk daftar lengkap, atau
+[nexotao.com/harga](https://nexotao.com/harga).

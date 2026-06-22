@@ -1,0 +1,39 @@
+---
+title: Autentikasi
+description: API key Nexotao (sk-nexo-...), cara mengirim lewat header Authorization atau x-api-key, dan praktik keamanan key.
+---
+
+# Autentikasi
+
+Semua permintaan ke API Nexotao butuh **API key** berbentuk `sk-nexo-...`. Buat dan
+kelola key di dashboard pada menu **API Keys**.
+
+## Mengirim API key
+
+Dua cara, tergantung format yang kamu pakai:
+
+- **Format OpenAI** (`/v1/chat/completions`, `/v1/images/generations`,
+  `/v1/audio/transcriptions`): pakai header `Authorization: Bearer`.
+
+  ```bash
+  -H "Authorization: Bearer sk-nexo-..."
+  ```
+
+- **Format Anthropic** (`/v1/messages`): pakai header `x-api-key`.
+
+  ```bash
+  -H "x-api-key: sk-nexo-..."
+  ```
+
+## Keamanan key
+
+- Perlakukan key seperti kata sandi. Jangan tempel di kode klien (browser, aplikasi
+  mobile) atau repo publik.
+- Simpan di environment variable atau secret manager di sisi server.
+- Kalau key bocor, **revoke** di dashboard dan buat yang baru. Key yang dicabut
+  langsung berhenti berlaku.
+- Satu akun boleh punya beberapa key — pisahkan per aplikasi agar mudah dicabut
+  sebagian.
+
+Key yang salah atau dicabut menghasilkan `401 Unauthorized`. Lihat
+[API Reference](/api-reference) untuk daftar kode error.

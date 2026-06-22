@@ -1,0 +1,72 @@
+---
+title: Quickstart
+description: Dari daftar, top-up QRIS, buat API key, sampai request pertama ke Nexotao. Contoh siap-tempel curl, Python, dan Node.
+---
+
+# Quickstart
+
+Empat langkah dari nol sampai jalan.
+
+## 1. Daftar
+
+Buat akun gratis di [nexotao.com](https://nexotao.com). Cukup email dan kata sandi.
+
+## 2. Top-up saldo (QRIS)
+
+Isi saldo Rupiah lewat QRIS, mulai Rp 10.000. Saldo tidak kedaluwarsa dan dipotong
+sesuai pemakaian — tanpa langganan.
+
+## 3. Buat API key
+
+Di dashboard, buka **API Keys** lalu buat key baru. Bentuknya `sk-nexo-...`. Simpan
+baik-baik; key hanya ditampilkan penuh sekali.
+
+## 4. Request pertama
+
+Format Anthropic (`/v1/messages`):
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "Halo"}]
+  }'
+```
+
+Format OpenAI (`/v1/chat/completions`):
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Halo"}],
+)
+print(resp.choices[0].message.content)
+```
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create({
+  model: "gpt-5-mini",
+  messages: [{ role: "user", content: "Halo" }],
+})
+console.log(resp.choices[0].message.content)
+```
+
+Setiap respons menyertakan header `X-Cost-Rp` (biaya aktual dalam Rupiah) dan
+`X-Request-Id`. Lihat [Penagihan & Harga](/penagihan) untuk detail.
+
+## Selanjutnya
+
+- [Teks & Chat](/teks) · [Generate Gambar](/gambar) · [Transcribe](/transcribe)
+- [Claude Code](/claude-code) — generator config siap-pakai.

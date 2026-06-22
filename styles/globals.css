@@ -1,0 +1,92 @@
+/* Override Nextra theme: monokrom (#09090B) + aksen ice-blue (#BAE6FD). */
+:root {
+  --nextra-primary-hue: 199deg;
+  --nextra-primary-saturation: 90%;
+}
+
+html.dark body {
+  background-color: #09090b;
+  color: #fafafa;
+}
+
+/* Header & sidebar permukaan sedikit di atas bg utama, border halus. */
+html.dark .nextra-nav-container-blur {
+  background-color: rgba(9, 9, 11, 0.8);
+}
+
+/* Link & elemen aktif memakai ice-blue. */
+html.dark a:hover {
+  color: #bae6fd;
+}
+html.dark .nextra-toc a:hover,
+html.dark aside a:hover {
+  color: #bae6fd;
+}
+
+/* Tabel rapi untuk konten harga. */
+.docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.docs-table th,
+.docs-table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.docs-table th {
+  font-weight: 500;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+.docs-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.docs-group-label {
+  color: #bae6fd;
+  font-weight: 500;
+  font-size: 0.85rem;
+  margin: 1.5rem 0 0.25rem;
+}
+
+/* Kartu input/output untuk generator & komponen. */
+.nx-field {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fafafa;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+.nx-field:focus {
+  border-color: rgba(186, 230, 253, 0.5);
+}
+.nx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #fafafa;
+  color: #09090b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.nx-btn.secondary {
+  background: transparent;
+  color: #fafafa;
+}
+.nx-note {
+  color: #a1a1aa;
+  font-size: 0.8rem;
+}

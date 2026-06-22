@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+
+Sitemap: https://docs.nexotao.com/sitemap.xml
+Host: https://docs.nexotao.com
