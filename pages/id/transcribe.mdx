@@ -1,13 +1,12 @@
 ---
 title: Transcribe
-description: Ubah audio jadi teks lewat /v1/audio/transcriptions (multipart). Model gpt-4o-transcribe, mini, atau whisper. Penagihan per token audio atau per menit.
+description: Ubah audio jadi teks lewat /v1/audio/transcriptions (multipart) dengan gpt-4o-transcribe. Penagihan per token audio.
 ---
 
 # Transcribe
 
-Ubah audio menjadi teks lewat endpoint kompatibel OpenAI. Tiga model:
-`gpt-4o-transcribe` (paling akurat), `gpt-4o-mini-transcribe` (lebih murah), dan
-`whisper` (ditagih per menit).
+Ubah audio menjadi teks lewat endpoint kompatibel OpenAI dengan model
+`gpt-4o-transcribe`.
 
 ```
 POST https://api.nexotao.com/v1/audio/transcriptions   (multipart/form-data)
@@ -56,15 +55,14 @@ console.log(t.text)
 | Parameter | Wajib | Keterangan |
 | --- | --- | --- |
 | `file` | ya | berkas audio (mp3, wav, m4a, webm, mp4, mpeg, mpga, ogg, flac) |
-| `model` | ya | `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, atau `whisper` |
+| `model` | ya | `gpt-4o-transcribe` |
 | `language` | tidak | kode ISO, mis. `id` untuk Indonesia — mempercepat & mempertajam hasil |
 
 Ukuran maksimum berkas: **25 MB**.
 
 ## Penagihan
 
-- `gpt-4o-transcribe` / `mini`: per token audio + token teks keluaran.
-- `whisper`: per menit durasi audio.
+`gpt-4o-transcribe` ditagih per token audio + token teks keluaran.
 
 Tarif persis ada di [Model & Harga](/model-harga). Saldo dipotong setelah transkrip
 selesai.

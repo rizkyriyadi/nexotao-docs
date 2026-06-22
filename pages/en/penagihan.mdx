@@ -17,8 +17,7 @@ balance.
 | --- | --- |
 | Text / Chat | per token (input and output) |
 | Image Generation | per megapixel × number of successful images |
-| Transcribe (gpt-4o) | per audio token + output text tokens |
-| Transcribe (whisper) | per minute of audio duration |
+| Transcribe (gpt-4o-transcribe) | per audio token + output text tokens |
 
 Everything is rounded up so small usage never becomes zero. For images, only
 images that are **successfully** generated are billed.

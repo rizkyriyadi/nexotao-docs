@@ -1,13 +1,12 @@
 ---
 title: Transcribe
-description: Turn audio into text via /v1/audio/transcriptions (multipart). gpt-4o-transcribe, mini, or whisper models. Billing per audio token or per minute.
+description: Turn audio into text via /v1/audio/transcriptions (multipart) with gpt-4o-transcribe. Billing per audio token.
 ---
 
 # Transcribe
 
-Turn audio into text via the OpenAI-compatible endpoint. Three models:
-`gpt-4o-transcribe` (most accurate), `gpt-4o-mini-transcribe` (cheaper), and
-`whisper` (billed per minute).
+Turn audio into text via the OpenAI-compatible endpoint with the
+`gpt-4o-transcribe` model.
 
 ```
 POST https://api.nexotao.com/v1/audio/transcriptions   (multipart/form-data)
@@ -56,15 +55,14 @@ console.log(t.text)
 | Parameter | Required | Description |
 | --- | --- | --- |
 | `file` | yes | audio file (mp3, wav, m4a, webm, mp4, mpeg, mpga, ogg, flac) |
-| `model` | yes | `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, or `whisper` |
+| `model` | yes | `gpt-4o-transcribe` |
 | `language` | no | ISO code, e.g. `id` for Indonesian — speeds up and sharpens results |
 
 Maximum file size: **25 MB**.
 
 ## Billing
 
-- `gpt-4o-transcribe` / `mini`: per audio token + output text tokens.
-- `whisper`: per minute of audio duration.
+`gpt-4o-transcribe` is billed per audio token + output text tokens.
 
 Exact rates are in [Models & Pricing](/model-harga). The balance is deducted after
 the transcript is complete.

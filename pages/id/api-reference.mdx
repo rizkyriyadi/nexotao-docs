@@ -12,9 +12,11 @@ Base URL: `https://api.nexotao.com`. Autentikasi lewat API key — lihat
 
 | Method | Path | Fungsi |
 | --- | --- | --- |
-| `GET` | `/models` | Katalog model aktif (publik, tanpa key) |
-| `POST` | `/v1/messages` | Chat format Anthropic |
-| `POST` | `/v1/chat/completions` | Chat format OpenAI |
+| `GET` | `/models` | Katalog harga publik untuk situs (tanpa key) |
+| `GET` | `/v1/models` | Daftar model format OpenAI (butuh key) — dipakai n8n dsb. |
+| `POST` | `/v1/chat/completions` | Chat format OpenAI (GPT, DeepSeek, dan Claude) |
+| `POST` | `/v1/responses` | Chat format OpenAI Responses (GPT, DeepSeek, dan Claude) |
+| `POST` | `/v1/messages` | Chat format Anthropic (model Claude) |
 | `POST` | `/v1/images/generations` | Generate gambar |
 | `POST` | `/v1/audio/transcriptions` | Transcribe audio (multipart) |
 
