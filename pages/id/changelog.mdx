@@ -8,6 +8,45 @@ description: Perubahan penting pada API dan katalog model Nexotao, beserta catat
 Perubahan penting pada API dan katalog model Nexotao. Perubahan yang memutus
 kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplisit.
 
+## 2026-06-25 — Context window dipublikasikan: baca angka aslinya, tanpa truncation diam-diam
+
+Setiap model live kini mempublikasikan `context_window` yang terverifikasi, jadi
+klienmu kalibrasi ke window yang **sebenarnya** alih-alih menebak 200k — dan kami
+tidak pernah membuang token diam-diam di belakangmu.
+
+### Apa yang baru
+
+- **`context_window` kini dipublikasikan per model** di `GET /models` (tanpa key)
+  maupun `GET /v1/models`. Ini jumlah token, dan inilah sumber kebenarannya —
+  selalu sinkron dengan yang benar-benar dilayani gateway.
+- **Window yang dipublikasikan saat ini:**
+  - `claude-opus-4-8` → **350.000 token** — lebih besar dari **200k** lama yang
+    masih diasumsikan banyak klien secara default.
+  - `DeepSeek-V4-Pro` → **128.000 token**.
+
+### Kenapa ini penting
+
+Sebagian endpoint **memotong (truncate) context-mu diam-diam** saat percakapan
+melebihi window: agent tetap jalan tapi diam-diam kehilangan pesan-pesan paling
+awal, dan kamu baru sadar saat jawabannya memburuk. **Kami tidak begitu.** Saat
+prompt memang melebihi window, kamu mendapat error eksplisit — bukan pembuangan
+diam-diam. Dan karena kami mempublikasikan angka aslinya, klien yang terkalibrasi
+(misalnya **Claude Code**) melakukan kompaksi pada waktu yang *tepat* alih-alih
+tersandung lebih awal di tebakan 200k.
+
+```bash
+# Baca window aslinya — tanpa key
+curl https://api.nexotao.com/models   # tiap model membawa context_window
+```
+
+### Yang perlu kamu lakukan
+
+1. **Baca `context_window` dari API** alih-alih menanam 200k (atau mengasumsikan
+   1M — window Opus yang dipublikasikan adalah 350k, tidak lebih).
+2. **Biarkan klienmu melakukan kompaksi.** Lihat panduan
+   [Context Window & Kompaksi](/id/context-window) untuk mengkalibrasi Claude Code
+   dan menjaga sesi panjang tetap jalan.
+
 ## 2026-06-24 — Penyederhanaan katalog: dua model, id lama dalam masa tenggang 30 hari
 
 Kami menyederhanakan katalog model live menjadi dua model. Jika kode Anda memakai

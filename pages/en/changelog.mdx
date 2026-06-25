@@ -8,6 +8,45 @@ description: Notable changes to the Nexotao API and model catalog, with migratio
 Notable changes to the Nexotao API and model catalog. Breaking changes and
 billing-affecting changes are called out explicitly.
 
+## 2026-06-25 — Published context window: read the real number, no silent truncation
+
+Every live model now publishes a verified `context_window`, so your client
+calibrates to the **true** window instead of hard-guessing 200k — and we never
+silently drop tokens behind your back.
+
+### What's new
+
+- **`context_window` is now published per model** on both `GET /models` (no key)
+  and `GET /v1/models`. It's a token count, and it's the source of truth — always
+  in sync with what the gateway actually serves.
+- **Current published windows:**
+  - `claude-opus-4-8` → **350,000 tokens** — larger than the legacy **200k** many
+    clients still assume by default.
+  - `DeepSeek-V4-Pro` → **128,000 tokens**.
+
+### Why it matters
+
+Some endpoints **silently truncate** your context when a conversation outgrows the
+window: the agent keeps running but quietly loses the earliest messages, and you
+only find out when the answers get worse. **We don't do that.** When a prompt
+genuinely exceeds the window you get an explicit error — not a silent drop. And
+because we publish the real number, a calibrated client (for example **Claude
+Code**) compacts at the *right* time instead of tripping early against a guessed
+200k.
+
+```bash
+# Read the real window — no key needed
+curl https://api.nexotao.com/models   # each model carries context_window
+```
+
+### What you should do
+
+1. **Read `context_window` from the API** instead of hard-coding 200k (or assuming
+   1M — the published Opus window is 350k, not more).
+2. **Let your client compact.** See the
+   [Context Window & Compaction](/en/context-window) guide to calibrate Claude Code
+   and keep long sessions going.
+
 ## 2026-06-24 — Catalog trim: two models, deprecated ids on a 30-day grace window
 
 We've trimmed the live model catalog to two models. If your code references any
