@@ -1,0 +1,119 @@
+---
+title: Context Window & Compaction
+description: How Nexotao's context window works, how to calibrate your client (Claude Code) to it, and what to do when a prompt is too long. Use compaction to keep long sessions going.
+---
+
+# Context Window & Compaction
+
+Long sessions — especially with coding agents like **Claude Code** — keep growing
+the conversation until it no longer fits the model's **context window**. This page
+explains the window we publish, how to calibrate your client to it, and how to keep
+a session going with **compaction** instead of hitting an error.
+
+## Why context windows exist
+
+Every model can only read a limited number of tokens at once — its **context
+window**. The whole conversation (your messages, the model's replies, tool output,
+and files the agent has read) counts against it. When the running total approaches
+the window, the next request can be rejected as *prompt too long*.
+
+### Our published value: read it from the API
+
+We publish the real, verified window for each live model — **don't hard-guess
+200k**. Read it from the model list so your client calibrates to the true number:
+
+```bash
+# Public catalog (no key) — includes context_window per model
+curl https://api.nexotao.com/models
+
+# OpenAI-format list (requires key) — used by clients like Claude Code, n8n
+curl https://api.nexotao.com/v1/models \
+  -H "Authorization: Bearer sk-nexo-..."
+```
+
+Each model object carries a `context_window` field (token count). Treat that number
+as the source of truth — it is always in sync with what the gateway actually serves.
+
+> **Honest note.** Today the gateway serves the **standard Claude window**, not a
+> 1M-token window. Use the `context_window` value from `/models` — do not assume 1M.
+> There is also a per-request body limit (~1 MiB of JSON, roughly 250k tokens), so a
+> single oversized message will be rejected even if the window itself is larger. Keep
+> individual requests well under that, and use compaction for long histories.
+
+## Client-side compaction
+
+**Compaction** replaces a long history with a shorter summary so the session can
+continue. Clients in the Claude Code family do this for you:
+
+- **Autocompact** — as the conversation nears the context window, the client
+  automatically summarizes older turns and continues. Because Claude Code calibrates
+  to the standard Claude window (the same window our gateway serves), its autocompact
+  threshold lines up with our limit out of the box — it compacts at the right point
+  rather than tripping early or too late.
+- **`/compact`** — run this command anytime to compact **manually**. Useful before a
+  big task, or right after the agent has read a lot of files. You can add a hint,
+  e.g. `/compact keep the API design decisions and the failing test`.
+- **`/clear`** — start a fresh context when the current task is done and you don't
+  need the history. The cheapest way to reclaim the full window.
+
+### Point the client at Nexotao and the right models
+
+So compaction calibrates correctly, point the client at our base URL and the live
+model ids:
+
+| Setting | Value |
+| --- | --- |
+| `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` |
+| `ANTHROPIC_AUTH_TOKEN` | your `sk-nexo-...` API key |
+| `ANTHROPIC_MODEL` | `claude-opus-4-8` (main model) |
+| `ANTHROPIC_SMALL_FAST_MODEL` | `claude-opus-4-8` (background tasks) |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
+
+The sonnet and haiku tiers are not available, so the small/fast model is mapped to
+`claude-opus-4-8` as well. See [Claude Code](/claude-code) for the full config and
+the interactive generator.
+
+## Per-client setup
+
+### Claude Code (and the Claude Code family)
+
+1. Set the variables above (or use the generator on the [Claude Code](/claude-code)
+   page to produce `~/.claude/settings.json`).
+2. **Window:** nothing extra to set — Claude Code uses the standard Claude window,
+   which matches what our gateway serves, so autocompact and `/compact` work as-is.
+   To confirm the exact number, check `context_window` from `/v1/models`.
+3. Run `claude` and use `/compact` / `/clear` to manage long sessions.
+
+### Other OpenAI-compatible clients
+
+For tools that speak the OpenAI format (n8n, scripts, custom apps):
+
+- Base URL: `https://api.nexotao.com/v1`
+- Models: `claude-opus-4-8` (Anthropic-style via `/v1/messages`) or
+  `DeepSeek-V4-Pro` (OpenAI-style via `/v1/chat/completions`).
+- These clients usually don't compact automatically — keep your own history short:
+  trim or summarize old turns before each call, and read `context_window` from
+  `/v1/models` to know your budget.
+
+## When a prompt exceeds the window
+
+If a request is too large, our gateway returns an **honest upstream error** (not a
+generic 502), so your client can react:
+
+| Status | Meaning | What to do |
+| --- | --- | --- |
+| `400` | The prompt exceeds the context window (or the ~1 MiB body limit) | Compact, summarize, or start fresh — see below |
+| `429` | Rate limited upstream | Back off and retry; we forward `Retry-After` when present |
+
+Recovery options, easiest first:
+
+1. **Compact** — run `/compact` (Claude Code) to summarize the history and continue
+   the same task.
+2. **Start a fresh session** — `/clear`, or open a new chat, when the current task is
+   done. Paste only the summary you still need.
+3. **Split the input** — if a single file or paste is the problem, send it in smaller
+   chunks rather than one oversized message.
+
+Usage is billed from your Rupiah balance the same way regardless of how you manage
+context — see [Billing & Pricing](/penagihan). More on error codes is in the
+[API Reference](/api-reference); common questions are in the [FAQ](/faq).

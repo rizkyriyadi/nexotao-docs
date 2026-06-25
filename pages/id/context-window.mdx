@@ -1,0 +1,121 @@
+---
+title: Context Window & Kompaksi
+description: Cara kerja context window Nexotao, cara mengkalibrasi klien (Claude Code) ke window itu, dan apa yang harus dilakukan saat prompt terlalu panjang. Pakai kompaksi agar sesi panjang tetap jalan.
+---
+
+# Context Window & Kompaksi
+
+Sesi panjang — apalagi dengan coding agent seperti **Claude Code** — terus
+menumpuk percakapan sampai tidak lagi muat di **context window** model. Halaman ini
+menjelaskan window yang kami publikasikan, cara mengkalibrasi klienmu ke window itu,
+dan cara menjaga sesi tetap jalan dengan **kompaksi** alih-alih kena error.
+
+## Kenapa context window ada
+
+Setiap model hanya bisa membaca sejumlah token terbatas sekaligus — itu **context
+window**-nya. Seluruh percakapan (pesanmu, balasan model, output tool, dan file yang
+sudah dibaca agent) dihitung ke dalamnya. Saat totalnya mendekati window, request
+berikutnya bisa ditolak dengan pesan *prompt too long*.
+
+### Nilai yang kami publikasikan: baca dari API
+
+Kami mempublikasikan window asli yang terverifikasi untuk tiap model aktif —
+**jangan menebak 200k**. Baca dari daftar model agar klienmu kalibrasi ke angka yang
+benar:
+
+```bash
+# Katalog publik (tanpa key) — termasuk context_window per model
+curl https://api.nexotao.com/models
+
+# Daftar format OpenAI (butuh key) — dipakai klien seperti Claude Code, n8n
+curl https://api.nexotao.com/v1/models \
+  -H "Authorization: Bearer sk-nexo-..."
+```
+
+Tiap objek model membawa field `context_window` (jumlah token). Jadikan angka itu
+sumber kebenaran — selalu sinkron dengan apa yang benar-benar dilayani gateway.
+
+> **Catatan jujur.** Saat ini gateway melayani **window Claude standar**, bukan window
+> 1 juta token. Pakai nilai `context_window` dari `/models` — jangan asumsikan 1M.
+> Ada juga batas ukuran per-request (~1 MiB JSON, kira-kira 250k token), jadi satu
+> pesan yang kelewat besar tetap ditolak walau window-nya lebih besar. Jaga tiap
+> request jauh di bawah batas itu, dan pakai kompaksi untuk riwayat yang panjang.
+
+## Kompaksi sisi klien
+
+**Kompaksi** mengganti riwayat panjang dengan ringkasan yang lebih pendek supaya sesi
+bisa lanjut. Klien keluarga Claude Code melakukannya untukmu:
+
+- **Autocompact** — saat percakapan mendekati context window, klien otomatis
+  meringkas giliran lama lalu lanjut. Karena Claude Code kalibrasi ke window Claude
+  standar (window yang sama yang dilayani gateway kami), ambang autocompact-nya pas
+  dengan batas kami secara default — kompaksi terjadi di titik yang tepat, tidak
+  kepagian atau kesiangan.
+- **`/compact`** — jalankan perintah ini kapan saja untuk kompaksi **manual**. Berguna
+  sebelum tugas besar, atau tepat setelah agent membaca banyak file. Bisa diberi
+  petunjuk, mis. `/compact simpan keputusan desain API dan test yang gagal`.
+- **`/clear`** — mulai context baru saat tugas sekarang selesai dan riwayatnya tak lagi
+  dibutuhkan. Cara termurah merebut kembali seluruh window.
+
+### Arahkan klien ke Nexotao dan model yang tepat
+
+Agar kompaksi kalibrasi dengan benar, arahkan klien ke base URL kami dan id model
+yang aktif:
+
+| Setting | Nilai |
+| --- | --- |
+| `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` |
+| `ANTHROPIC_AUTH_TOKEN` | API key `sk-nexo-...` milikmu |
+| `ANTHROPIC_MODEL` | `claude-opus-4-8` (model utama) |
+| `ANTHROPIC_SMALL_FAST_MODEL` | `claude-opus-4-8` (background task) |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
+
+Tier sonnet dan haiku tidak tersedia, jadi model small/fast juga dipetakan ke
+`claude-opus-4-8`. Lihat [Claude Code](/claude-code) untuk config lengkap dan
+generator interaktifnya.
+
+## Setup per klien
+
+### Claude Code (dan keluarga Claude Code)
+
+1. Set variabel di atas (atau pakai generator di halaman [Claude Code](/claude-code)
+   untuk menghasilkan `~/.claude/settings.json`).
+2. **Window:** tidak ada yang perlu diset tambahan — Claude Code memakai window Claude
+   standar, yang sama dengan yang dilayani gateway kami, jadi autocompact dan
+   `/compact` jalan apa adanya. Untuk memastikan angka persisnya, cek `context_window`
+   dari `/v1/models`.
+3. Jalankan `claude` dan pakai `/compact` / `/clear` untuk mengelola sesi panjang.
+
+### Klien OpenAI-compatible lain
+
+Untuk tool yang bicara format OpenAI (n8n, skrip, app sendiri):
+
+- Base URL: `https://api.nexotao.com/v1`
+- Model: `claude-opus-4-8` (gaya Anthropic via `/v1/messages`) atau
+  `DeepSeek-V4-Pro` (gaya OpenAI via `/v1/chat/completions`).
+- Klien begini biasanya tidak kompaksi otomatis — jaga riwayatmu sendiri tetap pendek:
+  pangkas atau ringkas giliran lama sebelum tiap panggilan, dan baca `context_window`
+  dari `/v1/models` untuk tahu budget-mu.
+
+## Saat prompt melebihi window
+
+Kalau request kebesaran, gateway kami mengembalikan **error upstream yang jujur**
+(bukan 502 generic), supaya klienmu bisa bereaksi:
+
+| Status | Arti | Yang harus dilakukan |
+| --- | --- | --- |
+| `400` | Prompt melebihi context window (atau batas body ~1 MiB) | Kompaksi, ringkas, atau mulai baru — lihat di bawah |
+| `429` | Kena rate limit upstream | Mundur lalu coba lagi; kami teruskan `Retry-After` bila ada |
+
+Opsi pemulihan, dari yang termudah:
+
+1. **Kompaksi** — jalankan `/compact` (Claude Code) untuk meringkas riwayat lalu
+   lanjut tugas yang sama.
+2. **Mulai sesi baru** — `/clear`, atau buka chat baru, saat tugas sekarang selesai.
+   Tempel hanya ringkasan yang masih kamu butuhkan.
+3. **Pecah input** — kalau satu file atau paste yang jadi masalah, kirim per potongan
+   kecil alih-alih satu pesan raksasa.
+
+Pemakaian dipotong dari saldo Rupiah dengan cara yang sama apa pun cara kamu mengelola
+context — lihat [Penagihan & Harga](/penagihan). Detail kode error ada di
+[API Reference](/api-reference); pertanyaan umum ada di [FAQ](/faq).
