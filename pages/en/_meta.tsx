@@ -8,13 +8,17 @@ export default {
     title: "Modality",
   },
   teks: "Text & Chat",
-  gambar: "Image Generation",
-  transcribe: "Transcribe",
+  // Image + transcription were cut in the 2-model catalog trim. Hidden from the
+  // sidebar but kept routable so existing inbound links resolve to the retirement
+  // notice instead of a 404.
+  gambar: { display: "hidden", title: "Image Generation" },
+  transcribe: { display: "hidden", title: "Transcribe" },
   "-- integrasi": {
     type: "separator",
     title: "Integrations",
   },
   "claude-code": "Claude Code",
+  "claude-code-rupiah": "Claude Code in Rupiah",
   "-- referensi": {
     type: "separator",
     title: "Reference",

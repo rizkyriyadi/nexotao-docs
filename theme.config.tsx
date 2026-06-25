@@ -82,8 +82,8 @@ const config: DocsThemeConfig = {
     const description =
       frontMatter.description ||
       (isEn
-        ? "Nexotao documentation: access AI model APIs (Claude, GPT, DeepSeek), generate images, and transcribe with a Rupiah balance."
-        : "Dokumentasi Nexotao: akses API model AI (Claude, GPT, DeepSeek), generate gambar, dan transcribe dengan saldo Rupiah.")
+        ? "Nexotao documentation: access AI model APIs (Claude, DeepSeek) with a Rupiah balance."
+        : "Dokumentasi Nexotao: akses API model AI (Claude, DeepSeek) dengan saldo Rupiah.")
     const raw = asPath.split("#")[0].split("?")[0]
     // With Nextra folder-based i18n the path is prefixed with /id or /en; strip it
     // to get the bare slug. ID is served at the root, EN under /en.

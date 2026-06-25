@@ -31,7 +31,7 @@ curl https://api.nexotao.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-sonnet-4-6",
+    "model": "claude-opus-4-8",
     "max_tokens": 256,
     "messages": [{"role": "user", "content": "Halo"}]
   }'
@@ -45,7 +45,7 @@ from openai import OpenAI
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
 resp = client.chat.completions.create(
-    model="gpt-5-mini",
+    model="DeepSeek-V4-Pro",
     messages=[{"role": "user", "content": "Halo"}],
 )
 print(resp.choices[0].message.content)
@@ -57,7 +57,7 @@ import OpenAI from "openai"
 const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
 
 const resp = await client.chat.completions.create({
-  model: "gpt-5-mini",
+  model: "DeepSeek-V4-Pro",
   messages: [{ role: "user", content: "Halo" }],
 })
 console.log(resp.choices[0].message.content)
@@ -68,5 +68,5 @@ Setiap respons menyertakan header `X-Cost-Rp` (biaya aktual dalam Rupiah) dan
 
 ## Selanjutnya
 
-- [Teks & Chat](/teks) · [Generate Gambar](/gambar) · [Transcribe](/transcribe)
+- [Teks & Chat](/teks)
 - [Claude Code](/claude-code) — generator config siap-pakai.

@@ -1,68 +1,13 @@
 ---
-title: Transcribe
-description: Ubah audio jadi teks lewat /v1/audio/transcriptions (multipart) dengan gpt-4o-transcribe. Penagihan per token audio.
+title: Transcribe (dihentikan)
+description: Transcribe audio telah dihentikan dari katalog Nexotao. Nexotao kini hanya teks (Claude, DeepSeek).
 ---
 
-# Transcribe
+# Transcribe — dihentikan
 
-Ubah audio menjadi teks lewat endpoint kompatibel OpenAI dengan model
-`gpt-4o-transcribe`.
+Transcribe audio telah **dihentikan** dari Nexotao. Katalog kini hanya teks —
+[Claude Opus 4.8 dan DeepSeek V4 Pro](/model-harga) — dan endpoint
+`/v1/audio/transcriptions` sudah tidak dilayani.
 
-```
-POST https://api.nexotao.com/v1/audio/transcriptions   (multipart/form-data)
-```
-
-## Contoh
-
-```bash
-curl https://api.nexotao.com/v1/audio/transcriptions \
-  -H "Authorization: Bearer sk-nexo-..." \
-  -F file=@rapat.mp3 \
-  -F model=gpt-4o-transcribe \
-  -F language=id
-```
-
-```python
-from openai import OpenAI
-
-client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
-
-with open("rapat.mp3", "rb") as f:
-    t = client.audio.transcriptions.create(
-        model="gpt-4o-transcribe",
-        file=f,
-        language="id",
-    )
-print(t.text)
-```
-
-```javascript
-import OpenAI from "openai"
-import fs from "fs"
-
-const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
-
-const t = await client.audio.transcriptions.create({
-  model: "gpt-4o-transcribe",
-  file: fs.createReadStream("rapat.mp3"),
-  language: "id",
-})
-console.log(t.text)
-```
-
-## Parameter & batas file
-
-| Parameter | Wajib | Keterangan |
-| --- | --- | --- |
-| `file` | ya | berkas audio (mp3, wav, m4a, webm, mp4, mpeg, mpga, ogg, flac) |
-| `model` | ya | `gpt-4o-transcribe` |
-| `language` | tidak | kode ISO, mis. `id` untuk Indonesia — mempercepat & mempertajam hasil |
-
-Ukuran maksimum berkas: **25 MB**.
-
-## Penagihan
-
-`gpt-4o-transcribe` ditagih per token audio + token teks keluaran.
-
-Tarif persis ada di [Model & Harga](/model-harga). Saldo dipotong setelah transkrip
-selesai.
+Lihat [Changelog](/changelog) untuk perubahan katalog selengkapnya, atau buka
+[Teks & Chat](/teks) untuk request ke katalog yang berlaku sekarang.

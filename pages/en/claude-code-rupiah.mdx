@@ -1,0 +1,133 @@
+---
+title: Run Claude Code in Rupiah (no foreign card)
+description: Step-by-step guide to run the Claude Code coding agent from Indonesia and pay in Rupiah — no foreign credit card. Sign up, top up via QRIS, point Claude Code at an Anthropic-compatible base URL, and verify the cost per request.
+---
+
+import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
+
+# Run Claude Code in Rupiah, no foreign card
+
+Want to use **Claude Code** from Indonesia but don't have a foreign credit card?
+This guide takes you end to end: create an account, top up your **Rupiah balance**
+with QRIS, point Claude Code at the Nexotao base URL, and run your first agent
+session — paying per token in Rupiah, no subscription.
+
+Nexotao is an **Anthropic-compatible** gateway: Claude Code talks to it the same way
+it talks to Anthropic's API, so all you change is the base URL and the key.
+
+> **What you need:** an email address, a QRIS-capable payment app (GoPay, OVO, DANA,
+> bank mobile, etc.), and Claude Code installed. No Visa/Mastercard, no PayPal, no
+> dollar balance.
+
+## 1. Create an account
+
+Sign up at [nexotao.com](https://nexotao.com) with just an email and password. New
+accounts start with a zero balance — you fund it in the next step.
+
+## 2. Top up your Rupiah balance with QRIS
+
+Open **Top Up** in the dashboard and pay via **QRIS**, starting from **Rp 10,000**.
+The balance is in Rupiah, is deducted per token as you use it, **never expires**, and
+there is **no subscription**.
+
+Bigger top-ups carry a bonus: **+6%** on Rp 150,000 and **+15%** on Rp 500,000.
+
+## 3. Create an API key
+
+In the dashboard, open **API Keys** → **Create key**. It looks like `sk-nexo-...`.
+Copy it now — the full key is shown only once.
+
+## 4. Generate your Claude Code config
+
+Pick a Claude model and paste your key below. The config is built in your browser and
+is never sent anywhere. Copy the `settings.json` into `~/.claude/settings.json`, or
+use the `export` block for your shell.
+
+<ClaudeCodeGenerator />
+
+Under the hood this sets:
+
+- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
+- `ANTHROPIC_AUTH_TOKEN` = your `sk-nexo-...` key
+- `ANTHROPIC_MODEL` = the Claude model you picked (Opus 4.8)
+- The background task tier (haiku) is mapped to `claude-opus-4-8`, since the sonnet and
+  haiku tiers aren't offered — Claude Code keeps working normally.
+- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
+
+## 5. Run Claude Code
+
+### macOS / Linux
+
+Save the generated `settings.json` to `~/.claude/settings.json` **or** paste the
+`export` block into your `~/.zshrc` / `~/.bashrc` and reload:
+
+```bash
+source ~/.zshrc   # or ~/.bashrc
+```
+
+Then from your project directory:
+
+```bash
+claude
+```
+
+### Windows
+
+Create `%USERPROFILE%\.claude\settings.json` with the generated contents, or set the
+variables in PowerShell:
+
+```powershell
+setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
+setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
+```
+
+Open a new terminal and run `claude`.
+
+## 6. Verify it's working — and what it cost
+
+Ask Claude Code to do something small ("explain this file", "add a test"). If it
+responds, your Rupiah balance is powering it.
+
+Want to confirm the billing path directly? Every Nexotao response carries an
+`X-Cost-Rp` header — the exact cost of that request in Rupiah. You can see it on a
+plain API call:
+
+```bash
+curl -i https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 64,
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+Look for `X-Cost-Rp` and `X-Request-Id` in the response headers. Claude Code usage is
+deducted from the same balance, exactly like this call.
+
+## FAQ
+
+**Do I need a foreign credit card to use Claude Code?**
+No. You top up a Rupiah balance via QRIS from Rp 10,000 and pay per token. No
+Visa/Mastercard or dollar account required.
+
+**Is this the official Anthropic API?**
+No — Nexotao is an **Anthropic-compatible** gateway. Claude Code points at the Nexotao
+base URL and works the same way, billed from your Rupiah balance.
+
+**How is usage billed?**
+Per token (input + output), drawn from your single Rupiah balance. Each response
+returns an `X-Cost-Rp` header with the exact Rupiah cost. No subscription; the balance
+never expires.
+
+**Which models can I use with Claude Code?**
+Claude models available through the gateway, currently Opus 4.8. Pick the primary
+model in the config generator above.
+
+## Next steps
+
+- [Claude Code](/claude-code) — full config reference and per-OS notes.
+- [Quickstart](/quickstart) — your first API request in curl / Python / Node.
+- [Billing & Pricing](/penagihan) — how the Rupiah balance and cost headers work.

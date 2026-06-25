@@ -1,68 +1,13 @@
 ---
-title: Transcribe
-description: Turn audio into text via /v1/audio/transcriptions (multipart) with gpt-4o-transcribe. Billing per audio token.
+title: Transcribe (retired)
+description: Audio transcription has been retired from the Nexotao catalog. Nexotao is now text-only (Claude, DeepSeek).
 ---
 
-# Transcribe
+# Transcribe — retired
 
-Turn audio into text via the OpenAI-compatible endpoint with the
-`gpt-4o-transcribe` model.
+Audio transcription has been **retired** from Nexotao. The catalog is now text-only —
+[Claude Opus 4.8 and DeepSeek V4 Pro](/model-harga) — and the
+`/v1/audio/transcriptions` endpoint is no longer served.
 
-```
-POST https://api.nexotao.com/v1/audio/transcriptions   (multipart/form-data)
-```
-
-## Example
-
-```bash
-curl https://api.nexotao.com/v1/audio/transcriptions \
-  -H "Authorization: Bearer sk-nexo-..." \
-  -F file=@meeting.mp3 \
-  -F model=gpt-4o-transcribe \
-  -F language=id
-```
-
-```python
-from openai import OpenAI
-
-client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
-
-with open("meeting.mp3", "rb") as f:
-    t = client.audio.transcriptions.create(
-        model="gpt-4o-transcribe",
-        file=f,
-        language="id",
-    )
-print(t.text)
-```
-
-```javascript
-import OpenAI from "openai"
-import fs from "fs"
-
-const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
-
-const t = await client.audio.transcriptions.create({
-  model: "gpt-4o-transcribe",
-  file: fs.createReadStream("meeting.mp3"),
-  language: "id",
-})
-console.log(t.text)
-```
-
-## Parameters & file limits
-
-| Parameter | Required | Description |
-| --- | --- | --- |
-| `file` | yes | audio file (mp3, wav, m4a, webm, mp4, mpeg, mpga, ogg, flac) |
-| `model` | yes | `gpt-4o-transcribe` |
-| `language` | no | ISO code, e.g. `id` for Indonesian — speeds up and sharpens results |
-
-Maximum file size: **25 MB**.
-
-## Billing
-
-`gpt-4o-transcribe` is billed per audio token + output text tokens.
-
-Exact rates are in [Models & Pricing](/model-harga). The balance is deducted after
-the transcript is complete.
+See the [Changelog](/changelog) for the full catalog change, or go to
+[Text & Chat](/teks) to make a request against the current catalog.

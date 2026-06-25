@@ -29,10 +29,13 @@ type Dict = { [K in keyof (typeof T)["id"]]: string }
 
 const ANTHROPIC_BASE_URL = "https://api.nexotao.com"
 const FALLBACK_OPUS = "claude-opus-4-8"
-const FALLBACK_SONNET = "claude-sonnet-4-6"
+// The sonnet/haiku tiers were retired in the 2-model catalog trim. Claude Code's
+// sonnet + background (haiku) slots now map to Opus so the generated config never
+// emits a removed model id. (Nielsen #2 — match between system and live catalog.)
+const FALLBACK_BG = "claude-opus-4-8"
 const KEY_PLACEHOLDER = "sk-nexo-..."
 
-function buildSettings(token: string, model: string, opus: string, sonnet: string) {
+function buildSettings(token: string, model: string, opus: string, background: string) {
   return JSON.stringify(
     {
       env: {
@@ -40,8 +43,8 @@ function buildSettings(token: string, model: string, opus: string, sonnet: strin
         ANTHROPIC_AUTH_TOKEN: token,
         ANTHROPIC_MODEL: model,
         ANTHROPIC_DEFAULT_OPUS_MODEL: opus,
-        ANTHROPIC_DEFAULT_SONNET_MODEL: sonnet,
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: sonnet,
+        ANTHROPIC_DEFAULT_SONNET_MODEL: background,
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: background,
         CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS: "1",
       },
       skipDangerousModePermissionPrompt: true,
@@ -51,14 +54,14 @@ function buildSettings(token: string, model: string, opus: string, sonnet: strin
   )
 }
 
-function buildExports(token: string, model: string, opus: string, sonnet: string) {
+function buildExports(token: string, model: string, opus: string, background: string) {
   return [
     `export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL}"`,
     `export ANTHROPIC_AUTH_TOKEN="${token}"`,
     `export ANTHROPIC_MODEL="${model}"`,
     `export ANTHROPIC_DEFAULT_OPUS_MODEL="${opus}"`,
-    `export ANTHROPIC_DEFAULT_SONNET_MODEL="${sonnet}"`,
-    `export ANTHROPIC_DEFAULT_HAIKU_MODEL="${sonnet}"`,
+    `export ANTHROPIC_DEFAULT_SONNET_MODEL="${background}"`,
+    `export ANTHROPIC_DEFAULT_HAIKU_MODEL="${background}"`,
     `export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS="1"`,
   ].join("\n")
 }
@@ -117,13 +120,20 @@ export function ClaudeCodeGenerator() {
 
   const claudeModels = models.filter((m) => m.provider === "azure-anthropic")
   const selectedModel =
-    model || claudeModels.find((m) => m.tier === "sonnet")?.model || claudeModels[0]?.model || FALLBACK_SONNET
+    model || claudeModels.find((m) => m.tier === "opus")?.model || claudeModels[0]?.model || FALLBACK_OPUS
   const opus = models.find((m) => m.tier === "opus")?.model ?? FALLBACK_OPUS
-  const sonnet = models.find((m) => m.tier === "sonnet")?.model ?? FALLBACK_SONNET
+  // No sonnet/haiku tier in the catalog → background + sonnet slots fall back to Opus.
+  const background = models.find((m) => m.tier === "sonnet")?.model ?? opus
   const token = key.trim() || KEY_PLACEHOLDER
 
-  const settings = useMemo(() => buildSettings(token, selectedModel, opus, sonnet), [token, selectedModel, opus, sonnet])
-  const exports = useMemo(() => buildExports(token, selectedModel, opus, sonnet), [token, selectedModel, opus, sonnet])
+  const settings = useMemo(
+    () => buildSettings(token, selectedModel, opus, background),
+    [token, selectedModel, opus, background]
+  )
+  const exports = useMemo(
+    () => buildExports(token, selectedModel, opus, background),
+    [token, selectedModel, opus, background]
+  )
 
   return (
     <div
@@ -156,7 +166,7 @@ export function ClaudeCodeGenerator() {
             {t.modelLabel}
           </label>
           <select className="nx-field" value={selectedModel} onChange={(e) => setModel(e.target.value)}>
-            {claudeModels.length === 0 && <option value={FALLBACK_SONNET}>{FALLBACK_SONNET}</option>}
+            {claudeModels.length === 0 && <option value={FALLBACK_OPUS}>{FALLBACK_OPUS}</option>}
             {claudeModels.map((m) => (
               <option key={m.model} value={m.model}>
                 {m.display_name} — {m.model}
@@ -165,7 +175,7 @@ export function ClaudeCodeGenerator() {
           </select>
           <p className="nx-note" style={{ marginTop: 6 }}>
             {t.modelHelpA}
-            {sonnet}.
+            {background}.
           </p>
         </div>
       </div>

@@ -8,13 +8,17 @@ export default {
     title: "Modality",
   },
   teks: "Teks & Chat",
-  gambar: "Generate Gambar",
-  transcribe: "Transcribe",
+  // Gambar + transcribe dipotong di trim katalog 2-model. Disembunyikan dari
+  // sidebar tapi tetap bisa diakses agar link lama mengarah ke notice "dihentikan"
+  // dan bukan 404.
+  gambar: { display: "hidden", title: "Generate Gambar" },
+  transcribe: { display: "hidden", title: "Transcribe" },
   "-- integrasi": {
     type: "separator",
     title: "Integrasi",
   },
   "claude-code": "Claude Code",
+  "claude-code-rupiah": "Claude Code Bayar Rupiah",
   "-- referensi": {
     type: "separator",
     title: "Referensi",

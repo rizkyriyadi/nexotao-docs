@@ -5,9 +5,10 @@
   <url><loc>https://docs.nexotao.com/autentikasi</loc><changefreq>monthly</changefreq><priority>0.7</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/autentikasi"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/autentikasi"/></url>
   <url><loc>https://docs.nexotao.com/penagihan</loc><changefreq>weekly</changefreq><priority>0.8</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/penagihan"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/penagihan"/></url>
   <url><loc>https://docs.nexotao.com/teks</loc><changefreq>monthly</changefreq><priority>0.8</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/teks"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/teks"/></url>
-  <url><loc>https://docs.nexotao.com/gambar</loc><changefreq>monthly</changefreq><priority>0.8</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/gambar"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/gambar"/></url>
-  <url><loc>https://docs.nexotao.com/transcribe</loc><changefreq>monthly</changefreq><priority>0.8</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/transcribe"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/transcribe"/></url>
+  <url><loc>https://docs.nexotao.com/gambar</loc><changefreq>yearly</changefreq><priority>0.1</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/gambar"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/gambar"/></url>
+  <url><loc>https://docs.nexotao.com/transcribe</loc><changefreq>yearly</changefreq><priority>0.1</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/transcribe"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/transcribe"/></url>
   <url><loc>https://docs.nexotao.com/claude-code</loc><changefreq>monthly</changefreq><priority>0.9</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/claude-code"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/claude-code"/></url>
+  <url><loc>https://docs.nexotao.com/claude-code-rupiah</loc><changefreq>weekly</changefreq><priority>0.9</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/claude-code-rupiah"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/claude-code-rupiah"/></url>
   <url><loc>https://docs.nexotao.com/api-reference</loc><changefreq>monthly</changefreq><priority>0.8</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/api-reference"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/api-reference"/></url>
   <url><loc>https://docs.nexotao.com/model-harga</loc><changefreq>weekly</changefreq><priority>0.8</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/model-harga"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/model-harga"/></url>
   <url><loc>https://docs.nexotao.com/faq</loc><changefreq>monthly</changefreq><priority>0.6</priority><xhtml:link rel="alternate" hreflang="id" href="https://docs.nexotao.com/faq"/><xhtml:link rel="alternate" hreflang="en" href="https://docs.nexotao.com/en/faq"/></url>
@@ -16,9 +17,10 @@
   <url><loc>https://docs.nexotao.com/en/autentikasi</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://docs.nexotao.com/en/penagihan</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.nexotao.com/en/teks</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.nexotao.com/en/gambar</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.nexotao.com/en/transcribe</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://docs.nexotao.com/en/gambar</loc><changefreq>yearly</changefreq><priority>0.1</priority></url>
+  <url><loc>https://docs.nexotao.com/en/transcribe</loc><changefreq>yearly</changefreq><priority>0.1</priority></url>
   <url><loc>https://docs.nexotao.com/en/claude-code</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://docs.nexotao.com/en/claude-code-rupiah</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
   <url><loc>https://docs.nexotao.com/en/api-reference</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.nexotao.com/en/model-harga</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.nexotao.com/en/faq</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>

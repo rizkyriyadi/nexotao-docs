@@ -1,23 +1,19 @@
 ---
 title: Models & Pricing
-description: List of all active Nexotao models per modality (text, image, transcribe) with rates, live from GET /models.
+description: List of all active Nexotao text models with rates, live from GET /models.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
 
 # Models & Pricing
 
-All active models, grouped by modality, with rates in the relevant unit for each.
-Pulled directly from `GET /models` — always in sync with the live catalog, with no
-hardcoded prices.
+All active text models, with rates per million tokens. Pulled directly from
+`GET /models` — always in sync with the live catalog, with no hardcoded prices.
 
 <LivePricing />
 
 ## How to read the rates
 
 - **Text** — rate per 1 million tokens, separately for input and output.
-- **Image** — rate per megapixel; cost = (width × height / 1M) × rate × number of
-  images.
-- **Transcribe** — `gpt-4o-transcribe` is billed per audio token + output text tokens.
 
 Billing details are in [Billing & Pricing](/penagihan).

@@ -14,11 +14,9 @@ Base URL: `https://api.nexotao.com`. Authentication via API key — see
 | --- | --- | --- |
 | `GET` | `/models` | Public pricing catalog for the site (no key) |
 | `GET` | `/v1/models` | OpenAI-format model list (requires key) — used by n8n etc. |
-| `POST` | `/v1/chat/completions` | Chat, OpenAI format (GPT, DeepSeek, and Claude) |
-| `POST` | `/v1/responses` | Chat, OpenAI Responses format (GPT, DeepSeek, and Claude) |
+| `POST` | `/v1/chat/completions` | Chat, OpenAI format (DeepSeek and Claude) |
+| `POST` | `/v1/responses` | Chat, OpenAI Responses format (DeepSeek and Claude) |
 | `POST` | `/v1/messages` | Chat, Anthropic format (Claude models) |
-| `POST` | `/v1/images/generations` | Image generation |
-| `POST` | `/v1/audio/transcriptions` | Audio transcription (multipart) |
 
 ## Response headers
 

@@ -1,75 +1,13 @@
 ---
-title: Generate Gambar
-description: Buat gambar dari teks dengan FLUX.2-pro lewat endpoint OpenAI-compatible /v1/images/generations. Parameter size dan n, penagihan per megapiksel, contoh kode.
+title: Generate Gambar (dihentikan)
+description: Generate gambar telah dihentikan dari katalog Nexotao. Nexotao kini hanya teks (Claude, DeepSeek).
 ---
 
-# Generate Gambar
+# Generate Gambar — dihentikan
 
-Buat gambar dari teks dengan **FLUX.2-pro** lewat endpoint kompatibel OpenAI. Pakai
-SDK OpenAI mana pun — cukup arahkan `base_url` ke Nexotao.
+Generate gambar telah **dihentikan** dari Nexotao. Katalog kini hanya teks —
+[Claude Opus 4.8 dan DeepSeek V4 Pro](/model-harga) — dan endpoint
+`/v1/images/generations` sudah tidak dilayani.
 
-```
-POST https://api.nexotao.com/v1/images/generations
-```
-
-## Contoh
-
-```bash
-curl https://api.nexotao.com/v1/images/generations \
-  -H "Authorization: Bearer sk-nexo-..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "FLUX.2-pro",
-    "prompt": "studio foto kopi tubruk di atas meja kayu, cahaya pagi",
-    "size": "1024x1024",
-    "n": 1
-  }'
-```
-
-```python
-from openai import OpenAI
-
-client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
-
-img = client.images.generate(
-    model="FLUX.2-pro",
-    prompt="studio foto kopi tubruk di atas meja kayu, cahaya pagi",
-    size="1024x1024",
-    n=1,
-)
-print(img.data[0].url)
-```
-
-```javascript
-import OpenAI from "openai"
-
-const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
-
-const img = await client.images.generate({
-  model: "FLUX.2-pro",
-  prompt: "studio foto kopi tubruk di atas meja kayu, cahaya pagi",
-  size: "1024x1024",
-  n: 1,
-})
-console.log(img.data[0].url)
-```
-
-## Parameter
-
-| Parameter | Wajib | Keterangan |
-| --- | --- | --- |
-| `model` | ya | `FLUX.2-pro` |
-| `prompt` | ya | deskripsi gambar |
-| `size` | tidak | `1024x1024` (default), `1024x1536`, `1536x1024`, `512x512` |
-| `n` | tidak | jumlah gambar, 1–4 |
-
-## Penagihan
-
-Biaya dihitung **per megapiksel**, dikalikan jumlah gambar yang berhasil dibuat:
-
-```
-biaya (Rp) = (lebar × tinggi / 1.000.000) × tarif_per_megapiksel × jumlah_berhasil
-```
-
-Gambar yang gagal dibuat tidak ditagih. Tarif persis ada di
-[Model & Harga](/model-harga).
+Lihat [Changelog](/changelog) untuk perubahan katalog selengkapnya, atau buka
+[Teks & Chat](/teks) untuk request ke katalog yang berlaku sekarang.
