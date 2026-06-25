@@ -19,6 +19,7 @@ export default {
   },
   "claude-code": "Claude Code",
   "claude-code-rupiah": "Claude Code in Rupiah",
+  "context-window": "Context Window & Compaction",
   "-- referensi": {
     type: "separator",
     title: "Reference",

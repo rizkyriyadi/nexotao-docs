@@ -19,6 +19,7 @@ export default {
   },
   "claude-code": "Claude Code",
   "claude-code-rupiah": "Claude Code Bayar Rupiah",
+  "context-window": "Context Window & Kompaksi",
   "-- referensi": {
     type: "separator",
     title: "Referensi",
