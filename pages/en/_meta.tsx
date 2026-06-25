@@ -22,4 +22,9 @@ export default {
   "api-reference": "API Reference",
   "model-harga": "Models & Pricing",
   faq: "FAQ",
+  "-- changelog-sep": {
+    type: "separator",
+    title: "Changelog",
+  },
+  changelog: "Changelog",
 }

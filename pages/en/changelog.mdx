@@ -1,0 +1,64 @@
+---
+title: Changelog
+description: Notable changes to the Nexotao API and model catalog, with migration notes.
+---
+
+# Changelog
+
+Notable changes to the Nexotao API and model catalog. Breaking changes and
+billing-affecting changes are called out explicitly.
+
+## 2026-06-24 — Catalog trim: two models, deprecated ids on a 30-day grace window
+
+We've trimmed the live model catalog to two models. If your code references any
+other model id, **read the billing note below** — it can affect what you're
+charged during the grace window.
+
+### What changed
+
+- **The live catalog is now two chat models only:**
+  - `claude-opus-4-8` (Claude Opus 4.8)
+  - `DeepSeek-V4-Pro` (DeepSeek V4 Pro)
+- **Image generation and audio transcription are no longer available.**
+  `POST /v1/images/generations` and `POST /v1/audio/transcriptions` return
+  `400` — there are no active image or transcription models in the catalog.
+- **Deprecated chat ids still work during a grace window, then stop.** A request
+  for a deprecated id is transparently routed to a live model during the grace
+  window. Deprecated ids are planned for removal **on or around 2026-07-24**,
+  after which they return `400 unknown model`. We'll announce the exact cutover.
+
+### Billing note — please read
+
+During the grace window, a deprecated id is **billed at the live model's rate**,
+not the old id's rate. Several deprecated ids were *cheaper* than the model they
+now route to, so a request that used to bill at a lower rate will bill at the
+canonical (higher) rate.
+
+This is balance-bounded — you are never billed for more than your balance covers,
+and a request that can't be covered is rejected rather than overdrawing — but it
+**is** a real price change for those ids. To avoid surprises, update your code to
+call a live id directly **now** rather than waiting for the cutoff.
+
+### Deprecated id → live model
+
+| Deprecated id        | Routes to (and billed as) | Note                          |
+| -------------------- | ------------------------- | ----------------------------- |
+| `claude-sonnet-4-6`  | `claude-opus-4-8`         | premium rate vs. old id        |
+| `claude-haiku-4-5`   | `claude-opus-4-8`         | premium rate; Claude Code background slot |
+| `gpt-5-mini`         | `DeepSeek-V4-Pro`         | premium rate vs. old id        |
+| `gpt-4.1-mini`       | `DeepSeek-V4-Pro`         | premium rate vs. old id        |
+| `DeepSeek-V4-Flash`  | `DeepSeek-V4-Pro`         | premium rate vs. old id        |
+
+Retired media models (no replacement): `FLUX.2-pro`, `gpt-4o-transcribe`,
+`gpt-4o-mini-transcribe`, `whisper`.
+
+### What you should do
+
+1. **Update your model id** to `claude-opus-4-8` or `DeepSeek-V4-Pro`.
+2. **Check your billing assumptions** if you were using a deprecated *cheaper*
+   id — you're now billed at the live model's rate.
+3. **Migrate soon.** Deprecated ids are planned for removal on or around
+   2026-07-24, after which they return `400`.
+
+Live rates are always available from `GET /models` and on the
+[Models & Pricing](/en/model-harga) page. Questions? See the [FAQ](/en/faq).

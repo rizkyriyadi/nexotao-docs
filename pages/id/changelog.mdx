@@ -1,0 +1,65 @@
+---
+title: Changelog
+description: Perubahan penting pada API dan katalog model Nexotao, beserta catatan migrasi.
+---
+
+# Changelog
+
+Perubahan penting pada API dan katalog model Nexotao. Perubahan yang memutus
+kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplisit.
+
+## 2026-06-24 — Penyederhanaan katalog: dua model, id lama dalam masa tenggang 30 hari
+
+Kami menyederhanakan katalog model live menjadi dua model. Jika kode Anda memakai
+id model lain, **baca catatan penagihan di bawah** — ada kemungkinan tarif yang
+Anda bayar berubah selama masa tenggang.
+
+### Apa yang berubah
+
+- **Katalog live kini hanya dua model chat:**
+  - `claude-opus-4-8` (Claude Opus 4.8)
+  - `DeepSeek-V4-Pro` (DeepSeek V4 Pro)
+- **Generate gambar dan transcribe audio tidak lagi tersedia.**
+  `POST /v1/images/generations` dan `POST /v1/audio/transcriptions` mengembalikan
+  `400` — tidak ada model gambar atau transcribe yang aktif di katalog.
+- **Id lama masih berfungsi selama masa tenggang, lalu berhenti.** Permintaan
+  dengan id lama dialihkan secara transparan ke model live selama masa tenggang.
+  Id lama direncanakan untuk dihapus **sekitar 2026-07-24**, setelah itu
+  mengembalikan `400 unknown model`. Kami akan mengumumkan waktu cutover pastinya.
+
+### Catatan penagihan — mohon dibaca
+
+Selama masa tenggang, id lama **ditagih dengan tarif model live**, bukan tarif id
+lamanya. Beberapa id lama tarifnya *lebih murah* daripada model tujuannya
+sekarang, jadi permintaan yang dulu ditagih lebih murah kini ditagih dengan tarif
+kanonik (lebih tinggi).
+
+Ini dibatasi saldo — Anda tidak pernah ditagih melebihi saldo yang tersedia, dan
+permintaan yang tidak tertutup saldo akan ditolak, bukan membuat saldo minus —
+tetapi ini **memang** perubahan tarif nyata untuk id-id tersebut. Agar tidak ada
+kejutan, perbarui kode Anda agar memanggil id live secara langsung **sekarang**,
+jangan menunggu sampai batas waktu.
+
+### Id lama → model live
+
+| Id lama              | Dialihkan ke (dan ditagih sebagai) | Catatan                       |
+| -------------------- | ---------------------------------- | ----------------------------- |
+| `claude-sonnet-4-6`  | `claude-opus-4-8`                  | tarif premium vs. id lama      |
+| `claude-haiku-4-5`   | `claude-opus-4-8`                  | tarif premium; slot background Claude Code |
+| `gpt-5-mini`         | `DeepSeek-V4-Pro`                  | tarif premium vs. id lama      |
+| `gpt-4.1-mini`       | `DeepSeek-V4-Pro`                  | tarif premium vs. id lama      |
+| `DeepSeek-V4-Flash`  | `DeepSeek-V4-Pro`                  | tarif premium vs. id lama      |
+
+Model media yang dipensiunkan (tanpa pengganti): `FLUX.2-pro`, `gpt-4o-transcribe`,
+`gpt-4o-mini-transcribe`, `whisper`.
+
+### Yang perlu Anda lakukan
+
+1. **Perbarui id model** menjadi `claude-opus-4-8` atau `DeepSeek-V4-Pro`.
+2. **Periksa asumsi penagihan Anda** jika sebelumnya memakai id lama yang *lebih
+   murah* — kini Anda ditagih dengan tarif model live.
+3. **Migrasi secepatnya.** Id lama direncanakan untuk dihapus sekitar
+   2026-07-24, setelah itu mengembalikan `400`.
+
+Tarif live selalu tersedia dari `GET /models` dan di halaman
+[Model & Harga](/id/model-harga). Ada pertanyaan? Lihat [FAQ](/id/faq).
