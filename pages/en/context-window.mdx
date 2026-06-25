@@ -34,11 +34,13 @@ curl https://api.nexotao.com/v1/models \
 Each model object carries a `context_window` field (token count). Treat that number
 as the source of truth — it is always in sync with what the gateway actually serves.
 
-> **Honest note.** Today the gateway serves the **standard Claude window**, not a
-> 1M-token window. Use the `context_window` value from `/models` — do not assume 1M.
-> There is also a per-request body limit (~1 MiB of JSON, roughly 250k tokens), so a
-> single oversized message will be rejected even if the window itself is larger. Keep
-> individual requests well under that, and use compaction for long histories.
+> **Honest note.** Our published window is **larger than the legacy 200k** that many
+> clients still assume by default — currently around **350k tokens for
+> `claude-opus-4-8`** and **~128k for `DeepSeek-V4-Pro`** — but it is **not** 1M. Don't
+> hard-guess 200k and don't assume 1M; read the exact, authoritative figure from
+> `context_window` in `/v1/models`. Because the real window is bigger than the old
+> 200k default, a client that hasn't been calibrated will compact *earlier* than it
+> needs to — you simply lose some usable context, nothing breaks.
 
 ## Client-side compaction
 
@@ -46,10 +48,11 @@ as the source of truth — it is always in sync with what the gateway actually s
 continue. Clients in the Claude Code family do this for you:
 
 - **Autocompact** — as the conversation nears the context window, the client
-  automatically summarizes older turns and continues. Because Claude Code calibrates
-  to the standard Claude window (the same window our gateway serves), its autocompact
-  threshold lines up with our limit out of the box — it compacts at the right point
-  rather than tripping early or too late.
+  automatically summarizes older turns and continues. The threshold is set from the
+  window the client *believes* the model has. Many clients still assume the old 200k
+  default, which is **smaller** than our real window, so they autocompact earlier than
+  necessary. Calibrate the client to our published `context_window` and autocompact
+  fires at the true threshold, letting you use the full window.
 - **`/compact`** — run this command anytime to compact **manually**. Useful before a
   big task, or right after the agent has read a lot of files. You can add a hint,
   e.g. `/compact keep the API design decisions and the failing test`.
@@ -79,9 +82,12 @@ the interactive generator.
 
 1. Set the variables above (or use the generator on the [Claude Code](/claude-code)
    page to produce `~/.claude/settings.json`).
-2. **Window:** nothing extra to set — Claude Code uses the standard Claude window,
-   which matches what our gateway serves, so autocompact and `/compact` work as-is.
-   To confirm the exact number, check `context_window` from `/v1/models`.
+2. **Window:** Claude Code derives the window from the model. Read the exact number
+   from `context_window` in `/v1/models` — it's **larger** than the legacy 200k some
+   clients still assume, so a stale assumption only makes the client compact *early*
+   (you lose usable context, nothing breaks). Where your client lets you set the
+   model's context window, set it to the published value so autocompact and `/compact`
+   trigger at the true threshold.
 3. Run `claude` and use `/compact` / `/clear` to manage long sessions.
 
 ### Other OpenAI-compatible clients
@@ -102,7 +108,7 @@ generic 502), so your client can react:
 
 | Status | Meaning | What to do |
 | --- | --- | --- |
-| `400` | The prompt exceeds the context window (or the ~1 MiB body limit) | Compact, summarize, or start fresh — see below |
+| `400` | The prompt exceeds the model's context window | Compact, summarize, or start fresh — see below |
 | `429` | Rate limited upstream | Back off and retry; we forward `Retry-After` when present |
 
 Recovery options, easiest first:

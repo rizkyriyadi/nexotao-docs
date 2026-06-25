@@ -35,11 +35,13 @@ curl https://api.nexotao.com/v1/models \
 Tiap objek model membawa field `context_window` (jumlah token). Jadikan angka itu
 sumber kebenaran — selalu sinkron dengan apa yang benar-benar dilayani gateway.
 
-> **Catatan jujur.** Saat ini gateway melayani **window Claude standar**, bukan window
-> 1 juta token. Pakai nilai `context_window` dari `/models` — jangan asumsikan 1M.
-> Ada juga batas ukuran per-request (~1 MiB JSON, kira-kira 250k token), jadi satu
-> pesan yang kelewat besar tetap ditolak walau window-nya lebih besar. Jaga tiap
-> request jauh di bawah batas itu, dan pakai kompaksi untuk riwayat yang panjang.
+> **Catatan jujur.** Window yang kami publikasikan **lebih besar dari 200k lama** yang
+> masih diasumsikan banyak klien secara default — saat ini sekitar **350k token untuk
+> `claude-opus-4-8`** dan **~128k untuk `DeepSeek-V4-Pro`** — tapi **bukan** 1M. Jangan
+> menebak 200k dan jangan asumsikan 1M; baca angka pasti dan otoritatif dari
+> `context_window` di `/v1/models`. Karena window asli lebih besar dari default 200k
+> lama, klien yang belum dikalibrasi akan kompaksi *lebih awal* dari yang diperlukan —
+> kamu cuma kehilangan sebagian context yang bisa dipakai, tidak ada yang rusak.
 
 ## Kompaksi sisi klien
 
@@ -47,10 +49,11 @@ sumber kebenaran — selalu sinkron dengan apa yang benar-benar dilayani gateway
 bisa lanjut. Klien keluarga Claude Code melakukannya untukmu:
 
 - **Autocompact** — saat percakapan mendekati context window, klien otomatis
-  meringkas giliran lama lalu lanjut. Karena Claude Code kalibrasi ke window Claude
-  standar (window yang sama yang dilayani gateway kami), ambang autocompact-nya pas
-  dengan batas kami secara default — kompaksi terjadi di titik yang tepat, tidak
-  kepagian atau kesiangan.
+  meringkas giliran lama lalu lanjut. Ambangnya disetel dari window yang *diyakini*
+  klien dimiliki model. Banyak klien masih mengasumsikan default 200k lama, yang
+  **lebih kecil** dari window asli kami, jadi mereka autocompact lebih awal dari yang
+  perlu. Kalibrasi klien ke `context_window` yang kami publikasikan supaya autocompact
+  terpicu di ambang yang benar dan kamu bisa pakai seluruh window.
 - **`/compact`** — jalankan perintah ini kapan saja untuk kompaksi **manual**. Berguna
   sebelum tugas besar, atau tepat setelah agent membaca banyak file. Bisa diberi
   petunjuk, mis. `/compact simpan keputusan desain API dan test yang gagal`.
@@ -80,10 +83,12 @@ generator interaktifnya.
 
 1. Set variabel di atas (atau pakai generator di halaman [Claude Code](/claude-code)
    untuk menghasilkan `~/.claude/settings.json`).
-2. **Window:** tidak ada yang perlu diset tambahan — Claude Code memakai window Claude
-   standar, yang sama dengan yang dilayani gateway kami, jadi autocompact dan
-   `/compact` jalan apa adanya. Untuk memastikan angka persisnya, cek `context_window`
-   dari `/v1/models`.
+2. **Window:** Claude Code menurunkan window dari model. Baca angka pastinya dari
+   `context_window` di `/v1/models` — **lebih besar** dari 200k lama yang masih
+   diasumsikan sebagian klien, jadi asumsi usang cuma membuat klien kompaksi *lebih
+   awal* (kehilangan context yang bisa dipakai, tidak ada yang rusak). Kalau klienmu
+   memungkinkan set context window model, set ke nilai yang dipublikasikan supaya
+   autocompact dan `/compact` terpicu di ambang yang benar.
 3. Jalankan `claude` dan pakai `/compact` / `/clear` untuk mengelola sesi panjang.
 
 ### Klien OpenAI-compatible lain
@@ -104,7 +109,7 @@ Kalau request kebesaran, gateway kami mengembalikan **error upstream yang jujur*
 
 | Status | Arti | Yang harus dilakukan |
 | --- | --- | --- |
-| `400` | Prompt melebihi context window (atau batas body ~1 MiB) | Kompaksi, ringkas, atau mulai baru — lihat di bawah |
+| `400` | Prompt melebihi context window model | Kompaksi, ringkas, atau mulai baru — lihat di bawah |
 | `429` | Kena rate limit upstream | Mundur lalu coba lagi; kami teruskan `Retry-After` bila ada |
 
 Opsi pemulihan, dari yang termudah:
