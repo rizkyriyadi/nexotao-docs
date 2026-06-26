@@ -8,26 +8,27 @@ description: Notable changes to the Nexotao API and model catalog, with migratio
 Notable changes to the Nexotao API and model catalog. Breaking changes and
 billing-affecting changes are called out explicitly.
 
-## 2026-07-07 — Opus 4.8 rate update (+30%), still ~61% below official
+## 2026-06-26 — Opus 4.8 rate update (+30%) now in effect, still ~61% below official
 
-Claude Opus 4.8 (`claude-opus-4-8`) gets a price update on **2026-07-07**. We're
-telling you ahead of time so there are no surprises on your bill.
+Claude Opus 4.8 (`claude-opus-4-8`) has a new published price that is **in effect
+now**. This change was announced in advance and is now live.
 
 ### What's new
 
-- **New Opus 4.8 rate, effective 2026-07-07:** **Rp 35.100 input / Rp 175.500
+- **New Opus 4.8 rate (in effect now):** **Rp 35.100 input / Rp 175.500
   output per 1M tokens** (was Rp 27.000 / Rp 135.000) — a **+30%** change.
 - Even after the update, this is still **~61% below** official Anthropic list
   pricing ($5 in / $25 out per 1M @ FX 18.000).
 - **`DeepSeek-V4-Pro` is unchanged.**
-- **Your balance keeps full value** — no credits are lost or revalued.
+- **Your balance keeps full value** — no credits are lost or revalued, and past
+  usage is **not** re-billed; the new rate applies to usage from here forward.
 
 ### Why it matters
 
-You bill in Rupiah at a published rate, so a rate change is something you should
-hear about *before* it lands, not discover after. The new Opus 4.8 rate takes
-effect on 2026-07-07; until then the current rate applies. If your cheaper-first
-workloads run on `DeepSeek-V4-Pro`, nothing changes for them.
+You bill in Rupiah at a published rate. The new Opus 4.8 rate is **now the
+published rate** and applies to usage going forward — usage already settled at
+the old rate is not re-billed. If your cheaper-first workloads run on
+`DeepSeek-V4-Pro`, nothing changes for them.
 
 ## 2026-06-25 — Published context window: read the real number, no silent truncation
 
