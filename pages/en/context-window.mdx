@@ -36,7 +36,7 @@ as the source of truth — it is always in sync with what the gateway actually s
 
 > **Honest note.** Our published window is **larger than the legacy 200k** that many
 > clients still assume by default — currently around **350k tokens for
-> `claude-opus-4-8`** and **~128k for `DeepSeek-V4-Pro`** — but it is **not** 1M. Don't
+> `claude-opus-4-8`** — but it is **not** 1M. Don't
 > hard-guess 200k and don't assume 1M; read the exact, authoritative figure from
 > `context_window` in `/v1/models`. Because the real window is bigger than the old
 > 200k default, a client that hasn't been calibrated will compact *earlier* than it
@@ -96,7 +96,7 @@ For tools that speak the OpenAI format (n8n, scripts, custom apps):
 
 - Base URL: `https://api.nexotao.com/v1`
 - Models: `claude-opus-4-8` (Anthropic-style via `/v1/messages`) or
-  `DeepSeek-V4-Pro` (OpenAI-style via `/v1/chat/completions`).
+  `gpt-5-mini` (OpenAI-style via `/v1/chat/completions`).
 - These clients usually don't compact automatically — keep your own history short:
   trim or summarize old turns before each call, and read `context_window` from
   `/v1/models` to know your budget.

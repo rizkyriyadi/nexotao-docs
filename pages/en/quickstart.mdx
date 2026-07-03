@@ -46,7 +46,7 @@ from openai import OpenAI
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
 resp = client.chat.completions.create(
-    model="DeepSeek-V4-Pro",
+    model="gpt-5-mini",
     messages=[{"role": "user", "content": "Hello"}],
 )
 print(resp.choices[0].message.content)
@@ -58,7 +58,7 @@ import OpenAI from "openai"
 const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
 
 const resp = await client.chat.completions.create({
-  model: "DeepSeek-V4-Pro",
+  model: "gpt-5-mini",
   messages: [{ role: "user", content: "Hello" }],
 })
 console.log(resp.choices[0].message.content)

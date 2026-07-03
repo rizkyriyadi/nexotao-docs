@@ -29,7 +29,7 @@ from openai import OpenAI
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
 resp = client.chat.completions.create(
-    model="DeepSeek-V4-Pro",
+    model="gpt-5-mini",
     messages=[{"role": "user", "content": "Jelaskan apa itu QRIS"}],
 )
 print(resp.choices[0].message.content)
@@ -41,7 +41,7 @@ import OpenAI from "openai"
 const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
 
 const resp = await client.chat.completions.create({
-  model: "DeepSeek-V4-Pro",
+  model: "gpt-5-mini",
   messages: [{ role: "user", content: "Jelaskan apa itu QRIS" }],
 })
 console.log(resp.choices[0].message.content)
@@ -53,7 +53,7 @@ Set `stream: true` untuk menerima jawaban token demi token lewat Server-Sent Eve
 
 ```python
 stream = client.chat.completions.create(
-    model="DeepSeek-V4-Pro",
+    model="gpt-5-mini",
     messages=[{"role": "user", "content": "Tulis pantun singkat"}],
     stream=True,
 )

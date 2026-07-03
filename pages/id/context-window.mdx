@@ -37,7 +37,7 @@ sumber kebenaran — selalu sinkron dengan apa yang benar-benar dilayani gateway
 
 > **Catatan jujur.** Window yang kami publikasikan **lebih besar dari 200k lama** yang
 > masih diasumsikan banyak klien secara default — saat ini sekitar **350k token untuk
-> `claude-opus-4-8`** dan **~128k untuk `DeepSeek-V4-Pro`** — tapi **bukan** 1M. Jangan
+> `claude-opus-4-8`** — tapi **bukan** 1M. Jangan
 > menebak 200k dan jangan asumsikan 1M; baca angka pasti dan otoritatif dari
 > `context_window` di `/v1/models`. Karena window asli lebih besar dari default 200k
 > lama, klien yang belum dikalibrasi akan kompaksi *lebih awal* dari yang diperlukan —
@@ -97,7 +97,7 @@ Untuk tool yang bicara format OpenAI (n8n, skrip, app sendiri):
 
 - Base URL: `https://api.nexotao.com/v1`
 - Model: `claude-opus-4-8` (gaya Anthropic via `/v1/messages`) atau
-  `DeepSeek-V4-Pro` (gaya OpenAI via `/v1/chat/completions`).
+  `gpt-5-mini` (gaya OpenAI via `/v1/chat/completions`).
 - Klien begini biasanya tidak kompaksi otomatis — jaga riwayatmu sendiri tetap pendek:
   pangkas atau ringkas giliran lama sebelum tiap panggilan, dan baca `context_window`
   dari `/v1/models` untuk tahu budget-mu.
