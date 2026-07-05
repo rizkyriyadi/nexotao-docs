@@ -1,19 +1,56 @@
 ---
 title: Models & Pricing
-description: List of all active Nexotao text models with rates, live from GET /models.
+description: The same models as Anthropic and OpenAI, billed per token over QRIS. Headline per 100M tokens plus live per-million-token rates.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
 
 # Models & Pricing
 
-All active text models, with rates per million tokens. Pulled directly from
-`GET /models` — always in sync with the live catalog, with no hardcoded prices.
+**The same models as Anthropic and OpenAI direct.** The difference: pay per
+token with QRIS. No USD card, no monthly subscription, no FX card fee.
+
+## Headline per 100M tokens
+
+Round marketing figures for order-of-magnitude planning. Computed from a
+blended 30% input / 70% output mix — close to what a real product workload
+looks like. The actual bill is still counted per token; see the live table
+below.
+
+| Model              | Headline per 100M tokens | Positioning                                                  |
+| ------------------ | ------------------------ | ------------------------------------------------------------ |
+| Claude Opus 4.8    | **Rp 15 million**        | Anthropic's strongest reasoning model. **≈ 6–7× cheaper** than Anthropic list. |
+| gpt-5-mini         | **Rp 500 thousand**      | OpenAI's cheapest tier — great for classifiers, extract, batch. |
+| Claude Sonnet 4.6  | *coming*                 | Fast + smart for high-volume product chat. Pending catalog activation. |
+| Claude Haiku 4.5   | *coming*                 | Anthropic's fastest and cheapest. Pending catalog activation. |
+
+"vs Anthropic list" is deliberately shown as a multiplier, not an absolute
+figure, so the copy stays accurate when Anthropic changes their own list
+price.
+
+## Live per-million-token rates
+
+Beyond the headline above, every model has per-million-token rates for
+**input**, **output**, and (Claude only) **cache-read + cache-write**. The
+values here come straight from `GET /models` — always in sync with the live
+catalog, with no hardcoded prices on the page.
 
 <LivePricing />
 
 ## How to read the rates
 
 - **Text** — rate per 1 million tokens, separately for input and output.
+- **Cache (Claude)** — cache reads are much cheaper than the standard input
+  rate; cache writes are slightly more. Full breakdown in [Billing & Pricing](/penagihan).
+- **Headline per 100M tokens** — a planning figure, not the billed amount.
+  The bill is always `token_count × model_rate_at_the_time`.
 
-Billing details are in [Billing & Pricing](/penagihan).
+## Why "per 100M tokens"?
+
+Modern text models measure real project usage in millions of tokens. A
+`per 100M tokens` figure is the right order of magnitude for comparing
+costs across models quickly, without getting distracted by decimal points
+on the per-million-token rate.
+
+Billing details, cache mechanics, and per-request accounting live in
+[Billing & Pricing](/penagihan).

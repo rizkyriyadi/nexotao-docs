@@ -1,19 +1,53 @@
 ---
 title: Model & Harga
-description: Daftar semua model teks aktif Nexotao beserta tarif Rupiah, live dari GET /models.
+description: Model yang sama dengan Anthropic dan OpenAI, dibayar per token pakai QRIS. Headline per 100 juta token + tarif live per juta token.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
 
 # Model & Harga
 
-Semua model teks aktif, dengan tarif Rupiah per juta token. Diambil langsung dari
-`GET /models` — selalu sinkron dengan katalog live, tanpa harga yang di-hardcode.
+**Sama modelnya dengan Anthropic dan OpenAI langsung.** Bedanya: bayar per
+token pakai QRIS. Tanpa kartu USD, tanpa langganan bulanan, tanpa FX card fee.
+
+## Headline per 100 juta token
+
+Angka bulat marketing untuk memperkirakan skala. Dihitung dari campuran 30%
+token input / 70% token output — mendekati kebiasaan aplikasi produk.
+Tarif sebenarnya per model tetap dihitung per token; lihat tabel live di bawah.
+
+| Model              | Headline per 100M token | Positioning                                                    |
+| ------------------ | ----------------------- | -------------------------------------------------------------- |
+| Claude Opus 4.8    | **Rp 15 juta**          | Model reasoning terkuat Anthropic. **≈ 6–7× lebih murah** dari tarif list Anthropic. |
+| gpt-5-mini         | **Rp 500 ribu**         | Termurah OpenAI — pas untuk classifier, extract, batch. |
+| Claude Sonnet 4.6  | *segera*                | Cepat + pintar untuk chat produk volume tinggi. Menunggu aktivasi katalog. |
+| Claude Haiku 4.5   | *segera*                | Tercepat + termurah dari Anthropic. Menunggu aktivasi katalog. |
+
+Rasio "vs Anthropic list" sengaja ditampilkan sebagai kelipatan, bukan angka
+absolut, supaya tetap akurat ketika Anthropic mengubah harga list mereka.
+
+## Tarif live per juta token
+
+Selain headline di atas, tiap model punya tarif per juta token untuk **input**,
+**output**, dan (khusus Claude) **cache-read + cache-write**. Nilai di sini
+diambil langsung dari `GET /models` — selalu sinkron dengan katalog live,
+tanpa harga yang di-hardcode di halaman.
 
 <LivePricing />
 
 ## Cara membaca tarif
 
 - **Teks** — tarif per 1 juta token, terpisah untuk input dan output.
+- **Cache (Claude)** — cache-read jauh lebih murah dari input biasa; cache-write
+  sedikit lebih mahal dari input biasa. Detail di [Penagihan & Harga](/penagihan).
+- **Headline per 100M token** — perkiraan cepat, bukan tarif tagihan. Yang
+  ditagih adalah `jumlah_token × tarif_model_saat_itu`.
 
-Detail penagihan ada di [Penagihan & Harga](/penagihan).
+## Kenapa "per 100 juta token"?
+
+Model teks modern mengukur pemakaian dalam jutaan token per proyek. Angka
+`per 100 juta token` = urutan skala yang tepat untuk membandingkan biaya
+antar-model dengan cepat, tanpa terganggu oleh titik desimal pada tarif
+per-juta-token.
+
+Detail penagihan, cache, dan billing per request ada di [Penagihan & Harga](/penagihan).
