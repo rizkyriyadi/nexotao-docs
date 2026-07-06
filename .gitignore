@@ -11,3 +11,10 @@ next-env.d.ts
 .idea
 .turbo
 tsconfig.tsbuildinfo
+
+# Paperclip / agent artifacts — keep out of git
+.claude/settings.local.json
+.claude/scheduled_tasks.json
+.qa/
+design/nex-*/
+graphify-out/
