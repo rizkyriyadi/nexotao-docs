@@ -1,20 +1,21 @@
 ---
 title: Quickstart
-description: Dari daftar, top-up QRIS, buat API key, sampai request pertama ke Nexotao. Contoh siap-tempel curl, Python, dan Node.
+description: Dari daftar, top-up QRIS/crypto, buat API key, sampai request pertama ke Nexotao. Contoh siap-tempel curl, Python, dan Node.
 ---
 
 # Quickstart
 
-Empat langkah dari nol sampai jalan.
+Dari nol sampai jalan dalam beberapa menit.
 
 ## 1. Daftar
 
 Buat akun gratis di [nexotao.com](https://nexotao.com). Cukup email dan kata sandi.
 
-## 2. Top-up saldo (QRIS)
+## 2. Top-up saldo
 
-Isi saldo Rupiah lewat QRIS, mulai Rp 10.000. Saldo tidak kedaluwarsa dan dipotong
-sesuai pemakaian — tanpa langganan.
+Isi saldo Rupiah mulai Rp 10.000 lewat **QRIS** atau **crypto (USDT / USDC)**. Saldo
+tidak kedaluwarsa dan dipotong per token sesuai pemakaian — tanpa langganan. Isi
+Rp 150.000+ dapat bonus saldo **+6%**, Rp 500.000+ dapat **+15%**.
 
 ## 3. Buat API key
 
@@ -65,6 +66,16 @@ console.log(resp.choices[0].message.content)
 
 Setiap respons menyertakan header `X-Cost-Rp` (biaya aktual dalam Rupiah) dan
 `X-Request-Id`. Lihat [Penagihan & Harga](/penagihan) untuk detail.
+
+## 5. Ganti model cukup ubah satu string
+
+Panggilan yang sama, lebih murah atau lebih kuat — cukup ubah `model`:
+
+- `DeepSeek-V4-Flash` — workhorse super murah
+- `claude-opus-4-8` — reasoning frontier
+
+Id model bersifat case-sensitive — tulis persis seperti tertera. Lihat semua model
+dan harga hari ini di [nexotao.com/harga](https://www.nexotao.com/harga).
 
 ## Selanjutnya
 
