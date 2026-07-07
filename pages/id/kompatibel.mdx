@@ -1,0 +1,94 @@
+---
+title: Tool Lain (Universal)
+description: Pola universal untuk menyambungkan tool AI apa pun ke Nexotao — Cursor, SDK OpenAI/Anthropic, LangChain, atau tool baru yang menerima base URL kustom.
+---
+
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/cursor.svg" alt="Cursor" size={30} />
+  <ToolLogo src="/logos/openai.svg" alt="OpenAI SDK" size={30} />
+  <ToolLogo src="/logos/claude.svg" alt="Anthropic SDK" size={30} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compat &amp; Anthropic</span>
+</div>
+
+# Tool Lain (Universal)
+
+Belum menemukan tool-mu di daftar? Selama tool itu bisa diarahkan ke **base URL
+kustom** dan menerima **API key**, tool itu bisa dipakai dengan Nexotao. Prinsipnya
+sama: ganti base URL + key, lalu pilih model.
+
+## Pola universal
+
+**OpenAI-compat** (untuk gpt/grok/deepseek, dan mayoritas tool):
+
+| Field | Nilai |
+| ----- | ----- |
+| Base URL | `https://api.nexotao.com/v1` |
+| API Key | `sk-nexo-...` |
+| Header | `Authorization: Bearer sk-nexo-...` |
+| Model | `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash` |
+
+**Anthropic-compat** (untuk model Claude):
+
+| Field | Nilai |
+| ----- | ----- |
+| Base URL | `https://api.nexotao.com` |
+| API Key | `sk-nexo-...` |
+| Header | `x-api-key: sk-nexo-...` |
+| Model | `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6` |
+
+## Contoh: SDK OpenAI (Python/Node)
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+resp = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Halo"}],
+)
+print(resp.choices[0].message.content)
+```
+
+## Contoh: SDK Anthropic
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
+msg = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=256,
+    messages=[{"role": "user", "content": "Halo"}],
+)
+print(msg.content[0].text)
+```
+
+## Contoh: variabel lingkungan (untuk tool yang membacanya)
+
+```bash
+# Gaya OpenAI
+export OPENAI_BASE_URL=https://api.nexotao.com/v1
+export OPENAI_API_KEY=sk-nexo-...
+
+# Gaya Anthropic
+export ANTHROPIC_BASE_URL=https://api.nexotao.com
+export ANTHROPIC_AUTH_TOKEN=sk-nexo-...
+```
+
+## Cursor & tool berbasis cloud
+
+Sebagian tool (mis. Cursor) merutekan request lewat server mereka sendiri, sehingga
+base URL kustom kadang terbatas atau tidak tersedia. Cek apakah tool punya opsi
+"Override OpenAI Base URL" / "Custom API key". Jika ada, isi dengan pola OpenAI-compat
+di atas. Jika tidak, tool tersebut belum bisa dipakai dengan Nexotao.
+
+## Checklist kalau gagal
+
+- Salah `/v1`? OpenAI-compat **butuh** `/v1`; Anthropic-compat **tanpa** `/v1`.
+- Model tidak dikenal? Cocokkan persis dengan ID di [Model & Harga](/model-harga).
+- `401`? Key salah/dicabut — buat baru di dashboard. Lihat [Autentikasi](/autentikasi).
+- Butuh daftar error lengkap? Lihat [API Reference](/api-reference).
+
+Biaya dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).

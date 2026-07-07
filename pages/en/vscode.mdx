@@ -1,0 +1,119 @@
+---
+title: VS Code (Cline, Roo Code, Continue, Kilo Code)
+description: Connect VS Code AI extensions — Cline, Roo Code, Continue.dev, Kilo Code — to Nexotao via an OpenAI-compatible or Anthropic custom provider. Step by step.
+---
+
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/vscode.svg" alt="VS Code" size={34} />
+  <ToolLogo src="/logos/cline.svg" alt="Cline" size={30} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compatible &amp; Anthropic</span>
+</div>
+
+# VS Code
+
+The popular AI extensions in **VS Code** — Cline, Roo Code, Continue.dev, Kilo Code —
+all support **custom providers**. Just pick the provider type, enter Nexotao's base
+URL, and paste your `sk-nexo-...` API key.
+
+Remember the two modes:
+
+- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, models `gpt-5-mini`,
+  `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`.
+- **Anthropic** → base URL `https://api.nexotao.com`, models `claude-opus-4-8`,
+  `claude-sonnet-4-6`, etc.
+
+---
+
+## Cline
+
+<ToolLogo src="/logos/cline.svg" alt="Cline" size={26} />
+
+1. Install the **Cline** extension from the VS Code Marketplace.
+2. Open the Cline panel → **⚙️ Settings** icon.
+3. For **OpenAI-compat** models:
+   - **API Provider** → `OpenAI Compatible`
+   - **Base URL** → `https://api.nexotao.com/v1`
+   - **API Key** → `sk-nexo-...`
+   - **Model ID** → e.g. `gpt-5-mini`
+4. For **Claude** models:
+   - **API Provider** → `Anthropic`
+   - Check **Use custom base URL** → `https://api.nexotao.com` *(no `/v1`)*
+   - **API Key** → `sk-nexo-...`
+   - **Model** → e.g. `claude-opus-4-8`
+
+> Do not set the OpenAI Compatible Base URL to `https://api.openai.com/v1` — that's the
+> separate "OpenAI" provider.
+
+---
+
+## Roo Code
+
+Roo Code is a Cline fork; the steps are similar.
+
+1. Install the **Roo Code** extension.
+2. Roo Code panel → **gear** icon → **API Provider**.
+3. **OpenAI Compatible**: Base URL `https://api.nexotao.com/v1`, API Key `sk-nexo-...`,
+   Model e.g. `gpt-5-mini`.
+4. **Anthropic**: enable **Use custom base URL** → `https://api.nexotao.com`, API Key
+   `sk-nexo-...`, Model `claude-opus-4-8`.
+
+> Roo Code uses **native tool calling** on the OpenAI Compatible path. The chosen model
+> must support function/tool calling — `gpt-5-mini` and the other Nexotao models do.
+
+---
+
+## Continue.dev
+
+<ToolLogo src="/logos/vscode.svg" alt="Continue in VS Code" size={26} />
+
+Continue is configured via `~/.continue/config.yaml`.
+
+```yaml
+# ~/.continue/config.yaml
+models:
+  - name: GPT-5 Mini (Nexotao)
+    provider: openai
+    model: gpt-5-mini
+    apiBase: https://api.nexotao.com/v1
+    apiKey: sk-nexo-...
+
+  - name: Claude Opus 4.8 (Nexotao)
+    provider: anthropic
+    model: claude-opus-4-8
+    apiBase: https://api.nexotao.com
+    apiKey: sk-nexo-...
+```
+
+- `provider: openai` → `apiBase` **includes** `/v1`.
+- `provider: anthropic` → `apiBase` **without** `/v1`.
+- The legacy `config.json` still parses but is *deprecated* — write `config.yaml`.
+
+---
+
+## Kilo Code
+
+1. Install the **Kilo Code** extension.
+2. Kilo panel → **Settings (gear)** → **Providers** tab → **Custom provider**.
+3. Fill the dialog:
+   - **Provider ID** → `nexotao`
+   - **Provider API** → `OpenAI Compatible` (for gpt/grok/deepseek) or
+     `Anthropic Messages` (for Claude)
+   - **Base URL** → `https://api.nexotao.com/v1` (OpenAI-compat) or
+     `https://api.nexotao.com` (Anthropic)
+   - **API key** → `sk-nexo-...`
+   - **Models** → Kilo can auto-fetch from `/v1/models`, or enter IDs manually.
+
+> To use Claude **and** gpt/deepseek at once, create two custom providers — one
+> `OpenAI Compatible`, one `Anthropic Messages`.
+
+---
+
+## GitHub Copilot / others
+
+Tools without a custom-provider field (e.g. stock GitHub Copilot) can't be pointed at
+Nexotao yet. For those, see [Any other tool (universal)](/kompatibel) — the general
+pattern for anything that accepts a base URL.
+
+All tool usage is billed from your Rupiah balance per token. See [Billing & Pricing](/penagihan).

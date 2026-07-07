@@ -1,0 +1,84 @@
+---
+title: Codex CLI
+description: Use OpenAI Codex CLI with Nexotao models (gpt-5-mini, Grok, DeepSeek) and pay in Rupiah. Step-by-step ~/.codex/config.toml setup.
+---
+
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+  <ToolLogo src="/logos/openai.svg" alt="Codex" size={34} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compatible</span>
+</div>
+
+# Codex CLI
+
+**Codex** is OpenAI's terminal coding agent. It speaks the **OpenAI-compatible**
+format, so point it at `https://api.nexotao.com/v1` and use Nexotao's OpenAI-compat
+models: `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, or `DeepSeek-V4-Flash`.
+
+> For **Claude** models, use [Claude Code](/claude-code) (Anthropic format). Codex has
+> no Anthropic mode.
+
+## 1. Install Codex
+
+Follow OpenAI's official Codex docs. Verify:
+
+```bash
+codex --version
+```
+
+## 2. Set the API key as an environment variable
+
+Codex reads the key from an env var (it is not stored in the config file).
+
+```bash
+# macOS / Linux — add to ~/.zshrc or ~/.bashrc
+export OPENAI_API_KEY="sk-nexo-..."
+```
+
+```powershell
+# Windows PowerShell
+setx OPENAI_API_KEY "sk-nexo-..."
+```
+
+## 3. Register Nexotao as a provider
+
+Open (or create) `~/.codex/config.toml` and add:
+
+```toml
+# ~/.codex/config.toml
+model = "gpt-5-mini"          # default model; change as needed
+model_provider = "nexotao"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"   # MUST include /v1
+env_key = "OPENAI_API_KEY"                # env var holding sk-nexo-...
+wire_api = "chat"                         # use /chat/completions
+```
+
+## 4. Run
+
+From your project directory:
+
+```bash
+codex
+```
+
+Switch models anytime via a flag:
+
+```bash
+codex -m grok-4.3
+codex -m DeepSeek-V4-Pro
+```
+
+## Important notes
+
+- **`base_url` must end in `/v1`** — Codex appends `/chat/completions` itself.
+- **`wire_api = "chat"`** is required. Do not use `"responses"` (that targets the
+  OpenAI Responses API, which Nexotao does not expose).
+- The **provider ID** (`nexotao`) cannot reuse reserved names like `openai`, `ollama`,
+  or `lmstudio`.
+- The key is **not** stored in `config.toml`; only the env var name (`env_key`) is.
+
+Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/penagihan).

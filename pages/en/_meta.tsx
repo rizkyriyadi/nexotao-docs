@@ -17,8 +17,13 @@ export default {
     type: "separator",
     title: "Integrations",
   },
+  integrasi: "All Integrations",
   "claude-code": "Claude Code",
   "claude-code-rupiah": "Claude Code in Rupiah",
+  codex: "Codex CLI",
+  vscode: "VS Code",
+  "terminal-agents": "Aider & OpenCode",
+  kompatibel: "Any Other Tool",
   "context-window": "Context Window & Compaction",
   "-- referensi": {
     type: "separator",

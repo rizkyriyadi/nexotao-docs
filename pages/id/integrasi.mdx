@@ -1,0 +1,69 @@
+---
+title: Integrasi — Semua Tool AI
+description: Cara menghubungkan Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, dan OpenCode ke Nexotao. Bayar pakai Rupiah, tanpa kartu kredit luar negeri.
+---
+
+import { ToolGrid, ToolLogo } from "../../components/tool-logo"
+
+# Integrasi
+
+Nexotao bukan model baru yang harus kamu pelajari dari nol. Nexotao adalah **gerbang
+(gateway)** ke model AI yang sudah kamu pakai — Claude, GPT, DeepSeek, Grok — hanya
+saja **base URL** dan **API key**-nya diganti ke Nexotao, dan tagihannya dipotong dari
+saldo Rupiah.
+
+Artinya: tool coding apa pun yang bisa diarahkan ke endpoint kustom **bisa dipakai
+dengan Nexotao**. Halaman ini menjelaskan pola integrasinya, lalu tautan step-by-step
+per tool.
+
+## Dua "mode" — cukup ingat ini
+
+Semua integrasi turun ke salah satu dari dua mode. Kalau kamu paham ini, kamu bisa
+menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
+
+| Mode | Base URL | Header / env | Model | Dipakai untuk |
+| ---- | -------- | ------------ | ----- | ------------- |
+| **Anthropic-compat** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | `claude-opus-4-8`, `claude-sonnet-4-6`, … | Model **Claude** & tool yang berbicara format Anthropic (Claude Code, Cline mode Anthropic) |
+| **OpenAI-compat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, … | Model **OpenAI/DeepSeek/Grok** & tool format OpenAI (Codex, Aider, Continue, dll.) |
+
+<div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
+  <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
+  <ToolLogo src="/logos/openai.svg" alt="OpenAI / Codex" size={26} />
+  <ToolLogo src="/logos/vscode.svg" alt="VS Code" size={26} />
+  <ToolLogo src="/logos/cline.svg" alt="Cline" size={26} />
+  <ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={26} />
+  <ToolLogo src="/logos/deepseek.svg" alt="DeepSeek" size={26} />
+  <ToolLogo src="/logos/grok.svg" alt="Grok" size={26} />
+  <ToolLogo src="/logos/copilot.svg" alt="GitHub Copilot" size={26} />
+  <ToolLogo src="/logos/cursor.svg" alt="Cursor" size={26} />
+</div>
+
+> **Aturan cepat base URL:** tool OpenAI-compat butuh akhiran `/v1`
+> (`https://api.nexotao.com/v1`) dan menambahkan `/chat/completions` sendiri. Tool
+> Anthropic-compat pakai host polos (`https://api.nexotao.com`) dan menambahkan
+> `/v1/messages` sendiri. Field API key selalu diisi apa adanya: `sk-nexo-...`.
+
+## Pilih tool kamu
+
+<ToolGrid items={[
+  { logo: "/logos/claude.svg", name: "Claude Code", desc: "Coding agent CLI dari Anthropic. Generator config siap-tempel.", href: "/claude-code", mode: "anthropic" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Coding agent terminal dari OpenAI, diarahkan ke model Nexotao.", href: "/codex", mode: "openai" },
+  { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "Extension AI di VS Code — provider kustom OpenAI/Anthropic.", href: "/vscode", mode: "both" },
+  { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Agent coding di terminal. Konfigurasi env / config file.", href: "/terminal-agents", mode: "both" },
+  { logo: "/logos/cursor.svg", name: "Tool lain (universal)", desc: "Cursor, Copilot, atau tool apa pun yang menerima base URL kustom.", href: "/kompatibel", mode: "both" },
+]} />
+
+## Belum punya API key?
+
+1. Daftar di [nexotao.com](https://nexotao.com) — cukup email.
+2. Top-up saldo QRIS mulai Rp 10.000.
+3. Buat API key `sk-nexo-...` di menu **API Keys**.
+
+Detail ada di [Quickstart](/quickstart) dan [Autentikasi](/autentikasi).
+
+## Model yang tersedia
+
+Lihat daftar & tarif live di [Model & Harga](/model-harga). Ringkas:
+
+- **Anthropic-compat:** `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`
+- **OpenAI-compat:** `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`

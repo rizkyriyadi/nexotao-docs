@@ -1,0 +1,99 @@
+---
+title: Aider & OpenCode
+description: Pakai coding agent terminal Aider dan OpenCode dengan Nexotao. Konfigurasi env var dan config file untuk model OpenAI-compat maupun Claude.
+---
+
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={32} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compat &amp; Anthropic</span>
+</div>
+
+# Aider & OpenCode
+
+Dua coding agent terminal populer. Keduanya bisa diarahkan ke Nexotao lewat env var
+atau config file.
+
+---
+
+## Aider
+
+Aider merutekan model lewat LiteLLM, jadi kamu bisa pakai jalur OpenAI-compat
+(disarankan) atau Anthropic.
+
+### Model OpenAI-compat (disarankan)
+
+```bash
+export OPENAI_API_BASE=https://api.nexotao.com/v1
+export OPENAI_API_KEY=sk-nexo-...
+
+aider --model openai/gpt-5-mini
+```
+
+- Prefix `openai/` **wajib** — itu yang memberi tahu Aider memakai endpoint
+  OpenAI-compat.
+- `OPENAI_API_BASE` harus pakai `/v1`.
+- Model lain: `openai/grok-4.3`, `openai/DeepSeek-V4-Pro`.
+
+### Model Claude (via LiteLLM)
+
+```bash
+export ANTHROPIC_API_BASE=https://api.nexotao.com
+export ANTHROPIC_API_KEY=sk-nexo-...
+
+aider --model anthropic/claude-opus-4-8
+```
+
+- `ANTHROPIC_API_BASE` **tanpa** `/v1`.
+- Kalau versi Aider/LiteLLM-mu tidak mengambil base URL ini, pakai saja jalur
+  OpenAI-compat di atas.
+
+> Aider mungkin memunculkan peringatan "unknown model" untuk ID `sk-nexo` — aman,
+> bisa diabaikan.
+
+---
+
+## OpenCode
+
+<ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={26} />
+
+OpenCode dikonfigurasi lewat `opencode.json` (di root proyek atau
+`~/.config/opencode/opencode.json`).
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "nexotao": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Nexotao",
+      "options": {
+        "baseURL": "https://api.nexotao.com/v1",
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "models": {
+        "gpt-5-mini": {
+          "name": "GPT-5 Mini (Nexotao)",
+          "limit": { "context": 128000, "output": 65536 }
+        }
+      }
+    }
+  }
+}
+```
+
+Lalu:
+
+```bash
+export OPENAI_API_KEY=sk-nexo-...
+opencode          # pilih model lewat /models
+```
+
+- Pakai `npm: "@ai-sdk/openai-compatible"` untuk endpoint `/chat/completions`.
+- `baseURL` harus pakai `/v1`.
+- Provider kustom **wajib** mendeklarasikan `models` beserta `limit.context` /
+  `limit.output` — kalau tidak, pelacakan context bisa rusak.
+- `apiKey` mendukung sintaks `{env:VAR}`; simpan key di env var, bukan di file.
+
+Biaya dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).

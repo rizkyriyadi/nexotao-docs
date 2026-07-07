@@ -1,0 +1,86 @@
+---
+title: Codex CLI
+description: Pakai OpenAI Codex CLI dengan model Nexotao (gpt-5-mini, Grok, DeepSeek) dan bayar pakai Rupiah. Konfigurasi ~/.codex/config.toml langkah demi langkah.
+---
+
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+  <ToolLogo src="/logos/openai.svg" alt="Codex" size={34} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compat</span>
+</div>
+
+# Codex CLI
+
+**Codex** adalah coding agent terminal dari OpenAI. Codex berbicara format
+**OpenAI-compat**, jadi arahkan ke endpoint `https://api.nexotao.com/v1` dan pakai
+model OpenAI-compat Nexotao: `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, atau
+`DeepSeek-V4-Flash`.
+
+> Untuk model **Claude**, pakai [Claude Code](/claude-code) (format Anthropic). Codex
+> tidak punya mode Anthropic.
+
+## 1. Install Codex
+
+Ikuti dokumentasi resmi OpenAI Codex. Cek instalasi:
+
+```bash
+codex --version
+```
+
+## 2. Set API key sebagai environment variable
+
+Codex membaca key dari env var (bukan disimpan di file config).
+
+```bash
+# macOS / Linux — tambahkan ke ~/.zshrc atau ~/.bashrc
+export OPENAI_API_KEY="sk-nexo-..."
+```
+
+```powershell
+# Windows PowerShell
+setx OPENAI_API_KEY "sk-nexo-..."
+```
+
+## 3. Daftarkan Nexotao sebagai provider
+
+Buka (atau buat) `~/.codex/config.toml` lalu isi:
+
+```toml
+# ~/.codex/config.toml
+model = "gpt-5-mini"          # model default; ganti sesuai kebutuhan
+model_provider = "nexotao"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"   # WAJIB pakai /v1
+env_key = "OPENAI_API_KEY"                # nama env var berisi sk-nexo-...
+wire_api = "chat"                         # pakai /chat/completions
+```
+
+## 4. Jalankan
+
+Dari direktori proyekmu:
+
+```bash
+codex
+```
+
+Ganti model kapan saja lewat flag:
+
+```bash
+codex -m grok-4.3
+codex -m DeepSeek-V4-Pro
+```
+
+## Catatan penting
+
+- **`base_url` harus berakhiran `/v1`** — Codex menambahkan `/chat/completions`
+  sendiri.
+- **`wire_api = "chat"`** wajib. Jangan pakai `"responses"` (itu untuk OpenAI
+  Responses API yang tidak diekspos Nexotao).
+- **Provider ID** (`nexotao`) tidak boleh memakai nama cadangan seperti `openai`,
+  `ollama`, atau `lmstudio`.
+- Key **tidak** disimpan di `config.toml`; hanya nama env var-nya (`env_key`).
+
+Biaya dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).

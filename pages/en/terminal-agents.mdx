@@ -1,0 +1,98 @@
+---
+title: Aider & OpenCode
+description: Use the Aider and OpenCode terminal coding agents with Nexotao. Env-var and config-file setup for both OpenAI-compat and Claude models.
+---
+
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={32} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compatible &amp; Anthropic</span>
+</div>
+
+# Aider & OpenCode
+
+Two popular terminal coding agents. Both can be pointed at Nexotao via env vars or a
+config file.
+
+---
+
+## Aider
+
+Aider routes models through LiteLLM, so you can use the OpenAI-compat path
+(recommended) or the Anthropic path.
+
+### OpenAI-compat models (recommended)
+
+```bash
+export OPENAI_API_BASE=https://api.nexotao.com/v1
+export OPENAI_API_KEY=sk-nexo-...
+
+aider --model openai/gpt-5-mini
+```
+
+- The `openai/` prefix is **required** — it tells Aider to use the OpenAI-compatible
+  endpoint.
+- `OPENAI_API_BASE` must include `/v1`.
+- Other models: `openai/grok-4.3`, `openai/DeepSeek-V4-Pro`.
+
+### Claude models (via LiteLLM)
+
+```bash
+export ANTHROPIC_API_BASE=https://api.nexotao.com
+export ANTHROPIC_API_KEY=sk-nexo-...
+
+aider --model anthropic/claude-opus-4-8
+```
+
+- `ANTHROPIC_API_BASE` **without** `/v1`.
+- If your Aider/LiteLLM version doesn't pick up this base URL, just use the
+  OpenAI-compat path above.
+
+> Aider may show an "unknown model" warning for `sk-nexo` IDs — harmless, ignore it.
+
+---
+
+## OpenCode
+
+<ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={26} />
+
+OpenCode is configured via `opencode.json` (in the project root or
+`~/.config/opencode/opencode.json`).
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "nexotao": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Nexotao",
+      "options": {
+        "baseURL": "https://api.nexotao.com/v1",
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "models": {
+        "gpt-5-mini": {
+          "name": "GPT-5 Mini (Nexotao)",
+          "limit": { "context": 128000, "output": 65536 }
+        }
+      }
+    }
+  }
+}
+```
+
+Then:
+
+```bash
+export OPENAI_API_KEY=sk-nexo-...
+opencode          # pick a model via /models
+```
+
+- Use `npm: "@ai-sdk/openai-compatible"` for the `/chat/completions` endpoint.
+- `baseURL` must include `/v1`.
+- Custom providers **must** declare `models` with `limit.context` / `limit.output` —
+  otherwise context tracking breaks.
+- `apiKey` supports `{env:VAR}` syntax; keep the key in an env var, not the file.
+
+Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/penagihan).
