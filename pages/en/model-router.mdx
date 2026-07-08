@@ -1,0 +1,150 @@
+---
+title: Model Router
+description: Subscribe to a quality line (Saver, Auto, Opus) and a capacity tier (S/M/L), pay per period (Daily/Weekly/Monthly). The router picks and fails over models for you, self-limiting on spend, with a Fair Use Policy instead of hard errors.
+---
+
+# Model Router
+
+**Model Router** is a subscription way to use Nexotao. Instead of paying per
+token, you subscribe to a **line** (the quality of models you want) and a
+**tier** (how much capacity you get), for a **period** (your billing
+commitment). Point your existing OpenAI- or Anthropic-compatible client at
+Nexotao and the router picks the right model, load-balances, and fails over for
+you.
+
+Three choices define a subscription:
+
+1. **Line** — which models you want (Saver, Auto, or Opus).
+2. **Tier** — how much throughput you get (S, M, or L).
+3. **Period** — how you pay (Daily, Weekly, or Monthly).
+
+Prices live on the landing site — see the price grid at
+[nexotao.com/model-router](https://www.nexotao.com/model-router). This page
+explains how the router behaves, not the numbers.
+
+## Lines
+
+A **line** is the set of models the router is allowed to use for your requests.
+Pick the one that matches the quality you need.
+
+| Line      | Models it uses                                                        | Best for                                                                 |
+| --------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Saver** | `DeepSeek-V4-Flash`, `DeepSeek-V4-Pro`, `gpt-5-mini`, `grok-4.3`     | High-volume, cost-sensitive work — classification, extraction, chat.     |
+| **Auto**  | All live models — the router selects the right one per request        | General use. Cheapest-first, escalates only when the request needs it.    |
+| **Opus**  | `claude-opus-4-8` → `claude-opus-4-7` → `claude-opus-4-6`            | Maximum reasoning. Always the newest healthy Opus, failing over downward. |
+
+For **Saver** and **Opus**, the line is an **allow-list**: the router
+load-balances and fails over inside that fixed set. For **Auto**, the router
+chooses across all live models per request (see below).
+
+## Tiers & Fair Use Policy (FUP)
+
+A **tier** sets how much capacity your subscription includes. Capacity is
+governed by a **Fair Use Policy (FUP)**: an hourly token cap, with a daily
+quota of 24× that cap.
+
+| Tier  | FUP per hour  | Daily quota (×24)  |
+| ----- | ------------- | ------------------ |
+| **S** | 1M tokens/hr  | 24M tokens/day     |
+| **M** | 3M tokens/hr  | 72M tokens/day     |
+| **L** | 10M tokens/hr | 240M tokens/day    |
+
+Tokens counted are combined input + output. See [Fair Use Policy (FUP)
+behavior](#fair-use-policy-fup-behavior) below for what happens at the caps.
+
+### Periods
+
+The **period** is your billing commitment, independent of line and tier:
+
+- **Daily** — pay per day.
+- **Weekly** — a week at a time, roughly **30% cheaper** than daily.
+- **Monthly** — a month at a time, roughly **50% cheaper** than daily.
+
+Exact figures are on the [price grid](https://www.nexotao.com/model-router).
+
+## How Auto routing works
+
+With an **Auto** subscription your client keeps sending a normal request — the
+model id you send is a **hint, not a hard target**. For each request the router:
+
+1. **Estimates complexity** with a cheap, deterministic heuristic: estimated
+   input tokens, requested `max_tokens`, and whether the request carries tools,
+   code, or images.
+2. **Picks cheapest-first** and **escalates only when the request needs it** —
+   a short prompt stays on a Saver-class model; a long, tool-heavy, or
+   image-bearing request moves up.
+3. **Biases back down as the hour's FUP bucket depletes**, so Auto is
+   **self-limiting on spend** — it naturally prefers cheaper models as you
+   approach the cap.
+4. **Fails over underneath.** The chosen model runs through the existing
+   capacity failover: on overflow or a `429`, the request moves to the next
+   healthy model in the set, so a busy model never becomes your error.
+
+You can steer the router with an optional header:
+
+```
+X-Nexotao-Quality: fast | balanced | max
+```
+
+- `fast` — prefer the cheapest capable model.
+- `balanced` — the default behavior.
+- `max` — prefer the strongest model the tier allows.
+
+For **Saver** and **Opus** lines the set is pinned regardless of the model id
+you send; the router load-balances and fails over inside that set (Opus:
+newest healthy first, `4.8` → `4.7` → `4.6`).
+
+## How to call it
+
+Point your OpenAI- or Anthropic-compatible client at
+`https://api.nexotao.com` with your **subscription API key** — same base URL as
+the rest of the API. For an **Auto** key, send `model: "auto"` (or any model id
+— it's treated as a hint). For **Saver** and **Opus** keys the set is pinned no
+matter which model id you send.
+
+curl (OpenAI format):
+
+```bash
+curl https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto",
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+JavaScript:
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create(
+  { model: "auto", messages: [{ role: "user", content: "Hello" }] },
+  { headers: { "X-Nexotao-Quality": "balanced" } }, // optional quality hint
+)
+console.log(resp.choices[0].message.content)
+```
+
+The optional `X-Nexotao-Quality` header only affects **Auto**; Saver and Opus
+already pin their set.
+
+## Fair Use Policy (FUP) behavior
+
+The FUP keeps the service fair without surprising hard failures:
+
+- **Hourly cap reached** — requests are **soft-throttled** with a brief
+  bounded-wait, **not a hard error**. Requests keep succeeding, just paced.
+- **Daily quota exhausted** — you get a **clean message** explaining the quota
+  is used up; it **resets at the day boundary**.
+- **Subscription expired** — you **fall back to normal pay-per-token** billing,
+  never a hard lockout. Your requests keep working, charged per token from your
+  Rupiah balance.
+
+## Next
+
+- [Models & Pricing](/model-harga) — per-token rates for pay-as-you-go.
+- [Quickstart](/quickstart) — sign up, top up, first request.
+- [Billing & Pricing](/penagihan) — how charges are counted.
