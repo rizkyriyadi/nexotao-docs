@@ -1,0 +1,152 @@
+---
+title: Model Router
+description: Berlangganan lini kualitas (Saver, Auto, Opus) dan tier kapasitas (S/M/L), bayar per periode (Harian/Mingguan/Bulanan). Router memilih dan mem-failover model untuk Anda, membatasi biaya sendiri, dengan Batas Wajar bukan error keras.
+---
+
+# Model Router
+
+**Model Router** adalah cara berlangganan untuk memakai Nexotao. Alih-alih bayar
+per token, Anda berlangganan sebuah **lini** (kualitas model yang Anda mau) dan
+sebuah **tier** (seberapa besar kapasitasnya), untuk satu **periode** (komitmen
+penagihan Anda). Arahkan saja klien Anda yang kompatibel OpenAI atau Anthropic ke
+Nexotao, dan router yang memilih model yang tepat, menyeimbangkan beban, serta
+mem-failover untuk Anda.
+
+Tiga pilihan menentukan satu langganan:
+
+1. **Lini** — model mana yang Anda mau (Saver, Auto, atau Opus).
+2. **Tier** — seberapa besar throughput yang Anda dapat (S, M, atau L).
+3. **Periode** — cara Anda membayar (Harian, Mingguan, atau Bulanan).
+
+Harga ada di situs landing — lihat grid harga di
+[nexotao.com/model-router](https://www.nexotao.com/model-router). Halaman ini
+menjelaskan cara kerja router, bukan angkanya.
+
+## Lini
+
+Sebuah **lini** adalah kumpulan model yang boleh dipakai router untuk request
+Anda. Pilih yang sesuai kualitas yang Anda butuhkan.
+
+| Lini      | Model yang dipakai                                                   | Paling cocok untuk                                                          |
+| --------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Saver** (Hemat) | `DeepSeek-V4-Flash`, `DeepSeek-V4-Pro`, `gpt-5-mini`, `grok-4.3` | Pekerjaan volume tinggi yang sensitif biaya — klasifikasi, ekstraksi, chat. |
+| **Auto**  | Semua model live — router memilih yang tepat per request              | Pemakaian umum. Termurah dulu, naik hanya bila request memang butuh.        |
+| **Opus**  | `claude-opus-4-8` → `claude-opus-4-7` → `claude-opus-4-6`           | Penalaran maksimal. Selalu Opus tersehat terbaru, failover turun ke bawah.  |
+
+Untuk **Saver** dan **Opus**, lini adalah **allow-list**: router menyeimbangkan
+beban dan mem-failover di dalam kumpulan tetap itu. Untuk **Auto**, router
+memilih lintas semua model live per request (lihat di bawah).
+
+## Tier & Batas Wajar (FUP)
+
+Sebuah **tier** menetapkan seberapa besar kapasitas yang termasuk dalam langganan
+Anda. Kapasitas diatur oleh **Batas Wajar (Fair Use Policy / FUP)**: batas token
+per jam, dengan kuota harian 24× batas tersebut.
+
+| Tier  | FUP per jam    | Kuota harian (×24)  |
+| ----- | -------------- | ------------------- |
+| **S** | 1 jt token/jam | 24 jt token/hari    |
+| **M** | 3 jt token/jam | 72 jt token/hari    |
+| **L** | 10 jt token/jam| 240 jt token/hari   |
+
+Token yang dihitung adalah gabungan input + output. Lihat [Perilaku Batas Wajar
+(FUP)](#perilaku-batas-wajar-fup) di bawah untuk apa yang terjadi saat batas
+tercapai.
+
+### Periode
+
+**Periode** adalah komitmen penagihan Anda, terpisah dari lini dan tier:
+
+- **Harian** — bayar per hari.
+- **Mingguan** — per minggu, kira-kira **30% lebih murah** dari harian.
+- **Bulanan** — per bulan, kira-kira **50% lebih murah** dari harian.
+
+Angka pastinya ada di [grid harga](https://www.nexotao.com/model-router).
+
+## Cara kerja routing Auto
+
+Dengan langganan **Auto**, klien Anda tetap mengirim request biasa — id model
+yang Anda kirim adalah **petunjuk, bukan target keras**. Untuk tiap request,
+router:
+
+1. **Menaksir kompleksitas** dengan heuristik deterministik yang murah: taksiran
+   token input, `max_tokens` yang diminta, dan apakah request membawa tools,
+   kode, atau gambar.
+2. **Memilih termurah dulu** dan **naik hanya bila request memang butuh** —
+   prompt pendek tetap di model kelas Saver; request panjang, berat tools, atau
+   berisi gambar akan naik.
+3. **Cenderung turun lagi saat kuota FUP jam itu menipis**, jadi Auto
+   **membatasi biaya sendiri** — secara alami memilih model lebih murah saat
+   Anda mendekati batas.
+4. **Failover di baliknya.** Model yang dipilih melewati failover kapasitas yang
+   sudah ada: saat overflow atau `429`, request pindah ke model sehat berikutnya
+   dalam kumpulan, jadi model sibuk tak pernah jadi error Anda.
+
+Anda bisa mengarahkan router dengan header opsional:
+
+```
+X-Nexotao-Quality: fast | balanced | max
+```
+
+- `fast` — utamakan model termurah yang mampu.
+- `balanced` — perilaku default.
+- `max` — utamakan model terkuat yang diizinkan tier.
+
+Untuk lini **Saver** dan **Opus**, kumpulannya terkunci apa pun id model yang
+Anda kirim; router menyeimbangkan beban dan mem-failover di dalam kumpulan itu
+(Opus: tersehat terbaru dulu, `4.8` → `4.7` → `4.6`).
+
+## Cara memanggilnya
+
+Arahkan klien Anda yang kompatibel OpenAI atau Anthropic ke
+`https://api.nexotao.com` dengan **API key langganan** Anda — base URL yang sama
+dengan sisa API. Untuk key **Auto**, kirim `model: "auto"` (atau id model apa pun
+— dianggap petunjuk). Untuk key **Saver** dan **Opus**, kumpulannya terkunci apa
+pun id model yang dikirim.
+
+curl (format OpenAI):
+
+```bash
+curl https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "auto",
+    "messages": [{"role": "user", "content": "Halo"}]
+  }'
+```
+
+JavaScript:
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create(
+  { model: "auto", messages: [{ role: "user", content: "Halo" }] },
+  { headers: { "X-Nexotao-Quality": "balanced" } }, // petunjuk kualitas opsional
+)
+console.log(resp.choices[0].message.content)
+```
+
+Header opsional `X-Nexotao-Quality` hanya memengaruhi **Auto**; Saver dan Opus
+sudah mengunci kumpulannya.
+
+## Perilaku Batas Wajar (FUP)
+
+Batas Wajar menjaga layanan tetap adil tanpa kegagalan keras yang mengejutkan:
+
+- **Batas per jam tercapai** — request **di-throttle halus** dengan bounded-wait
+  singkat, **bukan error keras**. Request tetap berhasil, hanya diberi jeda.
+- **Kuota harian habis** — Anda mendapat **pesan yang jelas** bahwa kuota sudah
+  terpakai; kuota **reset di batas hari**.
+- **Langganan kedaluwarsa** — Anda **jatuh ke penagihan pay-per-token biasa**,
+  bukan penguncian keras. Request tetap jalan, dihitung per token dari saldo
+  Rupiah Anda.
+
+## Selanjutnya
+
+- [Model & Harga](/model-harga) — tarif per token untuk pay-as-you-go.
+- [Quickstart](/quickstart) — daftar, top-up, request pertama.
+- [Penagihan & Harga](/penagihan) — cara biaya dihitung.
