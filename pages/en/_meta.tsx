@@ -18,6 +18,7 @@ export default {
     title: "Integrations",
   },
   integrasi: "All Integrations",
+  "nexotao-orce": "Nexotao Orce",
   "claude-code": "Claude Code",
   "claude-code-rupiah": "Claude Code in Rupiah",
   codex: "Codex CLI",

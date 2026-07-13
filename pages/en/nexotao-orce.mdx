@@ -1,0 +1,108 @@
+---
+title: Nexotao Orce
+description: Self-host Claude Code in your browser plus multi-agent orchestration. Install via npm or Docker, then connect it to Nexotao — pay for models with a Rupiah balance.
+---
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <span style={{ fontSize: 26, lineHeight: 1 }}>◆</span>
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Open-source (MIT) · self-host · Node ≥ 20</span>
+</div>
+
+# Nexotao Orce
+
+**Claude Code, in your browser — plus a real multi-agent orchestration system.** You
+self-host Orce on a VM and drive it from any device: chat with a single agent, or give it a
+goal and watch a **planner break it into a task DAG** that agent teams execute in parallel.
+
+> If **Claude Code** is one agent at your terminal, **Orce** is a room full of them —
+> planned, tracked, and budgeted from a clean web console.
+
+Source & releases: [github.com/rizkyriyadi/nexotao-orchestrator](https://github.com/rizkyriyadi/nexotao-orchestrator)
+· npm package: [`nexotao-orce`](https://www.npmjs.com/package/nexotao-orce).
+
+---
+
+## Why Orce
+
+You love Claude Code but you're tied to a terminal on a machine that has to stay on. Orce
+puts the same engine (the official **Claude Agent SDK**) behind a web UI you host yourself —
+so you can prompt from your phone, laptop, or tablet — plus an orchestration layer for work
+that's too big for a single agent.
+
+- 💬 **Chat** — full Claude Code: bash, edit, read, web, subagents. Streaming, with
+  persistent sessions you can resume from any device.
+- 🧠 **Orce (orchestration)** — give a goal; a **planner** decomposes it into a **task DAG**,
+  assigns each task to the best agent, and a scheduler runs them **in parallel where
+  dependencies allow**.
+- 🎫 **Task system** — every task is a ticket (`TASK-0001`) with status, dependencies, cost,
+  and a detail page.
+- ✅ **Plan approval** — review the proposed DAG then **Approve & run**, or leave auto-run on.
+- 🤖 **Custom agents** — role, system prompt, model, allowed tools, and isolated workspace.
+- 💰 **Budget hard-stop** — set a USD cap per run; warns at 80%, halts at 100%.
+
+## Install
+
+You need **Node.js 20+**. Model access is configured inside the app (see below).
+
+### npm (recommended)
+
+```bash
+npm install -g nexotao-orce
+nexotao
+```
+
+Typing **`nexotao`** starts the server and **opens the UI in your browser**. On first run you
+**create your own password in the app** (nothing is printed to the terminal), then
+onboarding walks you through your first project.
+
+- Stop it: press **`Ctrl+C`**.
+- Forgot your password? run `nexotao reset-password`.
+- Custom port: `nexotao --port 9000` · don't auto-open: `nexotao --no-open`
+- No global install: `npx nexotao-orce`.
+
+### Docker
+
+```bash
+git clone https://github.com/rizkyriyadi/nexotao-orchestrator.git && cd nexotao-orchestrator
+cp .env.example .env       # set APP_PASSWORD, (optional) DATABASE_URL
+docker compose up -d --build
+# → http://localhost:8787
+```
+
+## Connect it to Nexotao
+
+On first run — and anytime under **Settings** — you pick where model access comes from.
+Choose **Nexotao** to pay per token from a Rupiah balance:
+
+1. Paste your `sk-nexo-...` API key.
+2. Pick a model — Claude (`claude-opus-4-8`, `claude-sonnet-4-6`), GPT, Grok, or DeepSeek.
+
+The **Claude Code (local)** option instead connects straight through the `claude` already
+logged in on that machine (subscription, `ANTHROPIC_API_KEY`, or Bedrock/Vertex/Foundry) —
+nothing to paste. You can switch providers at any time; the choice is global to your install.
+
+> **No API key yet?** Sign up at [nexotao.com](https://nexotao.com) (just an email), top up
+> via QRIS from Rp 10,000, then create an `sk-nexo-...` key under **API Keys**. Details in
+> [Quickstart](/en/quickstart) and [Authentication](/en/autentikasi).
+
+## Two modes
+
+| Mode | What it is |
+| ---- | ---------- |
+| **Chat** | One agent, the full toolset — bash, edit, subagents, web. |
+| **Orchestrate** | Parallel agents by lens, reconciled by a synthesizer. Planner → task DAG → parallel scheduler, with cost and budget tracking. |
+
+## Security
+
+This server can **run shell commands and edit files** on its host. Treat it like SSH:
+
+- Always put it behind **HTTPS** (e.g. Caddy: `reverse_proxy localhost:8787`). Never expose
+  the raw port.
+- Use a **strong password** (you set it on first run). It's single-operator — don't share it.
+- It defaults to `bypassPermissions` (agents run without prompts). Set
+  `PERMISSION_MODE=acceptEdits` for a stricter setup, and lock the VM firewall to your IP.
+
+---
+
+Built on the [Claude Agent SDK](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk).
+Not affiliated with Anthropic.

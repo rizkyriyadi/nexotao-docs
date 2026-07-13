@@ -15,8 +15,6 @@ const Logo = () => (
   </span>
 )
 
-const ORCE_REPO = "https://github.com/rizkyriyadi/nexotao-orchestrator"
-
 const config: DocsThemeConfig = {
   logo: Logo,
   project: { link: "https://nexotao.com" },
@@ -26,18 +24,19 @@ const config: DocsThemeConfig = {
     content: function Banner() {
       const { locale } = useRouter()
       const isEn = locale === "en"
+      const href = isEn ? "/en/nexotao-orce" : "/nexotao-orce"
       return (
-        <a href={ORCE_REPO} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+        <a href={href} style={{ textDecoration: "none" }}>
           <span style={{ marginRight: 6 }}>◆</span>
           {isEn ? (
             <>
               <strong>Nexotao Orce is open-source</strong> — Claude Code in your browser + multi-agent orchestration.{" "}
-              <span style={{ color: "#BAE6FD" }}>View on GitHub →</span>
+              <span style={{ color: "#BAE6FD" }}>Read the guide →</span>
             </>
           ) : (
             <>
               <strong>Nexotao Orce kini open-source</strong> — Claude Code di browser + orkestrasi multi-agent.{" "}
-              <span style={{ color: "#BAE6FD" }}>Lihat di GitHub →</span>
+              <span style={{ color: "#BAE6FD" }}>Baca panduannya →</span>
             </>
           )}
         </a>
