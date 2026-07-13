@@ -15,9 +15,35 @@ const Logo = () => (
   </span>
 )
 
+const ORCE_REPO = "https://github.com/rizkyriyadi/nexotao-orchestrator"
+
 const config: DocsThemeConfig = {
   logo: Logo,
   project: { link: "https://nexotao.com" },
+  banner: {
+    key: "orce-launch-v1",
+    dismissible: true,
+    content: function Banner() {
+      const { locale } = useRouter()
+      const isEn = locale === "en"
+      return (
+        <a href={ORCE_REPO} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+          <span style={{ marginRight: 6 }}>◆</span>
+          {isEn ? (
+            <>
+              <strong>Nexotao Orce is open-source</strong> — Claude Code in your browser + multi-agent orchestration.{" "}
+              <span style={{ color: "#BAE6FD" }}>View on GitHub →</span>
+            </>
+          ) : (
+            <>
+              <strong>Nexotao Orce kini open-source</strong> — Claude Code di browser + orkestrasi multi-agent.{" "}
+              <span style={{ color: "#BAE6FD" }}>Lihat di GitHub →</span>
+            </>
+          )}
+        </a>
+      )
+    },
+  },
   docsRepositoryBase: "https://github.com/rizkyriyadi/nexotao-docs/tree/main",
   color: { hue: 199, saturation: 90 },
   darkMode: true,
