@@ -17,4 +17,3 @@ tsconfig.tsbuildinfo
 .claude/scheduled_tasks.json
 .qa/
 design/nex-*/
-graphify-out/
