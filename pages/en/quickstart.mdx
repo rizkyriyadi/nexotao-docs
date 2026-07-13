@@ -72,8 +72,10 @@ Every response includes an `X-Cost-Rp` header (the actual cost in Rupiah) and
 
 Same call, cheaper or stronger — just change the `model`:
 
-- `DeepSeek-V4-Flash` — ultra-cheap workhorse
-- `claude-opus-4-8` — frontier reasoning
+- `DeepSeek-V4-Flash` — ultra-cheap workhorse for **high-volume** work:
+  classification, extraction, short chat. Not for agentic/coding or large
+  context (~20k TPM capacity — heavy requests can hit `429 server at capacity`).
+- `claude-opus-4-8` — frontier reasoning for **coding/agentic & large context**.
 
 Model ids are case-sensitive — use them exactly as listed. Browse every model and
 today's price at [nexotao.com/harga](https://www.nexotao.com/harga).

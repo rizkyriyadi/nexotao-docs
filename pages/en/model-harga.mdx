@@ -28,6 +28,13 @@ below.
 figure, so the copy stays accurate when Anthropic changes their own list
 price.
 
+> **Match the model to the job.** For **high-volume, cheap** workloads —
+> classification, extraction, short chat — use a cheap model like
+> `DeepSeek-V4-Flash` or `gpt-5-mini`. For **coding/agentic & large context**,
+> use **Claude (Opus/Sonnet)**: DeepSeek has a small capacity (~20k tokens/min),
+> so a single agentic or large-context request can hit
+> `429 server at capacity`. Details on the [Model Router](/model-router) page.
+
 ## Live per-million-token rates
 
 Beyond the headline above, every model has per-million-token rates for

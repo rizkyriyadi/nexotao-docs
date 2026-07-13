@@ -71,8 +71,10 @@ Setiap respons menyertakan header `X-Cost-Rp` (biaya aktual dalam Rupiah) dan
 
 Panggilan yang sama, lebih murah atau lebih kuat — cukup ubah `model`:
 
-- `DeepSeek-V4-Flash` — workhorse super murah
-- `claude-opus-4-8` — reasoning frontier
+- `DeepSeek-V4-Flash` — workhorse super murah untuk kerjaan **volume tinggi**:
+  klasifikasi, ekstraksi, chat pendek. Bukan untuk agentic/coding atau konteks
+  besar (kapasitas ~20k TPM — request berat bisa kena `429 server at capacity`).
+- `claude-opus-4-8` — reasoning frontier untuk **coding/agentic & konteks besar**.
 
 Id model bersifat case-sensitive — tulis persis seperti tertera. Lihat semua model
 dan harga hari ini di [nexotao.com/harga](https://www.nexotao.com/harga).

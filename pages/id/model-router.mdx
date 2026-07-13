@@ -37,6 +37,20 @@ Untuk **Saver** dan **Opus**, lini adalah **allow-list**: router menyeimbangkan
 beban dan mem-failover di dalam kumpulan tetap itu. Untuk **Auto**, router
 memilih lintas semua model live per request (lihat di bawah).
 
+> **Pakai model yang tepat untuk kerjaannya.** DeepSeek (di lini **Saver**)
+> diposisikan untuk kerjaan **volume tinggi & hemat**: klasifikasi, ekstraksi,
+> dan chat pendek. Model itu **bukan** untuk agentic/coding atau konteks besar.
+> `DeepSeek-V4-Flash` cuma punya kapasitas **~20k token/menit (TPM)** per
+> backend (default serverless Azure), jadi **satu** request agentic/large-context
+> (mudah menembus ~50k token input) sudah melampaui jatah satu backend dan akan
+> kena `429 server at capacity, retry shortly` — sebanyak apa pun backend
+> paralel tidak menolong, karena satu request tidak bisa dipecah antar-backend.
+>
+> **Untuk coding/agentic dan konteks besar, pakai Claude (Opus/Sonnet)** —
+> langsung lewat id modelnya (mis. `claude-opus-4-8`), lini **Opus**, atau lini
+> **Auto** yang otomatis menaikkan request berat-tools/berkonteks-besar ke model
+> kelas Claude. DeepSeek tetap pilihan terbaik untuk beban volume/murah.
+
 ## Tier & Batas Wajar (FUP)
 
 Sebuah **tier** menetapkan seberapa besar kapasitas yang termasuk dalam langganan

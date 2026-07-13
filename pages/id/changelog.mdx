@@ -8,6 +8,15 @@ description: Perubahan penting pada API dan katalog model Nexotao, beserta catat
 Perubahan penting pada API dan katalog model Nexotao. Perubahan yang memutus
 kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplisit.
 
+## 2026-07-13 — Positioning model diperjelas: DeepSeek untuk volume/hemat, Claude untuk agentic
+
+Dokumentasi kini menegaskan pemilihan model. **`DeepSeek-V4-Flash` untuk kerjaan
+volume tinggi & hemat** (klasifikasi, ekstraksi, chat pendek); **Claude
+(Opus/Sonnet) untuk coding/agentic & konteks besar.** DeepSeek berkapasitas kecil
+(~20k token/menit), jadi satu request agentic/large-context bisa membalas
+`429 server at capacity, retry shortly`. Lihat [Model Router](/model-router) dan
+[FAQ](/faq). Tidak ada perubahan API atau harga — hanya penyelarasan panduan.
+
 ## 2026-06-26 — Pembaruan tarif Opus 4.8 (+30%) kini berlaku, tetap ~61% di bawah harga resmi
 
 Claude Opus 4.8 (`claude-opus-4-8`) punya harga publikasi baru yang **kini

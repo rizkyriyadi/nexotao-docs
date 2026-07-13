@@ -37,6 +37,21 @@ For **Saver** and **Opus**, the line is an **allow-list**: the router
 load-balances and fails over inside that fixed set. For **Auto**, the router
 chooses across all live models per request (see below).
 
+> **Match the model to the job.** DeepSeek (on the **Saver** line) is positioned
+> for **high-volume, cheap** work: classification, extraction, and short chat.
+> It is **not** for agentic/coding or large context. `DeepSeek-V4-Flash` has
+> only **~20k tokens/minute (TPM)** per backend (Azure serverless default), so a
+> **single** agentic or large-context request (easily ~50k input tokens)
+> exceeds one backend's entire per-minute budget and returns
+> `429 server at capacity, retry shortly` — no number of parallel backends
+> helps, because a single request cannot be split across backends.
+>
+> **For coding/agentic and large context, use Claude (Opus/Sonnet)** — call the
+> model id directly (e.g. `claude-opus-4-8`), use the **Opus** line, or use
+> **Auto**, which automatically escalates tool-heavy and large-context requests
+> to Claude-class models. DeepSeek stays the best pick for volume/cheap
+> workloads.
+
 ## Tiers & Fair Use Policy (FUP)
 
 A **tier** sets how much capacity your subscription includes. Capacity is
