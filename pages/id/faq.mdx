@@ -41,3 +41,19 @@ dobel-charge atau kegagalan sistem, lihat kebijakan refund di
 
 Tarif live ada di [Model & Harga](/model-harga). Saat ini jauh di bawah harga
 official — anggap harga promo.
+
+## Kenapa DeepSeek kadang balas 429 / "server at capacity"?
+
+Karena request-nya bukan untuk DeepSeek. `DeepSeek-V4-Flash` diposisikan untuk
+kerjaan **volume tinggi & hemat** — klasifikasi, ekstraksi, chat pendek — dan
+kapasitasnya kecil, sekitar **20k token/menit (TPM)** per backend. Satu request
+**agentic/coding atau konteks besar** gampang menembus ~50k token input, sudah
+melampaui jatah satu backend, jadi balas `429 server at capacity, retry shortly`
+— sebanyak apa pun backend paralel tidak menolong, karena satu request tidak
+bisa dipecah antar-backend.
+
+Solusinya bukan retry berulang, tapi **pakai model yang tepat**: untuk
+coding/agentic dan konteks besar, arahkan ke **Claude (Opus/Sonnet)** — lewat id
+model (mis. `claude-opus-4-8`), lini **Opus**, atau lini **Auto** di
+[Model Router](/model-router) yang otomatis menaikkan request berat ke model
+kelas Claude. DeepSeek tetap pilihan terbaik untuk beban volume/murah.

@@ -41,3 +41,19 @@ double charges or system failures, see the refund policy at
 
 Live rates are on [Models & Pricing](/model-harga). They are currently well below
 official pricing — treat it as a promo price.
+
+## Why does DeepSeek sometimes return 429 / "server at capacity"?
+
+Because the request isn't a DeepSeek job. `DeepSeek-V4-Flash` is positioned for
+**high-volume, cheap** work — classification, extraction, short chat — and has a
+small capacity of about **20k tokens/minute (TPM)** per backend. A single
+**agentic/coding or large-context** request easily exceeds ~50k input tokens,
+overrunning one backend's entire per-minute budget, so it returns
+`429 server at capacity, retry shortly` — no number of parallel backends helps,
+because a single request cannot be split across backends.
+
+The fix isn't to keep retrying, it's to **use the right model**: for
+coding/agentic and large context, route to **Claude (Opus/Sonnet)** — via the
+model id (e.g. `claude-opus-4-8`), the **Opus** line, or the **Auto** line on
+the [Model Router](/model-router), which automatically escalates heavy requests
+to Claude-class models. DeepSeek stays the best pick for volume/cheap workloads.
