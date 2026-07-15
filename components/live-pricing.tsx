@@ -6,20 +6,22 @@ const ORDER: Modality[] = ["text", "image", "transcribe"]
 
 const T = {
   id: {
-    model: "Model",
+    displayName: "Nama tampilan",
+    modelId: "Model ID",
     provider: "Provider",
     rate: "Tarif",
     loadFailed: "Gagal memuat harga live. Lihat harga terkini di",
     loading: "Memuat harga live…",
-    note: "Harga diambil langsung dari katalog live. Promo: tarif saat ini jauh di bawah harga official.",
+    note: "Model ID bersifat case-sensitive dan harus disalin persis. Harga diambil langsung dari katalog live.",
   },
   en: {
-    model: "Model",
+    displayName: "Display name",
+    modelId: "Model ID",
     provider: "Provider",
     rate: "Rate",
     loadFailed: "Failed to load live pricing. See current rates at",
     loading: "Loading live pricing…",
-    note: "Prices are pulled directly from the live catalog. Promo: current rates are well below official pricing.",
+    note: "Model IDs are case-sensitive and must be copied exactly. Prices are pulled directly from the live catalog.",
   },
 } as const
 
@@ -73,7 +75,8 @@ export function LivePricing() {
           <table className="docs-table">
             <thead>
               <tr>
-                <th>{t.model}</th>
+                <th>{t.displayName}</th>
+                <th>{t.modelId}</th>
                 <th>{t.provider}</th>
                 <th style={{ textAlign: "right" }}>{t.rate}</th>
               </tr>
@@ -83,7 +86,8 @@ export function LivePricing() {
                 <tr key={m.model}>
                   <td>
                     {m.display_name}
-                    <br />
+                  </td>
+                  <td>
                     <span className="nx-note" style={{ fontFamily: "monospace" }}>
                       {m.model}
                     </span>

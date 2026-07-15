@@ -10,6 +10,27 @@ import { LivePricing } from "../../components/live-pricing"
 **Sama modelnya dengan Anthropic dan OpenAI langsung.** Bedanya: bayar per
 token pakai QRIS. Tanpa kartu USD, tanpa langganan bulanan, tanpa FX card fee.
 
+## Nama tampilan vs Model ID
+
+Nama seperti **GPT-5.6 Sol** adalah **nama tampilan** untuk dibaca manusia.
+Saat memanggil API, gunakan **Model ID** persis seperti `gpt-5.6-sol`.
+Model ID bersifat **case-sensitive**: jangan mengubah huruf besar/kecil dan
+jangan memakai nama tampilan sebagai nilai `model`.
+
+Lihat semua Model ID langsung dari katalog live:
+
+```bash
+curl -s https://api.nexotao.com/models | jq -r '.models[].model'
+```
+
+Contoh pemetaan:
+
+| Nama tampilan | Model ID untuk API |
+| --- | --- |
+| GPT-5.6 Luna | `gpt-5.6-luna` |
+| GPT-5.6 Terra | `gpt-5.6-terra` |
+| GPT-5.6 Sol | `gpt-5.6-sol` |
+
 ## Headline per 100 juta token
 
 Angka bulat marketing untuk memperkirakan skala. Dihitung dari campuran 30%

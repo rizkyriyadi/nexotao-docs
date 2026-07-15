@@ -10,6 +10,27 @@ import { LivePricing } from "../../components/live-pricing"
 **The same models as Anthropic and OpenAI direct.** The difference: pay per
 token with QRIS. No USD card, no monthly subscription, no FX card fee.
 
+## Display name vs Model ID
+
+Names such as **GPT-5.6 Sol** are human-readable **display names**. When calling
+the API, use the exact **Model ID**, such as `gpt-5.6-sol`. Model IDs are
+**case-sensitive**: do not change capitalization or pass the display name as
+the `model` value.
+
+List every Model ID directly from the live catalog:
+
+```bash
+curl -s https://api.nexotao.com/models | jq -r '.models[].model'
+```
+
+Example mappings:
+
+| Display name | API Model ID |
+| --- | --- |
+| GPT-5.6 Luna | `gpt-5.6-luna` |
+| GPT-5.6 Terra | `gpt-5.6-terra` |
+| GPT-5.6 Sol | `gpt-5.6-sol` |
+
 ## Headline per 100M tokens
 
 Round marketing figures for order-of-magnitude planning. Computed from a
