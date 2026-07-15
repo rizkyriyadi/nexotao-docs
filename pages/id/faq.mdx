@@ -53,7 +53,6 @@ melampaui jatah satu backend, jadi balas `429 server at capacity, retry shortly`
 bisa dipecah antar-backend.
 
 Solusinya bukan retry berulang, tapi **pakai model yang tepat**: untuk
-coding/agentic dan konteks besar, arahkan ke **Claude (Opus/Sonnet)** — lewat id
-model (mis. `claude-opus-4-8`), lini **Opus**, atau lini **Auto** di
-[Model Router](/model-router) yang otomatis menaikkan request berat ke model
-kelas Claude. DeepSeek tetap pilihan terbaik untuk beban volume/murah.
+coding/agentic dan konteks besar, pilih langsung id model **Claude
+(Opus/Sonnet)**, misalnya `claude-opus-4-8`. DeepSeek tetap pilihan terbaik
+untuk beban volume/murah.

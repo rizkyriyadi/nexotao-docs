@@ -53,7 +53,6 @@ overrunning one backend's entire per-minute budget, so it returns
 because a single request cannot be split across backends.
 
 The fix isn't to keep retrying, it's to **use the right model**: for
-coding/agentic and large context, route to **Claude (Opus/Sonnet)** — via the
-model id (e.g. `claude-opus-4-8`), the **Opus** line, or the **Auto** line on
-the [Model Router](/model-router), which automatically escalates heavy requests
-to Claude-class models. DeepSeek stays the best pick for volume/cheap workloads.
+coding/agentic and large context, select a **Claude (Opus/Sonnet)** model id
+directly (for example `claude-opus-4-8`). DeepSeek stays the best pick for
+volume/cheap workloads.

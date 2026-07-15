@@ -32,7 +32,6 @@ export default {
   },
   "api-reference": "API Reference",
   "model-harga": "Model & Harga",
-  "model-router": "Model Router",
   faq: "FAQ",
   "-- changelog-sep": {
     type: "separator",
