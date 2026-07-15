@@ -8,6 +8,20 @@ description: Notable changes to the Nexotao API and model catalog, with migratio
 Notable changes to the Nexotao API and model catalog. Breaking changes and
 billing-affecting changes are called out explicitly.
 
+## 2026-07-15 — GPT-5.6 Sol, Terra, and Luna are live
+
+Three new GPT-5.6 deployments are available through the same OpenAI-compatible
+endpoint. Change only the `model` value; your API key, base URL, and Rupiah
+balance stay the same.
+
+- `gpt-5.6-luna` — **Rp 2,349 input / Rp 4,698 output** per 1M tokens.
+- `gpt-5.6-terra` — **Rp 4,500 input / Rp 9,000 output** per 1M tokens.
+- `gpt-5.6-sol` — **Rp 7,000 input / Rp 7,000 output** per 1M tokens.
+
+GPT cache tokens use the verified cache rates: reads at 10% of input and writes
+at 125% of input. The authoritative model list and rates are always available
+from `GET /models` and [Models & Pricing](/model-harga).
+
 ## 2026-07-13 — Clearer model positioning: DeepSeek for volume/cheap, Claude for agentic
 
 The docs now spell out model selection. **`DeepSeek-V4-Flash` is for high-volume,

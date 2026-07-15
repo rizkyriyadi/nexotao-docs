@@ -8,6 +8,19 @@ description: Perubahan penting pada API dan katalog model Nexotao, beserta catat
 Perubahan penting pada API dan katalog model Nexotao. Perubahan yang memutus
 kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplisit.
 
+## 2026-07-15 — GPT-5.6 Sol, Terra, dan Luna live
+
+Tiga deployment GPT-5.6 baru tersedia lewat endpoint kompatibel OpenAI yang sama.
+Cukup ganti nilai `model`; API key, base URL, dan saldo Rupiah tetap sama.
+
+- `gpt-5.6-luna` — **Rp 2.349 input / Rp 4.698 output** per 1 juta token.
+- `gpt-5.6-terra` — **Rp 4.500 input / Rp 9.000 output** per 1 juta token.
+- `gpt-5.6-sol` — **Rp 7.000 input / Rp 7.000 output** per 1 juta token.
+
+Token cache GPT mengikuti tarif cache terverifikasi: cache-read 10% dari input
+dan cache-write 125% dari input. Daftar dan tarif authoritative selalu tersedia
+di `GET /models` serta [Model & Harga](/model-harga).
+
 ## 2026-07-13 — Positioning model diperjelas: DeepSeek untuk volume/hemat, Claude untuk agentic
 
 Dokumentasi kini menegaskan pemilihan model. **`DeepSeek-V4-Flash` untuk kerjaan

@@ -46,7 +46,7 @@ from openai import OpenAI
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
 resp = client.chat.completions.create(
-    model="gpt-5-mini",
+    model="gpt-5.6-terra",
     messages=[{"role": "user", "content": "Halo"}],
 )
 print(resp.choices[0].message.content)
@@ -58,7 +58,7 @@ import OpenAI from "openai"
 const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
 
 const resp = await client.chat.completions.create({
-  model: "gpt-5-mini",
+  model: "gpt-5.6-terra",
   messages: [{ role: "user", content: "Halo" }],
 })
 console.log(resp.choices[0].message.content)
@@ -75,6 +75,8 @@ Panggilan yang sama, lebih murah atau lebih kuat — cukup ubah `model`:
   klasifikasi, ekstraksi, chat pendek. Bukan untuk agentic/coding atau konteks
   besar (kapasitas ~20k TPM — request berat bisa kena `429 server at capacity`).
 - `claude-opus-4-8` — reasoning frontier untuk **coding/agentic & konteks besar**.
+- `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol` — keluarga GPT-5.6 dari tier
+  efisien, seimbang, sampai tier tertinggi dengan tarif Sol Rp 7.000 input/output.
 
 Id model bersifat case-sensitive — tulis persis seperti tertera. Lihat semua model
 dan harga hari ini di [nexotao.com/harga](https://www.nexotao.com/harga).

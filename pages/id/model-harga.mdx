@@ -18,6 +18,9 @@ Tarif sebenarnya per model tetap dihitung per token; lihat tabel live di bawah.
 
 | Model              | Headline per 100M token | Positioning                                                    |
 | ------------------ | ----------------------- | -------------------------------------------------------------- |
+| GPT-5.6 Sol        | **Rp 700 ribu**         | Tier GPT-5.6 tertinggi; tarif input dan output sama rata. |
+| GPT-5.6 Terra      | **Rp 765 ribu**         | Seimbang untuk coding, analisis, dan workflow agent. |
+| GPT-5.6 Luna       | **Rp 399 ribu**         | Efisien untuk kerja harian dan volume tinggi. |
 | Claude Opus 4.8    | **Rp 15 juta**          | Model reasoning terkuat Anthropic. **≈ 6–7× lebih murah** dari tarif list Anthropic. |
 | gpt-5-mini         | **Rp 500 ribu**         | Termurah OpenAI — pas untuk classifier, extract, batch. |
 | Claude Sonnet 4.6  | *segera*                | Cepat + pintar untuk chat produk volume tinggi. Menunggu aktivasi katalog. |
@@ -36,7 +39,7 @@ absolut, supaya tetap akurat ketika Anthropic mengubah harga list mereka.
 ## Tarif live per juta token
 
 Selain headline di atas, tiap model punya tarif per juta token untuk **input**,
-**output**, dan (khusus Claude) **cache-read + cache-write**. Nilai di sini
+**output**, dan (untuk Claude/GPT) **cache-read + cache-write**. Nilai di sini
 diambil langsung dari `GET /models` — selalu sinkron dengan katalog live,
 tanpa harga yang di-hardcode di halaman.
 
@@ -45,7 +48,7 @@ tanpa harga yang di-hardcode di halaman.
 ## Cara membaca tarif
 
 - **Teks** — tarif per 1 juta token, terpisah untuk input dan output.
-- **Cache (Claude)** — cache-read jauh lebih murah dari input biasa; cache-write
+- **Cache (Claude/GPT)** — cache-read jauh lebih murah dari input biasa; cache-write
   sedikit lebih mahal dari input biasa. Detail di [Penagihan & Harga](/penagihan).
 - **Headline per 100M token** — perkiraan cepat, bukan tarif tagihan. Yang
   ditagih adalah `jumlah_token × tarif_model_saat_itu`.
