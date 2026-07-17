@@ -72,9 +72,10 @@ model ids:
 | `ANTHROPIC_SMALL_FAST_MODEL` | `claude-opus-4-8` (background tasks) |
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
 
-The sonnet and haiku tiers are not available, so the small/fast model is mapped to
-`claude-opus-4-8` as well. See [Claude Code](/claude-code) for the full config and
-the interactive generator.
+The haiku tier isn't available yet; for a simple single-model setup we map the
+small/fast model to `claude-opus-4-8` too. (If you prefer a cheaper background
+model, `claude-sonnet-4-6` is also available.) See [Claude Code](/claude-code) for
+the full config and the interactive generator.
 
 ## Per-client setup
 

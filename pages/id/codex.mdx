@@ -1,6 +1,6 @@
 ---
 title: Codex CLI
-description: Pakai OpenAI Codex CLI dengan model Nexotao (gpt-5-mini, Grok, DeepSeek) dan bayar pakai Rupiah. Konfigurasi ~/.codex/config.toml langkah demi langkah.
+description: Pakai OpenAI Codex CLI dengan model Nexotao (GPT-5.6, gpt-5-mini, Grok, DeepSeek) dan bayar pakai Rupiah. Konfigurasi ~/.codex/config.toml langkah demi langkah.
 ---
 
 import { ToolLogo } from "../../components/tool-logo"
@@ -14,8 +14,8 @@ import { ToolLogo } from "../../components/tool-logo"
 
 **Codex** adalah coding agent terminal dari OpenAI. Codex berbicara format
 **OpenAI-compat**, jadi arahkan ke endpoint `https://api.nexotao.com/v1` dan pakai
-model OpenAI-compat Nexotao: `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, atau
-`DeepSeek-V4-Flash`.
+model OpenAI-compat Nexotao: `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`,
+`gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, atau `DeepSeek-V4-Flash`.
 
 > Untuk model **Claude**, pakai [Claude Code](/claude-code) (format Anthropic). Codex
 > tidak punya mode Anthropic.
@@ -48,14 +48,15 @@ Buka (atau buat) `~/.codex/config.toml` lalu isi:
 
 ```toml
 # ~/.codex/config.toml
-model = "gpt-5-mini"          # model default; ganti sesuai kebutuhan
+model = "gpt-5.6-sol"         # model default; ganti sesuai kebutuhan
 model_provider = "nexotao"
+forced_login_method = "api"
 
 [model_providers.nexotao]
 name = "Nexotao"
 base_url = "https://api.nexotao.com/v1"   # WAJIB pakai /v1
 env_key = "OPENAI_API_KEY"                # nama env var berisi sk-nexo-...
-wire_api = "chat"                         # pakai /chat/completions
+wire_api = "responses"                    # WAJIB "responses"; "chat" sudah dihapus Codex
 ```
 
 ## 4. Jalankan
@@ -75,10 +76,10 @@ codex -m DeepSeek-V4-Pro
 
 ## Catatan penting
 
-- **`base_url` harus berakhiran `/v1`** — Codex menambahkan `/chat/completions`
-  sendiri.
-- **`wire_api = "chat"`** wajib. Jangan pakai `"responses"` (itu untuk OpenAI
-  Responses API yang tidak diekspos Nexotao).
+- **`base_url` harus berakhiran `/v1`** — Codex menambahkan `/responses` sendiri.
+- **`wire_api = "responses"`** wajib. Codex versi terbaru sudah **menghapus**
+  `wire_api = "chat"`, dan Nexotao mengekspos endpoint Responses (`/v1/responses`)
+  dengan streaming penuh — jadi Codex jalan normal.
 - **Provider ID** (`nexotao`) tidak boleh memakai nama cadangan seperti `openai`,
   `ollama`, atau `lmstudio`.
 - Key **tidak** disimpan di `config.toml`; hanya nama env var-nya (`env_key`).

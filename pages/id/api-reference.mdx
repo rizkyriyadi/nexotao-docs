@@ -14,8 +14,9 @@ Base URL: `https://api.nexotao.com`. Autentikasi lewat API key — lihat
 | --- | --- | --- |
 | `GET` | `/models` | Katalog harga publik untuk situs (tanpa key) |
 | `GET` | `/v1/models` | Daftar model format OpenAI (butuh key) — dipakai n8n dsb. |
+| `GET` | `/v1/models/{id}` | Detail satu model format OpenAI (butuh key) |
 | `POST` | `/v1/chat/completions` | Chat format OpenAI (DeepSeek dan Claude) |
-| `POST` | `/v1/responses` | Chat format OpenAI Responses (DeepSeek dan Claude) |
+| `POST` | `/v1/responses` | Format OpenAI Responses — mendukung streaming; dipakai Codex CLI |
 | `POST` | `/v1/messages` | Chat format Anthropic (model Claude) |
 
 ## Header respons
