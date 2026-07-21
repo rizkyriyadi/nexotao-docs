@@ -20,16 +20,20 @@ the base URL + key, then pick a model.
 
 ## The universal pattern
 
-**OpenAI-compatible** (for gpt/grok/deepseek, and most tools):
+**OpenAI-compatible** (for gpt/grok/deepseek, **and Claude**, and most tools):
 
 | Field | Value |
 | ----- | ----- |
 | Base URL | `https://api.nexotao.com/v1` |
 | API Key | `sk-nexo-...` |
 | Header | `Authorization: Bearer sk-nexo-...` |
-| Model | `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash` |
+| Model | `gpt-5.6-terra`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`, `claude-opus-4-8` |
 
-**Anthropic-compatible** (for Claude models):
+> **Tip:** the OpenAI-compatible endpoint accepts **every model, including Claude** — so
+> if your tool speaks OpenAI, just use this pattern for all of them. See
+> [Endpoints & Formats](/en/endpoint).
+
+**Anthropic-compatible** (optional — native Anthropic bodies only):
 
 | Field | Value |
 | ----- | ----- |

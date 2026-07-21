@@ -1,0 +1,117 @@
+---
+title: Endpoint & Format
+description: Endpoint mana yang harus dipakai di Nexotao — /v1/chat/completions (format OpenAI, semua model termasuk Claude) atau /v1/messages (format Anthropic native). Panduan memilih plus contoh.
+---
+
+# Endpoint & Format
+
+Nexotao punya dua "pintu masuk" untuk chat. Keduanya memakai model yang sama —
+yang berbeda cuma **format** request-nya. Halaman ini bantu kamu memilih yang benar
+supaya request-mu tidak ditolak.
+
+## Pilih dalam 5 detik
+
+| Kalau kamu… | Pakai endpoint | Base URL |
+| --- | --- | --- |
+| Pakai **OpenAI SDK / library**, atau tool yang minta "OpenAI base URL" | **`/v1/chat/completions`** | `https://api.nexotao.com/v1` |
+| Pakai **Anthropic SDK**, atau ingin format Anthropic native | **`/v1/messages`** | `https://api.nexotao.com` |
+| Pakai **Codex** (OpenAI Responses API) | **`/v1/responses`** | `https://api.nexotao.com/v1` |
+
+> **Aturan emas:** `/v1/chat/completions` menerima **semua model — termasuk Claude**.
+> Kalau ragu, pakai ini. Nexotao otomatis menerjemahkan formatnya.
+
+## Kesalahan paling umum
+
+Mengirim **body format OpenAI** ke endpoint **`/v1/messages`**.
+
+`/v1/messages` hanya menerima format **Anthropic native**. Kalau body-mu punya ciri
+OpenAI — misalnya `role: "system"` di dalam `messages`, `max_completion_tokens`,
+`frequency_penalty`, `top_p` pada Claude — request akan ditolak dengan
+`400 invalid request`.
+
+**Solusi:** kirim ke `/v1/chat/completions` saja (base URL berakhiran `/v1`).
+Endpoint itu menerima format OpenAI persis apa adanya, termasuk untuk model Claude,
+dan menerjemahkannya untukmu.
+
+```diff
+- POST https://api.nexotao.com/v1/messages        (format Anthropic saja)
++ POST https://api.nexotao.com/v1/chat/completions (format OpenAI, semua model)
+```
+
+## Cara 1 — Format OpenAI (paling umum)
+
+Endpoint `/v1/chat/completions`. Base URL **berakhiran `/v1`**, key dikirim lewat
+`Authorization: Bearer`. Bekerja untuk GPT, DeepSeek, Grok, **dan Claude**.
+
+```python
+from openai import OpenAI
+
+# Cukup ganti base URL — model apa pun, termasuk Claude
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="claude-opus-4-8",  # atau gpt-5.6-terra, DeepSeek-V4-Pro, dst.
+    messages=[
+        {"role": "system", "content": "Kamu asisten yang ringkas."},
+        {"role": "user", "content": "Jelaskan apa itu QRIS"},
+    ],
+)
+print(resp.choices[0].message.content)
+```
+
+```bash
+curl https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "messages": [{"role": "user", "content": "Halo"}]
+  }'
+```
+
+## Cara 2 — Format Anthropic native
+
+Endpoint `/v1/messages`. Base URL **tanpa `/v1`**, key dikirim lewat `x-api-key`.
+Hanya untuk model Claude, dan body harus format Anthropic (system di **luar**
+`messages`, wajib `max_tokens`).
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
+
+msg = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=256,
+    system="Kamu asisten yang ringkas.",   # di luar messages
+    messages=[{"role": "user", "content": "Jelaskan apa itu QRIS"}],
+)
+print(msg.content[0].text)
+```
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "Halo"}]
+  }'
+```
+
+## Perbedaan singkat
+
+| | `/v1/chat/completions` | `/v1/messages` |
+| --- | --- | --- |
+| Format | OpenAI | Anthropic native |
+| Base URL | `…/v1` | `…` (tanpa `/v1`) |
+| Header key | `Authorization: Bearer` | `x-api-key` |
+| Model | Semua (GPT, DeepSeek, Grok, Claude) | Claude saja |
+| `system` | di dalam `messages` | field terpisah |
+| Wajib `max_tokens` | tidak | ya |
+
+Belum tahu bedanya token, model, atau API key? Baca dulu
+[Konsep Dasar](/konsep). Mau langsung coba tanpa ngoding? Buka
+[Playground](/playground).

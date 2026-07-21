@@ -1,19 +1,25 @@
 export default {
-  index: "Introduction",
-  quickstart: "Quickstart",
-  autentikasi: "Authentication",
-  penagihan: "Billing & Pricing",
-  "-- modality": {
+  "-- start": {
     type: "separator",
-    title: "Modality",
+    title: "Start here",
   },
+  index: "Introduction",
+  konsep: "Core Concepts",
+  quickstart: "Quickstart",
+  playground: "Playground",
+  "-- api": {
+    type: "separator",
+    title: "Use the API",
+  },
+  endpoint: "Endpoints & Formats",
+  autentikasi: "Authentication",
   teks: "Text & Chat",
-  // Image + transcription were cut in the 2-model catalog trim. Hidden from the
-  // sidebar but kept routable so existing inbound links resolve to the retirement
-  // notice instead of a 404.
+  "context-window": "Context Window & Compaction",
+  // Image + transcription were cut in the catalog trim. Hidden from the sidebar
+  // but kept routable so existing inbound links resolve to the notice, not a 404.
   gambar: { display: "hidden", title: "Image Generation" },
   transcribe: { display: "hidden", title: "Transcribe" },
-  "-- integrasi": {
+  "-- integrations": {
     type: "separator",
     title: "Integrations",
   },
@@ -24,17 +30,17 @@ export default {
   vscode: "VS Code",
   "terminal-agents": "Aider & OpenCode",
   kompatibel: "Any Other Tool",
-  "context-window": "Context Window & Compaction",
-  "-- referensi": {
+  "-- reference": {
     type: "separator",
     title: "Reference",
   },
-  "api-reference": "API Reference",
   "model-harga": "Models & Pricing",
-  faq: "FAQ",
-  "-- changelog-sep": {
+  penagihan: "Billing & Pricing",
+  "api-reference": "API Reference",
+  "-- help": {
     type: "separator",
-    title: "Changelog",
+    title: "Account & Help",
   },
+  faq: "FAQ",
   changelog: "Changelog",
 }

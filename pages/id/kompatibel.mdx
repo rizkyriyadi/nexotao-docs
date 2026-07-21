@@ -20,16 +20,20 @@ sama: ganti base URL + key, lalu pilih model.
 
 ## Pola universal
 
-**OpenAI-compat** (untuk gpt/grok/deepseek, dan mayoritas tool):
+**OpenAI-compat** (untuk gpt/grok/deepseek, **dan Claude**, serta mayoritas tool):
 
 | Field | Nilai |
 | ----- | ----- |
 | Base URL | `https://api.nexotao.com/v1` |
 | API Key | `sk-nexo-...` |
 | Header | `Authorization: Bearer sk-nexo-...` |
-| Model | `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash` |
+| Model | `gpt-5.6-terra`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`, `claude-opus-4-8` |
 
-**Anthropic-compat** (untuk model Claude):
+> **Tip:** endpoint OpenAI-compat menerima **semua model, termasuk Claude** — jadi kalau
+> tool-mu berformat OpenAI, cukup pakai pola ini untuk semuanya. Detail:
+> [Endpoint & Format](/endpoint).
+
+**Anthropic-compat** (opsional — hanya untuk body format Anthropic native):
 
 | Field | Nilai |
 | ----- | ----- |

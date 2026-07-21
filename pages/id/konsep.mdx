@@ -1,0 +1,81 @@
+---
+title: Konsep Dasar
+description: Penjelasan sederhana istilah Nexotao untuk pemula — model AI, token, API key, endpoint, dan saldo. Tanpa jargon, cocok untuk yang belum punya latar belakang IT.
+---
+
+# Konsep Dasar
+
+Baru pertama kali? Halaman ini menjelaskan istilah yang sering muncul, dengan bahasa
+sehari-hari. Tidak perlu latar belakang teknis.
+
+## Apa itu Nexotao?
+
+Nexotao adalah **jembatan** untuk memakai model AI terbaik (seperti Claude, GPT, dan
+DeepSeek) dengan **bayar pakai Rupiah lewat QRIS** — tanpa kartu kredit luar negeri
+dan tanpa langganan bulanan. Kamu isi saldo, lalu memakainya sesuai kebutuhan.
+
+## Model AI
+
+**Model** adalah "otak" yang menjawab pertanyaanmu. Tiap model punya karakter berbeda:
+
+- Ada yang **murah dan cepat** — cocok untuk tugas sederhana dan banyak (misalnya
+  mengelompokkan ribuan komentar).
+- Ada yang **pintar dan kuat** — cocok untuk tugas berat seperti menulis kode atau
+  menganalisis dokumen panjang.
+
+Analogi: seperti memilih kendaraan. Motor untuk jarak dekat yang irit; truk untuk
+angkut barang berat. Kamu pilih sesuai pekerjaan. Lihat pilihannya di
+[Model & Harga](/model-harga).
+
+## Token
+
+AI tidak menghitung "kata", tapi **token** — potongan kecil teks. Satu kata biasanya
+1–2 token. Kira-kira **1 token ≈ 4 huruf**.
+
+Kenapa penting? Karena **biaya dihitung per token**: makin panjang pertanyaan dan
+jawaban, makin banyak token, makin besar biayanya. Ini juga kenapa jawaban AI kadangkala
+dibatasi panjangnya.
+
+> Contoh: kalimat "Halo, apa kabar?" kira-kira 5 token.
+
+## API key
+
+**API** adalah cara program (kode) berbicara dengan Nexotao — beda dengan membuka
+situs lewat browser. **API key** adalah "kunci" pribadimu, berbentuk `sk-nexo-...`,
+yang membuktikan bahwa request itu berasal dari akunmu (dan biayanya dipotong dari
+saldomu).
+
+Perlakukan seperti **kata sandi**: jangan dibagikan, jangan ditaruh di kode yang bisa
+dilihat publik. Kalau bocor, cabut (revoke) di dashboard dan buat yang baru. Detail di
+[Autentikasi](/autentikasi).
+
+## Endpoint
+
+**Endpoint** adalah "alamat" tujuan request-mu, misalnya
+`https://api.nexotao.com/v1/chat/completions`. Nexotao punya beberapa endpoint untuk
+format yang berbeda. Memilih endpoint yang benar itu penting — panduannya di
+[Endpoint & Format](/endpoint).
+
+## Saldo & biaya
+
+Kamu **isi saldo Rupiah** (mulai Rp 10.000 lewat QRIS), lalu tiap request memotong
+saldo **sesuai token yang dipakai**. Tidak ada langganan; saldo tidak hangus. Tiap
+respons memberi tahu biaya persisnya lewat header `X-Cost-Rp`. Detail di
+[Penagihan & Harga](/penagihan).
+
+## Context window
+
+Setiap model hanya bisa "mengingat" sejumlah token sekaligus dalam satu percakapan —
+itu **context window**-nya. Kalau percakapan terlalu panjang, bagian paling lama bisa
+"terlupa" atau request ditolak. Cara mengatasinya ada di
+[Context Window](/context-window).
+
+## Streaming
+
+**Streaming** artinya jawaban muncul **sedikit demi sedikit** (seperti mengetik),
+bukan sekaligus setelah selesai. Berguna agar terasa cepat pada jawaban panjang.
+
+---
+
+Sudah paham dasarnya? Lanjut ke [Quickstart](/quickstart) untuk request pertamamu,
+atau coba langsung di [Playground](/playground) tanpa menulis kode.

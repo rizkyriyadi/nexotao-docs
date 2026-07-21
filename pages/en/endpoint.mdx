@@ -1,0 +1,116 @@
+---
+title: Endpoints & Formats
+description: Which Nexotao endpoint to use — /v1/chat/completions (OpenAI format, every model including Claude) or /v1/messages (native Anthropic format). A quick decision guide with examples.
+---
+
+# Endpoints & Formats
+
+Nexotao has two "front doors" for chat. Both use the same models — only the request
+**format** differs. This page helps you pick the right one so your requests don't get
+rejected.
+
+## Choose in 5 seconds
+
+| If you… | Use endpoint | Base URL |
+| --- | --- | --- |
+| Use the **OpenAI SDK / library**, or a tool that asks for an "OpenAI base URL" | **`/v1/chat/completions`** | `https://api.nexotao.com/v1` |
+| Use the **Anthropic SDK**, or want native Anthropic format | **`/v1/messages`** | `https://api.nexotao.com` |
+| Use **Codex** (OpenAI Responses API) | **`/v1/responses`** | `https://api.nexotao.com/v1` |
+
+> **Golden rule:** `/v1/chat/completions` accepts **every model — including Claude**.
+> When in doubt, use it. Nexotao translates the format automatically.
+
+## The most common mistake
+
+Sending an **OpenAI-format body** to the **`/v1/messages`** endpoint.
+
+`/v1/messages` only accepts **native Anthropic** format. If your body has OpenAI
+markers — e.g. `role: "system"` inside `messages`, `max_completion_tokens`,
+`frequency_penalty`, or `top_p` on Claude — the request is rejected with
+`400 invalid request`.
+
+**Fix:** just send it to `/v1/chat/completions` (base URL ending in `/v1`). That
+endpoint accepts OpenAI format as-is, including for Claude models, and translates it
+for you.
+
+```diff
+- POST https://api.nexotao.com/v1/messages         (Anthropic format only)
++ POST https://api.nexotao.com/v1/chat/completions  (OpenAI format, every model)
+```
+
+## Option 1 — OpenAI format (most common)
+
+Endpoint `/v1/chat/completions`. Base URL **ends in `/v1`**, key sent via
+`Authorization: Bearer`. Works for GPT, DeepSeek, Grok, **and Claude**.
+
+```python
+from openai import OpenAI
+
+# Just change the base URL — any model, including Claude
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="claude-opus-4-8",  # or gpt-5.6-terra, DeepSeek-V4-Pro, etc.
+    messages=[
+        {"role": "system", "content": "You are a concise assistant."},
+        {"role": "user", "content": "What is consistent hashing?"},
+    ],
+)
+print(resp.choices[0].message.content)
+```
+
+```bash
+curl https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+## Option 2 — Native Anthropic format
+
+Endpoint `/v1/messages`. Base URL **without `/v1`**, key sent via `x-api-key`. Claude
+models only, and the body must be Anthropic format (system **outside** `messages`,
+`max_tokens` required).
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
+
+msg = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=256,
+    system="You are a concise assistant.",   # outside messages
+    messages=[{"role": "user", "content": "What is consistent hashing?"}],
+)
+print(msg.content[0].text)
+```
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+## At a glance
+
+| | `/v1/chat/completions` | `/v1/messages` |
+| --- | --- | --- |
+| Format | OpenAI | Native Anthropic |
+| Base URL | `…/v1` | `…` (no `/v1`) |
+| Key header | `Authorization: Bearer` | `x-api-key` |
+| Models | All (GPT, DeepSeek, Grok, Claude) | Claude only |
+| `system` | inside `messages` | separate field |
+| `max_tokens` required | no | yes |
+
+New to tokens, models, or API keys? Start with [Core Concepts](/en/konsep). Want to
+try it without any code? Open the [Playground](/en/playground).

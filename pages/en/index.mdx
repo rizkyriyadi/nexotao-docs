@@ -27,17 +27,20 @@ https://api.nexotao.com
 Nexotao exposes endpoints compatible with both formats, so you only need to change
 the base URL and API key in your existing tools:
 
-- **Anthropic** — `POST /v1/messages`
-- **OpenAI** — `POST /v1/chat/completions`
+- **OpenAI** — `POST /v1/chat/completions` — for **every model, including Claude**.
+  When in doubt, use this.
+- **Anthropic** — `POST /v1/messages` — Claude models only, native Anthropic format.
 
-Not sure how to connect your coding tool? Every step-by-step guide lives under
-**[Integrations](/integrasi)** — Claude Code, Codex, VS Code (Cline, Roo Code,
-Continue, Kilo Code), Aider, OpenCode, plus the universal pattern for any other tool.
+Which one to pick: **[Endpoints & Formats](/en/endpoint)**. Not sure how to connect your
+coding tool? Every step-by-step guide lives under **[Integrations](/en/integrasi)** —
+Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, OpenCode, plus
+the universal pattern for any other tool.
 
 ## Next steps
 
-- [Quickstart](/quickstart) — from sign-up to your first request.
-- [Authentication](/autentikasi) — API keys and headers.
-- [Billing & Pricing](/penagihan) — the Rupiah balance system per modality.
-- [Integrations](/integrasi) — connect Claude Code, Codex, VS Code, and more.
-- [Claude Code](/claude-code) — use the Claude coding agent through Nexotao.
+- [Core Concepts](/en/konsep) — the basics for beginners (no jargon).
+- [Quickstart](/en/quickstart) — from sign-up to your first request.
+- [Playground](/en/playground) — try the API in your browser, no code.
+- [Endpoints & Formats](/en/endpoint) — pick the right endpoint.
+- [Integrations](/en/integrasi) — connect Claude Code, Codex, VS Code, and more.
+- [Billing & Pricing](/en/penagihan) — the Rupiah balance system.

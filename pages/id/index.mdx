@@ -27,17 +27,20 @@ https://api.nexotao.com
 Nexotao mengekspos endpoint yang kompatibel dengan kedua format, jadi kamu cukup
 mengganti base URL dan API key pada tool yang sudah ada:
 
-- **Anthropic** — `POST /v1/messages`
-- **OpenAI** — `POST /v1/chat/completions`
+- **OpenAI** — `POST /v1/chat/completions` — untuk **semua model, termasuk Claude**.
+  Kalau ragu, pakai ini.
+- **Anthropic** — `POST /v1/messages` — hanya untuk model Claude, format Anthropic native.
 
-Bingung menyambungkan tool coding-mu? Semua panduan step-by-step ada di
-**[Integrasi](/integrasi)** — Claude Code, Codex, VS Code (Cline, Roo Code, Continue,
-Kilo Code), Aider, OpenCode, dan pola universal untuk tool lain.
+Panduan memilih ada di **[Endpoint & Format](/endpoint)**. Bingung menyambungkan tool
+coding-mu? Semua panduan step-by-step ada di **[Integrasi](/integrasi)** — Claude Code,
+Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, OpenCode, dan pola
+universal untuk tool lain.
 
 ## Langkah berikutnya
 
+- [Konsep Dasar](/konsep) — istilah dasar untuk pemula (tanpa jargon).
 - [Quickstart](/quickstart) — dari daftar sampai request pertama.
-- [Autentikasi](/autentikasi) — API key dan header.
-- [Penagihan & Harga](/penagihan) — sistem saldo Rupiah per modality.
+- [Playground](/playground) — coba API langsung di browser, tanpa kode.
+- [Endpoint & Format](/endpoint) — pilih endpoint yang benar.
 - [Integrasi](/integrasi) — hubungkan Claude Code, Codex, VS Code, dan tool lain.
-- [Claude Code](/claude-code) — pakai coding agent Claude lewat Nexotao.
+- [Penagihan & Harga](/penagihan) — sistem saldo Rupiah.

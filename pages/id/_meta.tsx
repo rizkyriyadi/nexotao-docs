@@ -1,16 +1,22 @@
 export default {
-  index: "Pengantar",
-  quickstart: "Quickstart",
-  autentikasi: "Autentikasi",
-  penagihan: "Penagihan & Harga",
-  "-- modality": {
+  "-- mulai": {
     type: "separator",
-    title: "Modality",
+    title: "Mulai di sini",
   },
+  index: "Pengantar",
+  konsep: "Konsep Dasar",
+  quickstart: "Quickstart",
+  playground: "Playground",
+  "-- api": {
+    type: "separator",
+    title: "Pakai API",
+  },
+  endpoint: "Endpoint & Format",
+  autentikasi: "Autentikasi",
   teks: "Teks & Chat",
-  // Gambar + transcribe dipotong di trim katalog 2-model. Disembunyikan dari
-  // sidebar tapi tetap bisa diakses agar link lama mengarah ke notice "dihentikan"
-  // dan bukan 404.
+  "context-window": "Context Window & Kompaksi",
+  // Gambar + transcribe dipotong di trim katalog. Disembunyikan dari sidebar
+  // tapi tetap bisa diakses agar link lama mengarah ke notice, bukan 404.
   gambar: { display: "hidden", title: "Generate Gambar" },
   transcribe: { display: "hidden", title: "Transcribe" },
   "-- integrasi": {
@@ -24,17 +30,17 @@ export default {
   vscode: "VS Code",
   "terminal-agents": "Aider & OpenCode",
   kompatibel: "Tool Lain (Universal)",
-  "context-window": "Context Window & Kompaksi",
   "-- referensi": {
     type: "separator",
     title: "Referensi",
   },
-  "api-reference": "API Reference",
   "model-harga": "Model & Harga",
-  faq: "FAQ",
-  "-- changelog-sep": {
+  penagihan: "Penagihan & Harga",
+  "api-reference": "API Reference",
+  "-- bantuan": {
     type: "separator",
-    title: "Changelog",
+    title: "Akun & Bantuan",
   },
+  faq: "FAQ",
   changelog: "Changelog",
 }

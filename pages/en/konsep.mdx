@@ -1,0 +1,78 @@
+---
+title: Core Concepts
+description: Plain-language explanations of Nexotao terms for beginners — AI models, tokens, API keys, endpoints, and balance. No jargon, no IT background needed.
+---
+
+# Core Concepts
+
+New here? This page explains the terms you'll see, in everyday language. No technical
+background required.
+
+## What is Nexotao?
+
+Nexotao is a **bridge** for using the best AI models (like Claude, GPT, and DeepSeek)
+while **paying in Rupiah via QRIS** — no foreign credit card, no monthly subscription.
+You top up a balance, then use it as needed.
+
+## AI model
+
+A **model** is the "brain" that answers your questions. Each model has a different
+character:
+
+- Some are **cheap and fast** — good for simple, high-volume tasks (e.g. sorting
+  thousands of comments).
+- Some are **smart and powerful** — good for heavy work like writing code or analyzing
+  long documents.
+
+Analogy: like choosing a vehicle. A scooter for short, cheap trips; a truck for heavy
+loads. You pick by the job. See the options in [Models & Pricing](/en/model-harga).
+
+## Token
+
+AI doesn't count "words" — it counts **tokens**, small chunks of text. One word is
+usually 1–2 tokens. Roughly **1 token ≈ 4 characters**.
+
+Why it matters: **cost is per token**. The longer your question and answer, the more
+tokens, the higher the cost. It's also why AI answers are sometimes length-limited.
+
+> Example: "Hello, how are you?" is about 5 tokens.
+
+## API key
+
+An **API** is how a program (code) talks to Nexotao — different from opening a website
+in a browser. An **API key** is your private "key", shaped like `sk-nexo-...`, that
+proves a request comes from your account (and bills your balance).
+
+Treat it like a **password**: don't share it, don't put it in publicly visible code. If
+it leaks, revoke it in the dashboard and make a new one. Details in
+[Authentication](/en/autentikasi).
+
+## Endpoint
+
+An **endpoint** is the "address" your request goes to, e.g.
+`https://api.nexotao.com/v1/chat/completions`. Nexotao has a few endpoints for
+different formats. Picking the right one matters — guide at
+[Endpoints & Formats](/en/endpoint).
+
+## Balance & cost
+
+You **top up a Rupiah balance** (from Rp 10,000 via QRIS), then each request deducts
+**by the tokens used**. No subscription; the balance doesn't expire. Every response
+tells you the exact cost via the `X-Cost-Rp` header. Details in
+[Billing & Pricing](/en/penagihan).
+
+## Context window
+
+Each model can only "remember" so many tokens at once in a conversation — that's its
+**context window**. If a conversation gets too long, the oldest part can be "forgotten"
+or the request rejected. How to handle it: [Context Window](/en/context-window).
+
+## Streaming
+
+**Streaming** means the answer appears **bit by bit** (like typing), instead of all at
+once when finished. Useful so long answers feel fast.
+
+---
+
+Got the basics? Continue to the [Quickstart](/en/quickstart) for your first request, or
+try it directly in the [Playground](/en/playground) — no code required.
