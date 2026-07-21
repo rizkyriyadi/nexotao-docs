@@ -25,7 +25,27 @@ In the dashboard, open **API Keys** and create a new key. It looks like
 
 ## 4. First request
 
-Anthropic format (`/v1/messages`):
+> **Prefer no code first?** Open the [Playground](/en/playground) — paste your key,
+> pick a model, send. New to the terms? Read [Core Concepts](/en/konsep).
+
+Easiest path: the **OpenAI** endpoint (`/v1/chat/completions`) — it works for **every
+model, including Claude**. Not sure which to pick? See [Endpoints & Formats](/en/endpoint).
+
+OpenAI format (`/v1/chat/completions`) — every model:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="claude-opus-4-8",  # or gpt-5.6-terra, DeepSeek-V4-Pro, etc.
+    messages=[{"role": "user", "content": "Hello"}],
+)
+print(resp.choices[0].message.content)
+```
+
+Native Anthropic format (`/v1/messages`) — Claude only:
 
 ```bash
 curl https://api.nexotao.com/v1/messages \
@@ -39,19 +59,7 @@ curl https://api.nexotao.com/v1/messages \
   }'
 ```
 
-OpenAI format (`/v1/chat/completions`):
-
-```python
-from openai import OpenAI
-
-client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
-
-resp = client.chat.completions.create(
-    model="gpt-5.6-terra",
-    messages=[{"role": "user", "content": "Hello"}],
-)
-print(resp.choices[0].message.content)
-```
+Node.js (OpenAI format):
 
 ```javascript
 import OpenAI from "openai"

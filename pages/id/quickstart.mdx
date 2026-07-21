@@ -24,7 +24,27 @@ baik-baik; key hanya ditampilkan penuh sekali.
 
 ## 4. Request pertama
 
-Format Anthropic (`/v1/messages`):
+> **Mau coba tanpa ngoding dulu?** Buka [Playground](/playground) — tempel key,
+> pilih model, kirim. Belum paham istilahnya? Baca [Konsep Dasar](/konsep).
+
+Cara paling mudah: endpoint **OpenAI** (`/v1/chat/completions`) — bekerja untuk
+**semua model, termasuk Claude**. Bingung memilih? Lihat [Endpoint & Format](/endpoint).
+
+Format OpenAI (`/v1/chat/completions`) — semua model:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="claude-opus-4-8",  # atau gpt-5.6-terra, DeepSeek-V4-Pro, dst.
+    messages=[{"role": "user", "content": "Halo"}],
+)
+print(resp.choices[0].message.content)
+```
+
+Format Anthropic native (`/v1/messages`) — hanya Claude:
 
 ```bash
 curl https://api.nexotao.com/v1/messages \
@@ -38,19 +58,7 @@ curl https://api.nexotao.com/v1/messages \
   }'
 ```
 
-Format OpenAI (`/v1/chat/completions`):
-
-```python
-from openai import OpenAI
-
-client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
-
-resp = client.chat.completions.create(
-    model="gpt-5.6-terra",
-    messages=[{"role": "user", "content": "Halo"}],
-)
-print(resp.choices[0].message.content)
-```
+Node.js (format OpenAI):
 
 ```javascript
 import OpenAI from "openai"
