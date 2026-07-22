@@ -50,12 +50,12 @@ Tarif sebenarnya per model tetap dihitung per token; lihat tabel live di bawah.
 Rasio "vs Anthropic list" sengaja ditampilkan sebagai kelipatan, bukan angka
 absolut, supaya tetap akurat ketika Anthropic mengubah harga list mereka.
 
-> **Pilih model sesuai kerjaannya.** Untuk beban **volume tinggi & hemat** —
-> klasifikasi, ekstraksi, chat pendek — pakai model murah seperti
-> `DeepSeek-V4-Flash` atau `gpt-5-mini`. Untuk **coding/agentic & konteks
-> besar**, pakai **Claude (Opus/Sonnet)**: DeepSeek berkapasitas kecil
-> (~20k token/menit), jadi satu request agentic/large-context bisa kena
-> `429 server at capacity`.
+> **Pilih model sesuai kerjaannya.** `DeepSeek` cocok untuk beban **volume
+> tinggi & hemat** — klasifikasi, ekstraksi, chat pendek — **bukan untuk
+> agentic/coding atau konteks besar**. Kapasitasnya kecil (~20k token/menit),
+> jadi satu request agentic/large-context bisa kena `429 server at capacity`.
+> Untuk **coding/agentic & konteks besar**, pakai **Claude (Opus/Sonnet)** atau
+> **GPT-5.6**.
 
 ## Tarif live per juta token
 
