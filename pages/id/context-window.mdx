@@ -36,12 +36,13 @@ Tiap objek model membawa field `context_window` (jumlah token). Jadikan angka it
 sumber kebenaran — selalu sinkron dengan apa yang benar-benar dilayani gateway.
 
 > **Catatan jujur.** Window yang kami publikasikan **lebih besar dari 200k lama** yang
-> masih diasumsikan banyak klien secara default — saat ini sekitar **350k token untuk
-> `claude-opus-4-8`** — tapi **bukan** 1M. Jangan
-> menebak 200k dan jangan asumsikan 1M; baca angka pasti dan otoritatif dari
-> `context_window` di `/v1/models`. Karena window asli lebih besar dari default 200k
-> lama, klien yang belum dikalibrasi akan kompaksi *lebih awal* dari yang diperlukan —
-> kamu cuma kehilangan sebagian context yang bisa dipakai, tidak ada yang rusak.
+> masih diasumsikan banyak klien secara default — saat ini **350k token untuk
+> `claude-opus-4-8`** dan **1 juta token untuk `claude-opus-5`**. Angkanya **beda per
+> model**: jangan menebak 200k, dan jangan menyamakan window satu model ke model lain.
+> Baca angka pasti dan otoritatif dari `context_window` di `/v1/models`. Karena window
+> asli lebih besar dari default 200k lama, klien yang belum dikalibrasi akan kompaksi
+> *lebih awal* dari yang diperlukan — kamu cuma kehilangan sebagian context yang bisa
+> dipakai, tidak ada yang rusak.
 
 ## Kompaksi sisi klien
 

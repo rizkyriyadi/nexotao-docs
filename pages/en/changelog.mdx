@@ -8,6 +8,28 @@ description: Notable changes to the Nexotao API and model catalog, with migratio
 Notable changes to the Nexotao API and model catalog. Breaking changes and
 billing-affecting changes are called out explicitly.
 
+## 2026-07-26 — Claude Opus 5 is live, with a 1M-token context
+
+`claude-opus-5` joins the catalog through the same Anthropic endpoint. Change only
+the `model` value; your API key, base URL, and Rupiah balance stay the same.
+
+- **Introductory price: Rp 7,000 input / Rp 7,000 output** per 1M tokens — below the
+  standing Opus tier (Rp 10,000). The promo runs for a few days from launch, after
+  which it moves to the standard Opus tier.
+- **1,000,000-token context window** — far above the 350k of the Opus 4.x line. Read
+  `context_window` from `/v1/models`; don't carry one model's window over to another.
+  See [Context Window & Compaction](/context-window).
+- **Vision is supported** (image blocks on `/v1/messages`).
+- **Sampling parameters are rejected.** Like Opus 4.8 and 4.7, this model returns 400
+  for `temperature`, `top_p`, and `top_k`. The gateway strips all three before
+  forwarding, so existing clients keep working — but the values you send have no
+  effect.
+- **Capacity.** Opus 5 is served by **seven upstream deployments**, so there is
+  failover when one is saturated. Concurrent requests per model are still capped so
+  no single deployment saturates, so a sharp traffic spike can return
+  `429 server at capacity, retry shortly` — handle it the usual way, with retry +
+  backoff. The cap will be raised as real traffic patterns emerge.
+
 ## 2026-07-15 — GPT-5.6 Sol, Terra, and Luna are live
 
 Three new GPT-5.6 deployments are available through the same OpenAI-compatible

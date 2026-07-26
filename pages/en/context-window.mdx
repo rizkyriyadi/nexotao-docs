@@ -35,12 +35,13 @@ Each model object carries a `context_window` field (token count). Treat that num
 as the source of truth — it is always in sync with what the gateway actually serves.
 
 > **Honest note.** Our published window is **larger than the legacy 200k** that many
-> clients still assume by default — currently around **350k tokens for
-> `claude-opus-4-8`** — but it is **not** 1M. Don't
-> hard-guess 200k and don't assume 1M; read the exact, authoritative figure from
-> `context_window` in `/v1/models`. Because the real window is bigger than the old
-> 200k default, a client that hasn't been calibrated will compact *earlier* than it
-> needs to — you simply lose some usable context, nothing breaks.
+> clients still assume by default — currently **350k tokens for `claude-opus-4-8`**
+> and **1M tokens for `claude-opus-5`**. The figure is **per model**: don't hard-guess
+> 200k, and don't carry one model's window over to another. Read the exact,
+> authoritative figure from `context_window` in `/v1/models`. Because the real window
+> is bigger than the old 200k default, a client that hasn't been calibrated will
+> compact *earlier* than it needs to — you simply lose some usable context, nothing
+> breaks.
 
 ## Client-side compaction
 

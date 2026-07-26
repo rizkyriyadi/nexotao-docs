@@ -8,6 +8,28 @@ description: Perubahan penting pada API dan katalog model Nexotao, beserta catat
 Perubahan penting pada API dan katalog model Nexotao. Perubahan yang memutus
 kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplisit.
 
+## 2026-07-26 — Claude Opus 5 live, konteks 1 juta token
+
+`claude-opus-5` masuk katalog lewat endpoint Anthropic yang sama. Cukup ganti nilai
+`model`; API key, base URL, dan saldo Rupiah tetap sama.
+
+- **Harga perkenalan: Rp 7.000 input / Rp 7.000 output** per 1 juta token — di bawah
+  tier Opus yang berlaku (Rp 10.000). Promo berjalan beberapa hari sejak live,
+  setelah itu menyesuaikan tier Opus normal.
+- **Context window 1.000.000 token** — jauh di atas 350k milik Opus 4.x. Baca
+  `context_window` dari `/v1/models`, jangan menyamakan window antar model. Lihat
+  [Context Window & Kompaksi](/context-window).
+- **Vision didukung** (blok gambar di `/v1/messages`).
+- **Parameter sampling ditolak.** Seperti Opus 4.8 dan 4.7, model ini membalas 400
+  untuk `temperature`, `top_p`, dan `top_k`. Gateway membuang ketiganya sebelum
+  meneruskan request, jadi klien lama tidak perlu diubah — tapi nilai yang kamu kirim
+  memang tidak berpengaruh.
+- **Kapasitas.** Opus 5 dilayani **tujuh deployment upstream**, jadi ada failover
+  kalau salah satu sedang penuh. Meski begitu, request paralel per model masih
+  dibatasi supaya tiap deployment tidak jenuh, jadi lonjakan trafik yang tajam bisa
+  membalas `429 server at capacity, retry shortly` — tangani seperti biasa dengan
+  retry + backoff. Batas ini akan dinaikkan seiring pola trafik nyata terlihat.
+
 ## 2026-07-15 — GPT-5.6 Sol, Terra, dan Luna live
 
 Tiga deployment GPT-5.6 baru tersedia lewat endpoint kompatibel OpenAI yang sama.

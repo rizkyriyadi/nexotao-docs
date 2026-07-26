@@ -48,6 +48,7 @@ const T = {
 } as const
 
 const FALLBACK_MODELS = [
+  "claude-opus-5",
   "claude-opus-4-8",
   "claude-sonnet-4-6",
   "gpt-5.6-terra",
