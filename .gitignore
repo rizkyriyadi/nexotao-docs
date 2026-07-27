@@ -12,8 +12,7 @@ next-env.d.ts
 .turbo
 tsconfig.tsbuildinfo
 
-# Paperclip / agent artifacts — keep out of git
-.claude/settings.local.json
-.claude/scheduled_tasks.json
-.qa/
-design/nex-*/
+# Local agent state — keep out of git. Shared agent instructions live in the
+# committed AGENTS.md; anything below is per-machine and personal.
+.claude/
+CLAUDE.md
