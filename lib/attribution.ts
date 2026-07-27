@@ -1,4 +1,4 @@
-// First-touch funnel attribution (NEX-12 / NEX-7 plan).
+// First-touch funnel attribution.
 // Measurement only: no user-facing copy, no money. We capture UTM + referrer on
 // the first visit into a first-party cookie (`nex_attr`, first-touch wins) and a
 // stable anonymous id (`nex_anon`), then a best-effort landing beacon joins the
