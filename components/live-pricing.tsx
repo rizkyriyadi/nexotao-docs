@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useRouter } from "nextra/hooks"
-import { fetchModels, priceLines, modalityLabel, VENDOR, type Model, type Modality, type Locale } from "../lib/models"
+import { fetchModels, priceLines, modalityLabel, vendorLabel, type Model, type Modality, type Locale } from "../lib/models"
 
 const ORDER: Modality[] = ["text", "image", "transcribe"]
 
@@ -92,7 +92,7 @@ export function LivePricing() {
                       {m.model}
                     </span>
                   </td>
-                  <td style={{ color: "#A1A1AA" }}>{VENDOR[m.provider] ?? m.provider}</td>
+                  <td style={{ color: "#A1A1AA" }}>{vendorLabel(m.provider)}</td>
                   <td className="num">
                     {priceLines(m, loc).map((line) => (
                       <div key={line.label}>

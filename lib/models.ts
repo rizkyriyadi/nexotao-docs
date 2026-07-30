@@ -39,9 +39,17 @@ export function modalityLabel(modality: Modality, locale: Locale = "id"): string
   return locale === "en" ? MODALITY_LABEL_EN[modality] : MODALITY_LABEL[modality]
 }
 
+// `provider` dari GET /models menamai FORMAT WIRE ("anthropic" | "openai"),
+// bukan tempat model di-host. Nilai tak dikenal sengaja dipetakan ke "—",
+// bukan ditampilkan mentah: tabel ini publik, jadi id provider baru tidak boleh
+// bocor ke halaman harga hanya karena katalog bertambah.
 export const VENDOR: Record<string, string> = {
-  "azure-anthropic": "Anthropic",
-  "azure-openai": "OpenAI / DeepSeek",
+  anthropic: "Anthropic",
+  openai: "OpenAI / DeepSeek",
+}
+
+export function vendorLabel(provider: string): string {
+  return VENDOR[provider] ?? "—"
 }
 
 export function rp(value: number, locale: Locale = "id"): string {
@@ -123,9 +131,19 @@ export function priceLines(m: Model, locale: Locale = "id"): { label: string; va
   ]
 }
 
+// Katalog dulu memuat id provider yang menyebut tempat hosting; sekarang hanya
+// format wire. Normalisasi saat baca membuat bundle ini cocok dengan versi
+// server mana pun, jadi urutan deploy tidak menciptakan jeda di mana semua
+// baris jatuh ke "—". Hapus pemangkas prefiks ini kalau tidak ada lagi server
+// ter-deploy yang mengirim bentuk lama.
+function normalizeProvider(provider: string): string {
+  return provider.startsWith("azure-") ? provider.slice("azure-".length) : provider
+}
+
 export async function fetchModels(): Promise<Model[]> {
   const res = await fetch(`${API_BASE}/models`, { headers: { Accept: "application/json" } })
   if (!res.ok) throw new Error(`models ${res.status}`)
   const data = await res.json()
-  return (data.models ?? []) as Model[]
+  const models = (data.models ?? []) as Model[]
+  return models.map((m) => ({ ...m, provider: normalizeProvider(m.provider) }))
 }

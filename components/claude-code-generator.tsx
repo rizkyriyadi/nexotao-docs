@@ -129,7 +129,7 @@ export function ClaudeCodeGenerator() {
     }
   }, [])
 
-  const claudeModels = models.filter((m) => m.provider === "azure-anthropic")
+  const claudeModels = models.filter((m) => m.provider === "anthropic")
   const selectedModel =
     model || claudeModels.find((m) => m.tier === "opus")?.model || claudeModels[0]?.model || FALLBACK_OPUS
   const opus = models.find((m) => m.tier === "opus")?.model ?? FALLBACK_OPUS
