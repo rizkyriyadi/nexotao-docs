@@ -3,6 +3,8 @@ title: Text & Chat
 description: Nexotao text endpoints — /v1/messages (Anthropic) and /v1/chat/completions (OpenAI), including SSE streaming. curl, Python, and Node examples.
 ---
 
+import { Tabs } from "nextra/components"
+
 # Text & Chat
 
 Two formats are supported for text conversations. Pick the one that fits your tool.
@@ -23,6 +25,9 @@ curl https://api.nexotao.com/v1/messages \
 
 ## OpenAI — `POST /v1/chat/completions`
 
+<Tabs items={["Python", "Node.js"]}>
+  <Tabs.Tab>
+
 ```python
 from openai import OpenAI
 
@@ -35,6 +40,9 @@ resp = client.chat.completions.create(
 print(resp.choices[0].message.content)
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
 ```javascript
 import OpenAI from "openai"
 
@@ -46,6 +54,9 @@ const resp = await client.chat.completions.create({
 })
 console.log(resp.choices[0].message.content)
 ```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Streaming (SSE)
 
@@ -66,6 +77,6 @@ for chunk in stream:
 ## Vision
 
 Models that support vision can accept images in a message (see the vision marker in
-[Models & Pricing](/model-harga)). Cost is still computed per token.
+[Models & Pricing](/en/model-harga)). Cost is still computed per token.
 
-Text usage is billed per token; see [Billing & Pricing](/penagihan).
+Text usage is billed per token; see [Billing & Pricing](/en/penagihan).

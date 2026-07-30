@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useId, useMemo, useState } from "react"
 import { useRouter } from "nextra/hooks"
 import { fetchModels, type Model } from "../lib/models"
 
@@ -28,11 +28,19 @@ const T = {
 type Dict = { [K in keyof (typeof T)["id"]]: string }
 
 const ANTHROPIC_BASE_URL = "https://api.nexotao.com"
-const FALLBACK_OPUS = "claude-opus-4-8"
-// The sonnet/haiku tiers were retired in the 2-model catalog trim. Claude Code's
-// sonnet + background (haiku) slots now map to Opus so the generated config never
-// emits a removed model id. (Nielsen #2 — match between system and live catalog.)
-const FALLBACK_BG = "claude-opus-4-8"
+const FALLBACK_OPUS = "claude-opus-5"
+// Claude Code has no haiku-tier model in this catalog, so its sonnet and
+// background (haiku) slots both map to the sonnet tier — the cheapest Claude
+// model that is actually live.
+const FALLBACK_BG = "claude-sonnet-4-6"
+// Only used when GET /models is unreachable; the live catalog wins otherwise.
+const FALLBACK_CLAUDE_MODELS = [
+  "claude-opus-5",
+  "claude-opus-4-8",
+  "claude-opus-4-7",
+  "claude-opus-4-6",
+  "claude-sonnet-4-6",
+]
 const KEY_PLACEHOLDER = "sk-nexo-..."
 
 function buildSettings(token: string, model: string, opus: string, background: string) {
@@ -104,6 +112,9 @@ function CopyBox({ label, code, t }: { label: string; code: string; t: Dict }) {
 export function ClaudeCodeGenerator() {
   const { locale } = useRouter()
   const t = locale === "en" ? T.en : T.id
+  const uid = useId()
+  const keyId = `${uid}-key`
+  const modelId = `${uid}-model`
   const [models, setModels] = useState<Model[]>([])
   const [model, setModel] = useState("")
   const [key, setKey] = useState("")
@@ -122,8 +133,7 @@ export function ClaudeCodeGenerator() {
   const selectedModel =
     model || claudeModels.find((m) => m.tier === "opus")?.model || claudeModels[0]?.model || FALLBACK_OPUS
   const opus = models.find((m) => m.tier === "opus")?.model ?? FALLBACK_OPUS
-  // No sonnet/haiku tier in the catalog → background + sonnet slots fall back to Opus.
-  const background = models.find((m) => m.tier === "sonnet")?.model ?? opus
+  const background = models.find((m) => m.tier === "sonnet")?.model ?? FALLBACK_BG
   const token = key.trim() || KEY_PLACEHOLDER
 
   const settings = useMemo(
@@ -145,12 +155,13 @@ export function ClaudeCodeGenerator() {
         marginTop: "1rem",
       }}
     >
-      <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "1fr 1fr" }}>
+      <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
         <div>
-          <label className="nx-note" style={{ display: "block", marginBottom: 6, color: "#FAFAFA" }}>
+          <label htmlFor={keyId} className="nx-note" style={{ display: "block", marginBottom: 6, color: "#FAFAFA" }}>
             {t.keyLabel}
           </label>
           <input
+            id={keyId}
             className="nx-field"
             placeholder={KEY_PLACEHOLDER}
             value={key}
@@ -162,11 +173,16 @@ export function ClaudeCodeGenerator() {
           </p>
         </div>
         <div>
-          <label className="nx-note" style={{ display: "block", marginBottom: 6, color: "#FAFAFA" }}>
+          <label htmlFor={modelId} className="nx-note" style={{ display: "block", marginBottom: 6, color: "#FAFAFA" }}>
             {t.modelLabel}
           </label>
-          <select className="nx-field" value={selectedModel} onChange={(e) => setModel(e.target.value)}>
-            {claudeModels.length === 0 && <option value={FALLBACK_OPUS}>{FALLBACK_OPUS}</option>}
+          <select id={modelId} className="nx-field" value={selectedModel} onChange={(e) => setModel(e.target.value)}>
+            {claudeModels.length === 0 &&
+              FALLBACK_CLAUDE_MODELS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
             {claudeModels.map((m) => (
               <option key={m.model} value={m.model}>
                 {m.display_name} — {m.model}

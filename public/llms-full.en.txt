@@ -1,0 +1,2609 @@
+# Nexotao Docs
+
+> Nexotao resells AI model API access (Claude, GPT, Grok, DeepSeek) against a single Rupiah balance, compatible with the Anthropic and OpenAI SDKs. This is the English documentation; the Indonesian version is at https://docs.nexotao.com/llms.txt.
+
+---
+
+# Introduction
+
+Source: https://docs.nexotao.com/en
+
+# Introduction to Nexotao
+
+Nexotao is a reseller for AI model access. With **one account and one Rupiah
+balance**, you can use top models for text — via web chat, API, or Claude Code.
+No foreign credit card, no subscription.
+
+## How it works
+
+1. Top up your Rupiah balance via QRIS.
+2. Create an API key in the dashboard.
+3. Call the Nexotao endpoints with the SDKs you already know — costs are deducted
+   from your balance based on usage.
+
+## Base URL
+
+```bash
+https://api.nexotao.com
+```
+
+## Anthropic & OpenAI compatible
+
+Nexotao exposes endpoints compatible with both formats, so you only need to change
+the base URL and API key in your existing tools:
+
+- **OpenAI** — `POST /v1/chat/completions` — for **every model, including Claude**.
+  When in doubt, use this.
+- **Anthropic** — `POST /v1/messages` — Claude models only, native Anthropic format.
+
+Which one to pick: **[Endpoints & Formats](/en/endpoint)**. Not sure how to connect your
+coding tool? Every step-by-step guide lives under **[Integrations](/en/integrasi)** —
+Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, OpenCode, plus
+the universal pattern for any other tool.
+
+## Next steps
+
+- [Core Concepts](/en/konsep) — the basics for beginners (no jargon).
+- [Quickstart](/en/quickstart) — from sign-up to your first request.
+- [Playground](/en/playground) — try the API in your browser, no code.
+- [Endpoints & Formats](/en/endpoint) — pick the right endpoint.
+- [Integrations](/en/integrasi) — connect Claude Code, Codex, VS Code, and more.
+- [Billing & Pricing](/en/penagihan) — the Rupiah balance system.
+
+---
+
+# Core Concepts
+
+Source: https://docs.nexotao.com/en/konsep
+
+import { Callout } from "nextra/components"
+
+# Core Concepts
+
+New here? This page explains the terms you'll see, in everyday language. No technical
+background required.
+
+## What is Nexotao?
+
+Nexotao is a **bridge** for using the best AI models (like Claude, GPT, and DeepSeek)
+while **paying in Rupiah via QRIS** — no foreign credit card, no monthly subscription.
+You top up a balance, then use it as needed.
+
+## AI model
+
+A **model** is the "brain" that answers your questions. Each model has a different
+character:
+
+- Some are **cheap and fast** — good for simple, high-volume tasks (e.g. sorting
+  thousands of comments).
+- Some are **smart and powerful** — good for heavy work like writing code or analyzing
+  long documents.
+
+Analogy: like choosing a vehicle. A scooter for short, cheap trips; a truck for heavy
+loads. You pick by the job. See the options in [Models & Pricing](/en/model-harga).
+
+## Token
+
+AI doesn't count "words" — it counts **tokens**, small chunks of text. One word is
+usually 1–2 tokens. Roughly **1 token ≈ 4 characters**.
+
+Why it matters: **cost is per token**. The longer your question and answer, the more
+tokens, the higher the cost. It's also why AI answers are sometimes length-limited.
+
+<Callout type="info">
+  Example: "Hello, how are you?" is about 5 tokens.
+</Callout>
+
+## API key
+
+An **API** is how a program (code) talks to Nexotao — different from opening a website
+in a browser. An **API key** is your private "key", shaped like `sk-nexo-...`, that
+proves a request comes from your account (and bills your balance).
+
+<Callout type="warning">
+  Treat it like a **password**: don't share it, don't put it in publicly visible
+  code. If it leaks, revoke it in the dashboard and make a new one.
+</Callout>
+
+Details in [Authentication](/en/autentikasi).
+
+## Endpoint
+
+An **endpoint** is the "address" your request goes to, e.g.
+`https://api.nexotao.com/v1/chat/completions`. Nexotao has a few endpoints for
+different formats. Picking the right one matters — guide at
+[Endpoints & Formats](/en/endpoint).
+
+## Balance & cost
+
+You **top up a Rupiah balance** (from Rp 10,000 via QRIS), then each request deducts
+**by the tokens used**. No subscription; the balance doesn't expire. Every response
+tells you the exact cost via the `X-Cost-Rp` header. Details in
+[Billing & Pricing](/en/penagihan).
+
+## Context window
+
+Each model can only "remember" so many tokens at once in a conversation — that's its
+**context window**. If a conversation gets too long, the oldest part can be "forgotten"
+or the request rejected. How to handle it: [Context Window](/en/context-window).
+
+## Streaming
+
+**Streaming** means the answer appears **bit by bit** (like typing), instead of all at
+once when finished. Useful so long answers feel fast.
+
+---
+
+Got the basics? Continue to the [Quickstart](/en/quickstart) for your first request, or
+try it directly in the [Playground](/en/playground) — no code required.
+
+---
+
+# Quickstart
+
+Source: https://docs.nexotao.com/en/quickstart
+
+import { Callout, Steps, Tabs } from "nextra/components"
+
+# Quickstart
+
+From zero to running in a few minutes.
+
+<Steps>
+
+### Sign up
+
+Create a free account at [nexotao.com](https://nexotao.com). Just an email and a
+password.
+
+### Top up your balance
+
+Top up your Rupiah balance from Rp 10,000 via **QRIS** or **crypto (USDT / USDC)**.
+The balance never expires and is billed per token as you use it — no subscription.
+Top up Rp 150,000+ for a **+6%** balance bonus, Rp 500,000+ for **+15%**.
+
+### Create an API key
+
+In the dashboard, open **API Keys** and create a new key. It looks like
+`sk-nexo-...`.
+
+<Callout type="warning">
+  The key is shown in full **only once**. Save it right then — if you lose it, you
+  have to revoke it and create a new one.
+</Callout>
+
+### First request
+
+<Callout type="info">
+  **Prefer no code first?** Open the [Playground](/en/playground) — paste your key,
+  pick a model, send. New to the terms? Read [Core Concepts](/en/konsep).
+</Callout>
+
+Easiest path: the **OpenAI** endpoint (`/v1/chat/completions`) — it works for **every
+model, including Claude**. Not sure which to pick? See [Endpoints & Formats](/en/endpoint).
+
+<Tabs items={["Python (OpenAI)", "curl (Anthropic)", "Node.js (OpenAI)"]}>
+  <Tabs.Tab>
+
+OpenAI format (`/v1/chat/completions`) — every model:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="claude-opus-4-8",  # or gpt-5.6-terra, DeepSeek-V4-Pro, etc.
+    messages=[{"role": "user", "content": "Hello"}],
+)
+print(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Native Anthropic format (`/v1/messages`) — Claude only:
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Node.js (OpenAI format):
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create({
+  model: "gpt-5.6-terra",
+  messages: [{ role: "user", content: "Hello" }],
+})
+console.log(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+Every response includes an `X-Cost-Rp` header (the actual cost in Rupiah) and
+`X-Request-Id`. See [Billing & Pricing](/en/penagihan) for details.
+
+### Switch models by changing one string
+
+Same call, cheaper or stronger — just change the `model`:
+
+- `DeepSeek-V4-Flash` — ultra-cheap workhorse for **high-volume** work:
+  classification, extraction, short chat. Not for agentic/coding or large
+  context (~20k TPM capacity — heavy requests can hit `429 server at capacity`).
+- `claude-opus-4-8` — frontier reasoning for **coding/agentic & large context**.
+- `claude-opus-5` — the newest Opus, a **1M-token context**, with the same rate for
+  input and output (see [Models & Pricing](/en/model-harga)). Capacity is still limited,
+  so heavy agentic workloads are safer on Opus 4.8.
+- `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol` — the GPT-5.6 family from
+  efficient to balanced to the top tier, with Sol at Rp 7,000 input/output.
+
+<Callout type="warning">
+  Model ids are **case-sensitive** — use them exactly as listed. `deepseek-v4-pro` is
+  not the same model as `DeepSeek-V4-Pro`, and the request will be rejected.
+</Callout>
+
+Browse every model and today's price at
+[nexotao.com/harga](https://www.nexotao.com/harga).
+
+</Steps>
+
+## Next
+
+- [Text & Chat](/en/teks)
+- [Claude Code](/en/claude-code) — ready-to-use config generator.
+
+---
+
+# Playground
+
+Source: https://docs.nexotao.com/en/playground
+
+import { Playground } from "../../components/playground"
+
+# Playground
+
+Try Nexotao right here — no code required. Paste your **API key**, pick a **model**,
+type a **message**, then click **Send**. You'll see the model's reply along with its
+**Rupiah cost**.
+
+No key yet? Create one free in the **[nexotao.com](https://nexotao.com)** dashboard (you
+need a balance to call a model). New here? Read [Core Concepts](/en/konsep) first.
+
+<Playground />
+
+## Next
+
+- Want to use it from code? See the [Quickstart](/en/quickstart) and [Text & Chat](/en/teks).
+- Not sure which endpoint? See [Endpoints & Formats](/en/endpoint).
+- See each model's price in [Models & Pricing](/en/model-harga).
+
+---
+
+# Endpoints & Formats
+
+Source: https://docs.nexotao.com/en/endpoint
+
+# Endpoints & Formats
+
+Nexotao has two "front doors" for chat. Both use the same models — only the request
+**format** differs. This page helps you pick the right one so your requests don't get
+rejected.
+
+## Choose in 5 seconds
+
+| If you… | Use endpoint | Base URL |
+| --- | --- | --- |
+| Use the **OpenAI SDK / library**, or a tool that asks for an "OpenAI base URL" | **`/v1/chat/completions`** | `https://api.nexotao.com/v1` |
+| Use the **Anthropic SDK**, or want native Anthropic format | **`/v1/messages`** | `https://api.nexotao.com` |
+| Use **Codex** (OpenAI Responses API) | **`/v1/responses`** | `https://api.nexotao.com/v1` |
+
+> **Golden rule:** `/v1/chat/completions` accepts **every model — including Claude**.
+> When in doubt, use it. Nexotao translates the format automatically.
+
+## The most common mistake
+
+Sending an **OpenAI-format body** to the **`/v1/messages`** endpoint.
+
+`/v1/messages` is the native Anthropic path: the body is forwarded upstream without
+translation. Leftover OpenAI markers are handled in two different ways — some are
+**silently stripped**, others **make the request fail**.
+
+### Fields that are silently stripped (not rejected)
+
+These OpenAI-only fields have **no Messages API equivalent**. The gateway removes
+them from the body before forwarding, so the request still succeeds — but **the
+values you send have no effect at all**, and nothing in the response warns you:
+
+`frequency_penalty`, `presence_penalty`, `n`, `seed`, `user`, `logit_bias`,
+`logprobs`, `top_logprobs`, `stream_options`, `parallel_tool_calls`,
+`response_format`, `output_format`
+
+In addition:
+
+- `stop` is **renamed** to `stop_sequences` (its Anthropic equivalent), so your
+  intent survives. If `stop_sequences` is already set, `stop` is simply dropped.
+- `context_management` is stripped — Anthropic's context-editing beta isn't
+  available on our upstream, and forwarding the field would fail the request.
+- `temperature`, `top_p`, and `top_k` are stripped **only for `claude-opus-5`,
+  `claude-opus-4-8`, and `claude-opus-4-7`**, which no longer accept sampling
+  parameters. On `claude-opus-4-6` and `claude-sonnet-4-6` all three are
+  **forwarded and work normally**.
+
+### What actually fails the request
+
+- **`role: "system"` inside `messages`.** The Messages API only knows the `user` and
+  `assistant` roles; system instructions go in a **separate** top-level `system` field.
+- **A missing `max_tokens`.** In Anthropic format this field is **required**.
+- **OpenAI fields outside the strip list above**, such as `max_completion_tokens`.
+  Those are forwarded as-is and rejected upstream as unknown input.
+
+These failures surface as a `400` with the `code` `upstream.invalid_request`.
+
+**Fix:** just send it to `/v1/chat/completions` (base URL ending in `/v1`). That
+endpoint accepts OpenAI format as-is, including for Claude models, and translates it
+for you — `role: "system"` is moved into the `system` field, and `max_tokens` gets a
+default when you omit it.
+
+```diff
+- POST https://api.nexotao.com/v1/messages         (Anthropic format only)
++ POST https://api.nexotao.com/v1/chat/completions  (OpenAI format, every model)
+```
+
+## Option 1 — OpenAI format (most common)
+
+Endpoint `/v1/chat/completions`. Base URL **ends in `/v1`**, key sent via
+`Authorization: Bearer`. Works for GPT, DeepSeek, Grok, **and Claude**.
+
+```python
+from openai import OpenAI
+
+# Just change the base URL — any model, including Claude
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="claude-opus-4-8",  # or gpt-5.6-terra, DeepSeek-V4-Pro, etc.
+    messages=[
+        {"role": "system", "content": "You are a concise assistant."},
+        {"role": "user", "content": "What is consistent hashing?"},
+    ],
+)
+print(resp.choices[0].message.content)
+```
+
+```bash
+curl https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+## Option 2 — Native Anthropic format
+
+Endpoint `/v1/messages`. Base URL **without `/v1`**, key sent via `x-api-key`. Claude
+models only, and the body must be Anthropic format (system **outside** `messages`,
+`max_tokens` required).
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
+
+msg = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=256,
+    system="You are a concise assistant.",   # outside messages
+    messages=[{"role": "user", "content": "What is consistent hashing?"}],
+)
+print(msg.content[0].text)
+```
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+## At a glance
+
+| | `/v1/chat/completions` | `/v1/messages` |
+| --- | --- | --- |
+| Format | OpenAI | Native Anthropic |
+| Base URL | `…/v1` | `…` (no `/v1`) |
+| Key header | `Authorization: Bearer` | `x-api-key` |
+| Models | All (GPT, DeepSeek, Grok, Claude) | Claude only |
+| `system` | inside `messages` | separate field |
+| `max_tokens` required | no | yes |
+
+New to tokens, models, or API keys? Start with [Core Concepts](/en/konsep). Want to
+try it without any code? Open the [Playground](/en/playground).
+
+---
+
+# Authentication
+
+Source: https://docs.nexotao.com/en/autentikasi
+
+import { Callout, Tabs } from "nextra/components"
+
+# Authentication
+
+Every request to the Nexotao API requires an **API key** in the form `sk-nexo-...`.
+Create and manage keys in the dashboard under the **API Keys** menu.
+
+## Sending the API key
+
+Two ways, depending on the format you use:
+
+<Tabs items={["OpenAI format", "Anthropic format"]}>
+  <Tabs.Tab>
+
+For `/v1/chat/completions`, use the `Authorization: Bearer` header.
+
+```bash
+-H "Authorization: Bearer sk-nexo-..."
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+For `/v1/messages`, use the `x-api-key` header.
+
+```bash
+-H "x-api-key: sk-nexo-..."
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Key security
+
+<Callout type="error">
+  Never embed a key in client code (browser, mobile apps) or a public repo. A leaked
+  key lets anyone drain your balance, and spent balance cannot be recovered.
+</Callout>
+
+- Treat your key like a password.
+- Store it in an environment variable or a secret manager on the server side.
+- If a key leaks, **revoke** it in the dashboard and create a new one. A revoked
+  key stops working immediately.
+- One account can have multiple keys — separate them per application so you can
+  revoke them individually.
+
+An invalid or revoked key returns `401 Unauthorized`. See
+[API Reference](/en/api-reference) for the list of error codes.
+
+---
+
+# Text & Chat
+
+Source: https://docs.nexotao.com/en/teks
+
+import { Tabs } from "nextra/components"
+
+# Text & Chat
+
+Two formats are supported for text conversations. Pick the one that fits your tool.
+
+## Anthropic — `POST /v1/messages`
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 512,
+    "messages": [{"role": "user", "content": "Explain what QRIS is"}]
+  }'
+```
+
+## OpenAI — `POST /v1/chat/completions`
+
+<Tabs items={["Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Explain what QRIS is"}],
+)
+print(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create({
+  model: "gpt-5-mini",
+  messages: [{ role: "user", content: "Explain what QRIS is" }],
+})
+console.log(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Streaming (SSE)
+
+Set `stream: true` to receive the answer token by token over Server-Sent Events.
+
+```python
+stream = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Write a short poem"}],
+    stream=True,
+)
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end="", flush=True)
+```
+
+## Vision
+
+Models that support vision can accept images in a message (see the vision marker in
+[Models & Pricing](/en/model-harga)). Cost is still computed per token.
+
+Text usage is billed per token; see [Billing & Pricing](/en/penagihan).
+
+---
+
+# Context Window & Compaction
+
+Source: https://docs.nexotao.com/en/context-window
+
+# Context Window & Compaction
+
+Long sessions — especially with coding agents like **Claude Code** — keep growing
+the conversation until it no longer fits the model's **context window**. This page
+explains the window we publish, how to calibrate your client to it, and how to keep
+a session going with **compaction** instead of hitting an error.
+
+## Why context windows exist
+
+Every model can only read a limited number of tokens at once — its **context
+window**. The whole conversation (your messages, the model's replies, tool output,
+and files the agent has read) counts against it. When the running total approaches
+the window, the next request can be rejected as *prompt too long*.
+
+### Our published value: read it from the API
+
+We publish the real, verified window for each live model — **don't hard-guess
+200k**. Read it from the model list so your client calibrates to the true number:
+
+```bash
+# Public catalog (no key) — includes context_window per model
+curl https://api.nexotao.com/models
+
+# OpenAI-format list (requires key) — used by clients like Claude Code, n8n
+curl https://api.nexotao.com/v1/models \
+  -H "Authorization: Bearer sk-nexo-..."
+```
+
+Each model object carries a `context_window` field (token count).
+
+> **This field can be `null`.** When present, the number is authoritative — in sync
+> with what the gateway actually serves. But `context_window` is only published for
+> models whose hard limit we have verified. Right now **6 of the 12 live models**
+> carry a number; the rest are `null` because the provider has not published a firm
+> limit. Don't read `null` as "unlimited", and don't substitute a 200k guess — treat
+> it as *unknown*, then rely on client-side compaction plus the explicit `400` you get
+> when a prompt is genuinely too long.
+
+The currently published values:
+
+| Model | `context_window` |
+| --- | --- |
+| `claude-opus-5` | 1,000,000 |
+| `claude-opus-4-8` | 350,000 |
+| `claude-opus-4-7` | 350,000 |
+| `claude-opus-4-6` | 350,000 |
+| `claude-sonnet-4-6` | 350,000 |
+| `DeepSeek-V4-Pro` | 131,072 |
+
+The remaining models (`DeepSeek-V4-Flash`, `gpt-5-mini`, `gpt-5.6-luna`,
+`gpt-5.6-sol`, `gpt-5.6-terra`, `grok-4.3`) return `null`. This table can change —
+read it from the API rather than copying it.
+
+> **Honest note.** For the Claude models, our published window is **larger than the
+> legacy 200k** that many clients still assume by default — 350k tokens across the
+> Opus 4.x line and Sonnet 4.6, and 1M tokens for `claude-opus-5`. The figure is **per
+> model**: don't hard-guess 200k, and don't carry one model's window over to another.
+> Because the real window is bigger than the old 200k default, a client that hasn't
+> been calibrated will compact *earlier* than it needs to — you simply lose some usable
+> context, nothing breaks.
+
+## Client-side compaction
+
+**Compaction** replaces a long history with a shorter summary so the session can
+continue. Clients in the Claude Code family do this for you:
+
+- **Autocompact** — as the conversation nears the context window, the client
+  automatically summarizes older turns and continues. The threshold is set from the
+  window the client *believes* the model has. Many clients still assume the old 200k
+  default, which is **smaller** than our real window, so they autocompact earlier than
+  necessary. Calibrate the client to our published `context_window` and autocompact
+  fires at the true threshold, letting you use the full window.
+- **`/compact`** — run this command anytime to compact **manually**. Useful before a
+  big task, or right after the agent has read a lot of files. You can add a hint,
+  e.g. `/compact keep the API design decisions and the failing test`.
+- **`/clear`** — start a fresh context when the current task is done and you don't
+  need the history. The cheapest way to reclaim the full window.
+
+### Point the client at Nexotao and the right models
+
+So compaction calibrates correctly, point the client at our base URL and the live
+model ids:
+
+| Setting | Value |
+| --- | --- |
+| `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` |
+| `ANTHROPIC_AUTH_TOKEN` | your `sk-nexo-...` API key |
+| `ANTHROPIC_MODEL` | `claude-opus-4-8` (main model) |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-8` |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-4-6` |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-sonnet-4-6` (background slot) |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
+
+**The sonnet tier is available** — `claude-sonnet-4-6` is a live model with its own
+rate, so use it directly in the sonnet slot. What is **not** available is the haiku
+tier, so the background slot also points at `claude-sonnet-4-6` (the cheapest Claude
+model we carry). If your client still sends `claude-haiku-4-5`, the gateway routes it
+to `claude-opus-4-8` and bills it at the Opus rate.
+
+Older versions of this guide mentioned `ANTHROPIC_SMALL_FAST_MODEL`. Our generator
+now emits `ANTHROPIC_DEFAULT_SONNET_MODEL` and `ANTHROPIC_DEFAULT_HAIKU_MODEL` — use
+those two. See [Claude Code](/en/claude-code) for the full config and the interactive
+generator.
+
+## Per-client setup
+
+### Claude Code (and the Claude Code family)
+
+1. Set the variables above (or use the generator on the [Claude Code](/en/claude-code)
+   page to produce `~/.claude/settings.json`).
+2. **Window:** Claude Code derives the window from the model. Read the exact number
+   from `context_window` in `/v1/models`. For the Claude models it's **larger** than
+   the legacy 200k some clients still assume, so a stale assumption only makes the
+   client compact *early* (you lose usable context, nothing breaks). Where your client
+   lets you set the model's context window, set it to the published value so
+   autocompact and `/compact` trigger at the true threshold.
+3. Run `claude` and use `/compact` / `/clear` to manage long sessions.
+
+### Other OpenAI-compatible clients
+
+For tools that speak the OpenAI format (n8n, scripts, custom apps):
+
+- Base URL: `https://api.nexotao.com/v1`
+- Models: `claude-opus-4-8` (Anthropic-style via `/v1/messages`) or
+  `gpt-5-mini` (OpenAI-style via `/v1/chat/completions`).
+- These clients usually don't compact automatically — keep your own history short:
+  trim or summarize old turns before each call, and read `context_window` from
+  `/v1/models` to know your budget. If the field is `null` for the model you use, trim
+  against your own history size and treat a `400`
+  `upstream.context_length_exceeded` as the signal to summarize.
+
+## When a prompt exceeds the window
+
+If a request is too large, our gateway returns an **honest upstream error** (not a
+generic 502), so your client can react:
+
+| Status | `code` | Meaning | What to do |
+| --- | --- | --- | --- |
+| `400` | `upstream.context_length_exceeded` | The prompt exceeds the model's context window | Compact, summarize, or start fresh — see below |
+| `413` | `request.too_large` | The request body exceeds the gateway's size limit | Run `/compact` or start a new session |
+| `429` | `upstream.rate_limited` | Rate limited upstream | Back off and retry; we forward `Retry-After` when present |
+
+Recovery options, easiest first:
+
+1. **Compact** — run `/compact` (Claude Code) to summarize the history and continue
+   the same task.
+2. **Start a fresh session** — `/clear`, or open a new chat, when the current task is
+   done. Paste only the summary you still need.
+3. **Split the input** — if a single file or paste is the problem, send it in smaller
+   chunks rather than one oversized message.
+
+Usage is billed from your Rupiah balance the same way regardless of how you manage
+context — see [Billing & Pricing](/en/penagihan). More on error codes is in the
+[Error Codes](/en/errors); common questions are in the [FAQ](/en/faq).
+
+---
+
+# Integrations — Every AI Tool
+
+Source: https://docs.nexotao.com/en/integrasi
+
+import { Callout, Steps } from "nextra/components"
+import { ToolGrid, ToolLogo } from "../../components/tool-logo"
+
+# Integrations
+
+Nexotao is not a new model you have to learn from scratch. It's a **gateway** to the
+AI models you already use — Claude, GPT, DeepSeek, Grok — except the **base URL** and
+**API key** point to Nexotao, and usage is billed from a Rupiah balance.
+
+That means any coding tool that lets you point at a custom endpoint **works with
+Nexotao**. This page explains the integration pattern, then links to step-by-step
+guides per tool.
+
+## Two "modes" — this is all you need to remember
+
+Every integration reduces to one of two modes. Once you understand this, you can wire
+up any tool, even ones not listed below.
+
+| Mode | Base URL | Header / env | Model | Used for |
+| ---- | -------- | ------------ | ----- | -------- |
+| **Anthropic-compatible** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | `claude-opus-4-8`, `claude-sonnet-4-6`, … | **Claude** models & tools that speak the Anthropic format (Claude Code, Cline in Anthropic mode) |
+| **OpenAI-compatible** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, … | **OpenAI/DeepSeek/Grok** models & OpenAI-format tools (Codex, Aider, Continue, etc.) |
+
+<div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
+  <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
+  <ToolLogo src="/logos/openai.svg" alt="OpenAI / Codex" size={26} />
+  <ToolLogo src="/logos/vscode.svg" alt="VS Code" size={26} />
+  <ToolLogo src="/logos/cline.svg" alt="Cline" size={26} />
+  <ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={26} />
+  <ToolLogo src="/logos/deepseek.svg" alt="DeepSeek" size={26} />
+  <ToolLogo src="/logos/grok.svg" alt="Grok" size={26} />
+  <ToolLogo src="/logos/copilot.svg" alt="GitHub Copilot" size={26} />
+  <ToolLogo src="/logos/cursor.svg" alt="Cursor" size={26} />
+</div>
+
+<Callout type="warning">
+  **Base-URL rule of thumb** — this is the single most common cause of a failed
+  integration. OpenAI-compat tools want the `/v1` suffix
+  (`https://api.nexotao.com/v1`) and append `/chat/completions` themselves.
+  Anthropic-compat tools want the bare host (`https://api.nexotao.com`) and append
+  `/v1/messages` themselves. The API key field always takes the raw `sk-nexo-...`
+  string.
+</Callout>
+
+## Pick your tool
+
+<ToolGrid items={[
+  { logo: "/logos/claude.svg", name: "Claude Code", desc: "Anthropic's CLI coding agent. Copy-paste config generator.", href: "/claude-code", mode: "anthropic" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "OpenAI's terminal coding agent, pointed at Nexotao models.", href: "/codex", mode: "openai" },
+  { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "AI extensions in VS Code — custom OpenAI/Anthropic providers.", href: "/vscode", mode: "both" },
+  { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Terminal coding agents. Env / config-file setup.", href: "/terminal-agents", mode: "both" },
+  { logo: "/logos/cursor.svg", name: "Any other tool (universal)", desc: "Cursor, Copilot, or anything that accepts a custom base URL.", href: "/kompatibel", mode: "both" },
+]} />
+
+## No API key yet?
+
+<Steps>
+
+### Sign up
+
+Create an account at [nexotao.com](https://nexotao.com) — email only.
+
+### Top up your balance
+
+Top up via QRIS from Rp 10,000.
+
+### Create an API key
+
+Create an `sk-nexo-...` key under **API Keys**.
+
+</Steps>
+
+Full details in [Quickstart](/en/quickstart) and [Authentication](/en/autentikasi).
+
+## Available models
+
+See the live list & rates on [Models & Pricing](/en/model-harga). In short:
+
+- **Anthropic-compat:** `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`
+- **OpenAI-compat:** `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`
+
+---
+
+# Claude Code
+
+Source: https://docs.nexotao.com/en/claude-code
+
+import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
+
+# Claude Code
+
+Run the **Claude Code** coding agent through Nexotao access and pay in Rupiah. Just
+point Claude Code at the Nexotao base URL and use your API key — no foreign credit
+card.
+
+## Config generator
+
+Pick a model and paste your API key; copy the result into
+`~/.claude/settings.json`, or use the `export` version for your shell.
+
+<ClaudeCodeGenerator />
+
+## Configuration notes
+
+- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
+- `ANTHROPIC_MODEL` = the Claude model you pick in the generator.
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` = the opus-tier model from the live catalog.
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`. **The sonnet tier is
+  available** and is used as-is.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-sonnet-4-6` as well. There is **no**
+  haiku tier in our catalog, so the background slot points at the cheapest available
+  Claude model. If your client still sends `claude-haiku-4-5`, the gateway routes it
+  to `claude-opus-4-8` and **bills it at the Opus rate** — set this variable to avoid
+  that.
+- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
+
+## Steps per operating system
+
+### macOS / Linux (Ubuntu)
+
+1. Install Claude Code (see Anthropic's official documentation).
+2. Save the config to `~/.claude/settings.json` from the generator above, **or**
+   paste the `export` block into `~/.zshrc` / `~/.bashrc`:
+
+   ```bash
+   source ~/.zshrc   # or ~/.bashrc
+   ```
+3. Run `claude` from your project directory.
+
+### Windows
+
+1. Install Claude Code.
+2. Create a `settings.json` file at `%USERPROFILE%\.claude\settings.json` with the
+   contents from the generator, or set environment variables via PowerShell:
+
+   ```powershell
+   setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
+   setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
+   ```
+3. Open a new terminal and run `claude`.
+
+Claude Code usage is deducted from your Rupiah balance, just like a regular text
+call. See [Billing & Pricing](/en/penagihan).
+
+---
+
+# Run Claude Code in Rupiah (no foreign card)
+
+Source: https://docs.nexotao.com/en/claude-code-rupiah
+
+import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
+
+# Run Claude Code in Rupiah, no foreign card
+
+Want to use **Claude Code** from Indonesia but don't have a foreign credit card?
+This guide takes you end to end: create an account, top up your **Rupiah balance**
+with QRIS, point Claude Code at the Nexotao base URL, and run your first agent
+session — paying per token in Rupiah, no subscription.
+
+Nexotao is an **Anthropic-compatible** gateway: Claude Code talks to it the same way
+it talks to Anthropic's API, so all you change is the base URL and the key.
+
+> **What you need:** an email address, a QRIS-capable payment app (GoPay, OVO, DANA,
+> bank mobile, etc.), and Claude Code installed. No Visa/Mastercard, no PayPal, no
+> dollar balance.
+
+## 1. Create an account
+
+Sign up at [nexotao.com](https://nexotao.com) with just an email and password. New
+accounts start with a zero balance — you fund it in the next step.
+
+## 2. Top up your Rupiah balance with QRIS
+
+Open **Top Up** in the dashboard and pay via **QRIS**, starting from **Rp 10,000**.
+The balance is in Rupiah, is deducted per token as you use it, **never expires**, and
+there is **no subscription**.
+
+Bigger top-ups carry a bonus: **+6%** on Rp 150,000 and **+15%** on Rp 500,000.
+
+## 3. Create an API key
+
+In the dashboard, open **API Keys** → **Create key**. It looks like `sk-nexo-...`.
+Copy it now — the full key is shown only once.
+
+## 4. Generate your Claude Code config
+
+Pick a Claude model and paste your key below. The config is built in your browser and
+is never sent anywhere. Copy the `settings.json` into `~/.claude/settings.json`, or
+use the `export` block for your shell.
+
+<ClaudeCodeGenerator />
+
+Under the hood this sets:
+
+- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
+- `ANTHROPIC_AUTH_TOKEN` = your `sk-nexo-...` key
+- `ANTHROPIC_MODEL` = the Claude model you picked in the generator
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6` — the sonnet tier is available
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-sonnet-4-6` as well. There is no haiku tier
+  in our catalog, so the background slot maps to the cheapest available Claude model —
+  Claude Code keeps working normally.
+- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
+
+## 5. Run Claude Code
+
+### macOS / Linux
+
+Save the generated `settings.json` to `~/.claude/settings.json` **or** paste the
+`export` block into your `~/.zshrc` / `~/.bashrc` and reload:
+
+```bash
+source ~/.zshrc   # or ~/.bashrc
+```
+
+Then from your project directory:
+
+```bash
+claude
+```
+
+### Windows
+
+Create `%USERPROFILE%\.claude\settings.json` with the generated contents, or set the
+variables in PowerShell:
+
+```powershell
+setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
+setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
+```
+
+Open a new terminal and run `claude`.
+
+## 6. Verify it's working — and what it cost
+
+Ask Claude Code to do something small ("explain this file", "add a test"). If it
+responds, your Rupiah balance is powering it.
+
+Want to confirm the billing path directly? **Non-streaming** Nexotao responses carry
+an `X-Cost-Rp` header — the exact cost of that request in Rupiah. You can see it on a
+plain API call:
+
+```bash
+curl -i https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 64,
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+Look for `X-Cost-Rp` and `X-Request-Id` in the response headers. Claude Code usage is
+deducted from the same balance, exactly like this call.
+
+Note: Claude Code uses **streaming**, and streaming responses don't carry
+`X-Cost-Rp` — the cost isn't known when the headers are sent. You can still see the
+per-session breakdown on the **Usage** page in the dashboard. See
+[Billing & Pricing](/en/penagihan).
+
+## FAQ
+
+**Do I need a foreign credit card to use Claude Code?**
+No. You top up a Rupiah balance via QRIS from Rp 10,000 and pay per token. No
+Visa/Mastercard or dollar account required.
+
+**Is this the official Anthropic API?**
+No — Nexotao is an **Anthropic-compatible** gateway. Claude Code points at the Nexotao
+base URL and works the same way, billed from your Rupiah balance.
+
+**How is usage billed?**
+Per token (input + output), drawn from your single Rupiah balance. Non-streaming
+responses return an `X-Cost-Rp` header with the exact Rupiah cost; for streaming
+responses, see the breakdown on the **Usage** page in the dashboard. No subscription;
+the balance never expires.
+
+**Which models can I use with Claude Code?**
+Claude models available through the gateway: Opus 5, Opus 4.8, Opus 4.7, Opus 4.6,
+and Sonnet 4.6. Pick the primary model in the config generator above.
+
+## Next steps
+
+- [Claude Code](/en/claude-code) — full config reference and per-OS notes.
+- [Quickstart](/en/quickstart) — your first API request in curl / Python / Node.
+- [Billing & Pricing](/en/penagihan) — how the Rupiah balance and cost headers work.
+
+---
+
+# Codex CLI
+
+Source: https://docs.nexotao.com/en/codex
+
+import { Callout, Steps, Tabs } from "nextra/components"
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+  <ToolLogo src="/logos/openai.svg" alt="Codex" size={34} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compatible</span>
+</div>
+
+# Codex CLI
+
+**Codex** is OpenAI's terminal coding agent. It speaks the **OpenAI-compatible**
+format, so point it at `https://api.nexotao.com/v1` and use Nexotao's OpenAI-compat
+models: `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-5-mini`, `grok-4.3`,
+`DeepSeek-V4-Pro`, or `DeepSeek-V4-Flash`.
+
+<Callout type="info">
+  For **Claude** models, use [Claude Code](/en/claude-code) (Anthropic format). Codex
+  has no Anthropic mode.
+</Callout>
+
+<Steps>
+
+### Install Codex
+
+Follow OpenAI's official Codex docs. Verify:
+
+```bash
+codex --version
+```
+
+### Set the API key as an environment variable
+
+Codex reads the key from an env var (it is not stored in the config file).
+
+<Tabs items={["macOS / Linux", "Windows PowerShell"]}>
+  <Tabs.Tab>
+
+```bash
+# add to ~/.zshrc or ~/.bashrc
+export OPENAI_API_KEY="sk-nexo-..."
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```powershell
+setx OPENAI_API_KEY "sk-nexo-..."
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+### Register Nexotao as a provider
+
+Open (or create) `~/.codex/config.toml` and add:
+
+```toml
+# ~/.codex/config.toml
+model = "gpt-5.6-sol"         # default model; change as needed
+model_provider = "nexotao"
+forced_login_method = "api"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"   # MUST include /v1
+env_key = "OPENAI_API_KEY"                # env var holding sk-nexo-...
+wire_api = "responses"                    # REQUIRED "responses"; Codex removed "chat"
+```
+
+### Run
+
+From your project directory:
+
+```bash
+codex
+```
+
+Switch models anytime via a flag:
+
+```bash
+codex -m grok-4.3
+codex -m DeepSeek-V4-Pro
+```
+
+</Steps>
+
+## Important notes
+
+<Callout type="warning">
+  Two values in `config.toml` are the usual culprits: **`base_url` must end in `/v1`**
+  (Codex appends `/responses` itself), and **`wire_api` must be `"responses"`**.
+  Recent Codex versions **removed** `wire_api = "chat"`, so older configs will not
+  work.
+</Callout>
+
+- Nexotao exposes the Responses API (`/v1/responses`) with full streaming — so Codex
+  works out of the box.
+- The **provider ID** (`nexotao`) cannot reuse reserved names like `openai`, `ollama`,
+  or `lmstudio`.
+- The key is **not** stored in `config.toml`; only the env var name (`env_key`) is.
+
+Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).
+
+---
+
+# VS Code (Cline, Roo Code, Continue, Kilo Code)
+
+Source: https://docs.nexotao.com/en/vscode
+
+import { Callout } from "nextra/components"
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/vscode.svg" alt="VS Code" size={34} />
+  <ToolLogo src="/logos/cline.svg" alt="Cline" size={30} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compatible &amp; Anthropic</span>
+</div>
+
+# VS Code
+
+The popular AI extensions in **VS Code** — Cline, Roo Code, Continue.dev, Kilo Code —
+all support **custom providers**. Just pick the provider type, enter Nexotao's base
+URL, and paste your `sk-nexo-...` API key.
+
+Remember the two modes:
+
+- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, models `gpt-5-mini`,
+  `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`.
+- **Anthropic** → base URL `https://api.nexotao.com`, models `claude-opus-4-8`,
+  `claude-sonnet-4-6`, etc.
+
+---
+
+## Cline
+
+<ToolLogo src="/logos/cline.svg" alt="Cline" size={26} />
+
+1. Install the **Cline** extension from the VS Code Marketplace.
+2. Open the Cline panel → **⚙️ Settings** icon.
+3. For **OpenAI-compat** models:
+   - **API Provider** → `OpenAI Compatible`
+   - **Base URL** → `https://api.nexotao.com/v1`
+   - **API Key** → `sk-nexo-...`
+   - **Model ID** → e.g. `gpt-5-mini`
+4. For **Claude** models:
+   - **API Provider** → `Anthropic`
+   - Check **Use custom base URL** → `https://api.nexotao.com` *(no `/v1`)*
+   - **API Key** → `sk-nexo-...`
+   - **Model** → e.g. `claude-opus-4-8`
+
+<Callout type="warning">
+  Do not set the OpenAI Compatible Base URL to `https://api.openai.com/v1` — that's
+  the separate "OpenAI" provider, and your requests will never reach Nexotao.
+</Callout>
+
+---
+
+## Roo Code
+
+Roo Code is a Cline fork; the steps are similar.
+
+1. Install the **Roo Code** extension.
+2. Roo Code panel → **gear** icon → **API Provider**.
+3. **OpenAI Compatible**: Base URL `https://api.nexotao.com/v1`, API Key `sk-nexo-...`,
+   Model e.g. `gpt-5-mini`.
+4. **Anthropic**: enable **Use custom base URL** → `https://api.nexotao.com`, API Key
+   `sk-nexo-...`, Model `claude-opus-4-8`.
+
+<Callout type="info">
+  Roo Code uses **native tool calling** on the OpenAI Compatible path. The chosen
+  model must support function/tool calling — `gpt-5-mini` and the other Nexotao
+  models do.
+</Callout>
+
+---
+
+## Continue.dev
+
+<ToolLogo src="/logos/vscode.svg" alt="Continue in VS Code" size={26} />
+
+Continue is configured via `~/.continue/config.yaml`.
+
+```yaml
+# ~/.continue/config.yaml
+models:
+  - name: GPT-5 Mini (Nexotao)
+    provider: openai
+    model: gpt-5-mini
+    apiBase: https://api.nexotao.com/v1
+    apiKey: sk-nexo-...
+
+  - name: Claude Opus 4.8 (Nexotao)
+    provider: anthropic
+    model: claude-opus-4-8
+    apiBase: https://api.nexotao.com
+    apiKey: sk-nexo-...
+```
+
+- `provider: openai` → `apiBase` **includes** `/v1`.
+- `provider: anthropic` → `apiBase` **without** `/v1`.
+- The legacy `config.json` still parses but is *deprecated* — write `config.yaml`.
+
+---
+
+## Kilo Code
+
+1. Install the **Kilo Code** extension.
+2. Kilo panel → **Settings (gear)** → **Providers** tab → **Custom provider**.
+3. Fill the dialog:
+   - **Provider ID** → `nexotao`
+   - **Provider API** → `OpenAI Compatible` (for gpt/grok/deepseek) or
+     `Anthropic Messages` (for Claude)
+   - **Base URL** → `https://api.nexotao.com/v1` (OpenAI-compat) or
+     `https://api.nexotao.com` (Anthropic)
+   - **API key** → `sk-nexo-...`
+   - **Models** → Kilo can auto-fetch from `/v1/models`, or enter IDs manually.
+
+<Callout type="info">
+  To use Claude **and** gpt/deepseek at once, create two custom providers — one
+  `OpenAI Compatible`, one `Anthropic Messages`.
+</Callout>
+
+---
+
+## GitHub Copilot / others
+
+Tools without a custom-provider field (e.g. stock GitHub Copilot) can't be pointed at
+Nexotao yet. For those, see [Any other tool (universal)](/en/kompatibel) — the general
+pattern for anything that accepts a base URL.
+
+All tool usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).
+
+---
+
+# Aider & OpenCode
+
+Source: https://docs.nexotao.com/en/terminal-agents
+
+import { Callout, Tabs } from "nextra/components"
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={32} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compatible &amp; Anthropic</span>
+</div>
+
+# Aider & OpenCode
+
+Two popular terminal coding agents. Both can be pointed at Nexotao via env vars or a
+config file.
+
+---
+
+## Aider
+
+Aider routes models through LiteLLM, so you can use the OpenAI-compat path
+(recommended) or the Anthropic path.
+
+<Tabs items={["OpenAI-compat models (recommended)", "Claude models (via LiteLLM)"]}>
+<Tabs.Tab>
+
+```bash
+export OPENAI_API_BASE=https://api.nexotao.com/v1
+export OPENAI_API_KEY=sk-nexo-...
+
+aider --model openai/gpt-5-mini
+```
+
+- The `openai/` prefix is **required** — it tells Aider to use the OpenAI-compatible
+  endpoint.
+- `OPENAI_API_BASE` must include `/v1`.
+- Other models: `openai/grok-4.3`, `openai/DeepSeek-V4-Pro`.
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```bash
+export ANTHROPIC_API_BASE=https://api.nexotao.com
+export ANTHROPIC_API_KEY=sk-nexo-...
+
+aider --model anthropic/claude-opus-4-8
+```
+
+- `ANTHROPIC_API_BASE` **without** `/v1`.
+- If your Aider/LiteLLM version doesn't pick up this base URL, just use the
+  OpenAI-compat path.
+
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  Aider may show an "unknown model" warning for `sk-nexo` IDs — harmless, ignore it.
+</Callout>
+
+---
+
+## OpenCode
+
+<ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={26} />
+
+OpenCode is configured via `opencode.json` (in the project root or
+`~/.config/opencode/opencode.json`).
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "nexotao": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Nexotao",
+      "options": {
+        "baseURL": "https://api.nexotao.com/v1",
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "models": {
+        "gpt-5-mini": {
+          "name": "GPT-5 Mini (Nexotao)",
+          "limit": { "context": 128000, "output": 65536 }
+        }
+      }
+    }
+  }
+}
+```
+
+Then:
+
+```bash
+export OPENAI_API_KEY=sk-nexo-...
+opencode          # pick a model via /models
+```
+
+- Use `npm: "@ai-sdk/openai-compatible"` for the `/chat/completions` endpoint.
+- `baseURL` must include `/v1`.
+- `apiKey` supports `{env:VAR}` syntax; keep the key in an env var, not the file.
+
+<Callout type="warning">
+  Custom providers **must** declare `models` with `limit.context` / `limit.output`.
+  Without them, OpenCode's context tracking breaks.
+</Callout>
+
+Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).
+
+---
+
+# Any Other Tool (Universal)
+
+Source: https://docs.nexotao.com/en/kompatibel
+
+import { Callout, Tabs } from "nextra/components"
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/cursor.svg" alt="Cursor" size={30} />
+  <ToolLogo src="/logos/openai.svg" alt="OpenAI SDK" size={30} />
+  <ToolLogo src="/logos/claude.svg" alt="Anthropic SDK" size={30} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compatible &amp; Anthropic</span>
+</div>
+
+# Any Other Tool (Universal)
+
+Don't see your tool listed? As long as it can be pointed at a **custom base URL** and
+accepts an **API key**, it works with Nexotao. The principle is always the same: swap
+the base URL + key, then pick a model.
+
+## The universal pattern
+
+**OpenAI-compatible** (for gpt/grok/deepseek, **and Claude**, and most tools):
+
+| Field | Value |
+| ----- | ----- |
+| Base URL | `https://api.nexotao.com/v1` |
+| API Key | `sk-nexo-...` |
+| Header | `Authorization: Bearer sk-nexo-...` |
+| Model | `gpt-5.6-terra`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`, `claude-opus-4-8` |
+
+<Callout type="info">
+  The OpenAI-compatible endpoint accepts **every model, including Claude** — so if
+  your tool speaks OpenAI, just use this pattern for all of them. See
+  [Endpoints & Formats](/en/endpoint).
+</Callout>
+
+**Anthropic-compatible** (optional — native Anthropic bodies only):
+
+| Field | Value |
+| ----- | ----- |
+| Base URL | `https://api.nexotao.com` |
+| API Key | `sk-nexo-...` |
+| Header | `x-api-key: sk-nexo-...` |
+| Model | `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6` |
+
+## Examples
+
+<Tabs items={["OpenAI SDK", "Anthropic SDK", "Environment variables"]}>
+  <Tabs.Tab>
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+resp = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+print(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
+msg = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=256,
+    messages=[{"role": "user", "content": "Hello"}],
+)
+print(msg.content[0].text)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+For tools that read environment variables:
+
+```bash
+# OpenAI style
+export OPENAI_BASE_URL=https://api.nexotao.com/v1
+export OPENAI_API_KEY=sk-nexo-...
+
+# Anthropic style
+export ANTHROPIC_BASE_URL=https://api.nexotao.com
+export ANTHROPIC_AUTH_TOKEN=sk-nexo-...
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Cursor & cloud-based tools
+
+Some tools (e.g. Cursor) route requests through their own servers, so a custom base
+URL may be limited or unavailable. Check whether the tool offers an "Override OpenAI
+Base URL" / "Custom API key" option. If it does, fill it with the OpenAI-compat pattern
+above. If not, that tool can't be used with Nexotao yet.
+
+## Troubleshooting checklist
+
+<Callout type="warning">
+  The most common cause is the `/v1` suffix. OpenAI-compat **needs** `/v1`;
+  Anthropic-compat is **without** `/v1`.
+</Callout>
+
+- Unknown model? Match the ID exactly from [Models & Pricing](/en/model-harga).
+- `401`? Bad/revoked key — create a new one in the dashboard. See [Authentication](/en/autentikasi).
+- Need the full error list? See the [API Reference](/en/api-reference).
+
+Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).
+
+---
+
+# Models & Pricing
+
+Source: https://docs.nexotao.com/en/model-harga
+
+import { LivePricing } from "../../components/live-pricing"
+
+# Models & Pricing
+
+**The same models as Anthropic and OpenAI direct.** The difference: pay per
+token with QRIS. No USD card, no monthly subscription, no FX card fee.
+
+## Display name vs Model ID
+
+Names such as **GPT-5.6 Sol** are human-readable **display names**. When calling
+the API, use the exact **Model ID**, such as `gpt-5.6-sol`. Model IDs are
+**case-sensitive**: do not change capitalization or pass the display name as
+the `model` value.
+
+List every Model ID directly from the live catalog:
+
+```bash
+curl -s https://api.nexotao.com/models | jq -r '.models[].model'
+```
+
+All 12 live models and their Model IDs:
+
+| Display name | API Model ID |
+| --- | --- |
+| DeepSeek V4 Flash | `DeepSeek-V4-Flash` |
+| DeepSeek V4 Pro | `DeepSeek-V4-Pro` |
+| GPT-5 Mini | `gpt-5-mini` |
+| GPT-5.6 Luna | `gpt-5.6-luna` |
+| GPT-5.6 Sol | `gpt-5.6-sol` |
+| GPT-5.6 Terra | `gpt-5.6-terra` |
+| Grok 4.3 | `grok-4.3` |
+| Claude Opus 4.6 | `claude-opus-4-6` |
+| Claude Opus 4.7 | `claude-opus-4-7` |
+| Claude Opus 4.8 | `claude-opus-4-8` |
+| Claude Opus 5 | `claude-opus-5` |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
+
+The live catalog is what counts — if this table and `GET /models` disagree,
+trust `GET /models`.
+
+## Choosing a model
+
+What each model is for. For its rates, see the live table below.
+
+| Model | Best for |
+| --- | --- |
+| `DeepSeek-V4-Flash` | High-volume, cheap work: classification, extraction, short chat. |
+| `DeepSeek-V4-Pro` | Higher-quality DeepSeek; 131,072-token context. |
+| `gpt-5-mini` | OpenAI's cheapest tier — classifiers, extraction, batch. Supports vision. |
+| `gpt-5.6-luna` | Efficient for everyday work and high-volume tasks. |
+| `gpt-5.6-terra` | Balanced for coding, analysis, and agent workflows. |
+| `gpt-5.6-sol` | Top GPT-5.6 tier; the same rate for input and output. |
+| `grok-4.3` | An alternative outside the GPT and Claude families. |
+| `claude-opus-4-6` | The Opus that **still accepts** `temperature` / `top_p` / `top_k`. |
+| `claude-opus-4-7` | Previous-generation Opus; sampling parameters no longer accepted. |
+| `claude-opus-4-8` | The strongest reasoning model for coding and agentic work. |
+| `claude-opus-5` | The newest Opus; 1,000,000-token context. |
+| `claude-sonnet-4-6` | Fast + smart for high-volume product chat; sampling still works. |
+
+The Claude models and `gpt-5-mini` support **vision** (image input); the rest are
+text-only. Check `supports_vision` in `GET /models` to confirm.
+
+> **Match the model to the job.** `DeepSeek` is great for **high-volume, cheap**
+> workloads — classification, extraction, short chat — but **not for
+> agentic/coding or large context**. Its capacity is small (~20k tokens/min), so
+> a single agentic or large-context request can hit `429 server at capacity`.
+> For **coding/agentic & large context**, use **Claude (Opus/Sonnet)** or
+> **GPT-5.6**.
+
+## Live per-million-token rates
+
+Every model has per-million-token rates for **input**, **output**, and (for
+Claude/GPT) **cache-read + cache-write**. The values here come straight from
+`GET /models` — always in sync with the live catalog, with no hardcoded prices on
+the page.
+
+<LivePricing />
+
+## How to read the rates
+
+- **Text** — rate per 1 million tokens, separately for input and output.
+- **Cache (Claude/GPT)** — cache reads are much cheaper than the standard input
+  rate; cache writes are slightly more. Full breakdown in [Billing & Pricing](/en/penagihan).
+- **What you're billed** — always `token_count × model_rate_at_the_time`, rounded
+  up. There is no per-request fee and no minimum charge.
+
+Need a cost estimate before you call the API? Take the rate from `GET /models` and
+multiply it by your expected token count — or see
+[nexotao.com/harga](https://nexotao.com/harga) for a calculator and price
+comparisons.
+
+Billing details, cache mechanics, and per-request accounting live in
+[Billing & Pricing](/en/penagihan).
+
+---
+
+# Billing & Pricing
+
+Source: https://docs.nexotao.com/en/penagihan
+
+import { LivePricing } from "../../components/live-pricing"
+
+# Billing & Pricing
+
+Nexotao uses a **token-based** system with **a single Rupiah balance**. There are no
+separate credits — all usage is drawn from the same balance.
+
+## Cost units
+
+| Type | Billing basis |
+| --- | --- |
+| Text / Chat | per token (input and output) |
+
+Everything is rounded up so small usage never becomes zero.
+
+## Cost headers
+
+Every response includes `X-Request-Id` — the request id for tracking.
+
+The cost header **differs between non-streaming and streaming**:
+
+| | Non-streaming | Streaming (SSE) |
+| --- | --- | --- |
+| `X-Request-Id` | present | present |
+| `X-Cost-Rp` | present — the actual cost in Rupiah | **absent** |
+
+On a streaming response the headers are sent before the first token flows, so the
+final cost cannot be known yet. `X-Cost-Rp` is therefore deliberately omitted
+rather than sent as zero.
+
+### Getting the cost after a stream
+
+Keep the `X-Request-Id` from the headers, then read the final figure from
+`GET /usage/{request_id}` once the stream has finished.
+
+> **This endpoint uses a dashboard session, not an API key.** It authenticates with
+> your dashboard login token, so an `sk-nexo-...` key returns
+> `401 auth.unauthorized`. If you are calling from code that only holds an API key,
+> read the breakdown on the **Usage** page in the dashboard instead.
+
+The response carries the final, reconciled numbers:
+
+```json
+{
+  "model": "claude-opus-4-8",
+  "input_tokens": 1240,
+  "output_tokens": 380,
+  "cache_read_tokens": 0,
+  "cache_write_tokens": 0,
+  "charge_micro": 16200000,
+  "status": "ok",
+  "turns": 1
+}
+```
+
+- `charge_micro` — the cost in **micro-rupiah** (Rp 1 = 1,000,000 micro).
+- `turns` — the number of charged upstream turns. Normally `1`; it can be higher
+  when the gateway ran a server-side tool loop, which is what explains a charge
+  larger than a single turn's tokens would suggest.
+
+The usage record is written after the stream completes and is reconciled. Calling
+too early returns `404` with the code `usage.not_found` — wait a moment and retry.
+A `503` with `dependency.database_unavailable` is a transient failure; retry with
+backoff.
+
+## Live pricing
+
+The table below is pulled directly from the live `GET /models` catalog (sell prices
+only):
+
+<LivePricing />
+
+See also [Models & Pricing](/en/model-harga) for the full list, or
+[nexotao.com/harga](https://nexotao.com/harga).
+
+---
+
+# API Reference
+
+Source: https://docs.nexotao.com/en/api-reference
+
+# API Reference
+
+Base URL: `https://api.nexotao.com`. Authentication via API key — see
+[Authentication](/en/autentikasi).
+
+## Endpoints
+
+| Method | Path | Function |
+| --- | --- | --- |
+| `GET` | `/models` | Public pricing catalog for the site (no key) |
+| `GET` | `/v1/models` | OpenAI-format model list (requires key) — used by n8n etc. |
+| `GET` | `/v1/models/{id}` | Single model detail, OpenAI format (requires key) |
+| `POST` | `/v1/chat/completions` | Chat, OpenAI format (DeepSeek and Claude) |
+| `POST` | `/v1/responses` | OpenAI Responses format — supports streaming; used by Codex CLI |
+| `POST` | `/v1/messages` | Chat, Anthropic format (Claude models) |
+
+## Response headers
+
+| Header | Meaning |
+| --- | --- |
+| `X-Request-Id` | The request id for tracking. Present on every response, including streaming |
+| `X-Cost-Rp` | The actual cost of the request in Rupiah. **Non-streaming responses only** |
+| `X-Error-Code` | The `code` value from the error body. Error responses only |
+
+On streaming (SSE) responses `X-Cost-Rp` is **not sent** — the cost isn't known
+when headers are flushed. Read the final figure from `GET /usage/{request_id}`;
+see [Billing & Pricing](/en/penagihan).
+
+## Error codes
+
+| Status | Meaning | Action |
+| --- | --- | --- |
+| `400` | Invalid request | Check the body/parameters |
+| `401` | Invalid or revoked API key | Create / use an active key |
+| `402` | Insufficient balance | Top up your Rupiah balance |
+| `413` | Request body too large | Compact the history or start a new session |
+| `429` | Too many requests | Retry with backoff |
+| `502` | Upstream unavailable | Retry with backoff |
+
+### Error body shape
+
+Every error returns JSON in the same shape:
+
+```json
+{
+  "error": "invalid api key",
+  "code": "auth.api_key_invalid",
+  "type": "api_key_invalid",
+  "request_id": "8997bda3-65c4-45c3-ab38-c909f905fc4d",
+  "retryable": false
+}
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `error` | string | Human-readable message. The wording can change — don't branch on it |
+| `code` | string | Stable dotted identifier, e.g. `auth.api_key_invalid`. **Branch on this** |
+| `type` | string | The segment after the last dot of `code` (e.g. `api_key_invalid`). Legacy client compatibility |
+| `request_id` | string | The request id, identical to the `X-Request-Id` header. Include it when reporting an issue |
+| `retryable` | bool | `true` when retrying the same request is sensible (e.g. rate limits, upstream errors) |
+| `hint` | string | Optional. Present on some errors only, with actionable guidance |
+
+Branch your code on `code` (or the `X-Error-Code` header), never on `error`. The
+full code catalogue is on [Error Codes](/en/errors).
+
+## GET /models
+
+Returns the list of active models along with sell prices (no internal cost data).
+Used by the live pricing tables on the [Billing](/en/penagihan) and
+[Models & Pricing](/en/model-harga) pages.
+
+```bash
+curl https://api.nexotao.com/models
+```
+
+Each item contains: `model`, `display_name`, `tier`, `provider`, `supports_vision`,
+`modality`, and the `*_micro` price fields (micro-rupiah; 1 Rp = 1,000,000 micro).
+
+---
+
+# Errors & Debugging
+
+Source: https://docs.nexotao.com/en/errors
+
+import { Callout, Steps, Tabs } from "nextra/components"
+
+# Errors & Debugging
+
+This page is the complete reference for failures on the Nexotao API: the shape of
+an error body, what each code means, which ones are worth retrying, and how to
+trace a single request after the fact.
+
+Base URL: `https://api.nexotao.com`.
+
+## The error envelope
+
+Every API error is returned as a single JSON object with the same shape,
+regardless of the endpoint.
+
+```json
+{
+  "error": "invalid api key",
+  "code": "auth.api_key_invalid",
+  "type": "api_key_invalid",
+  "request_id": "8997bda3-65c4-45c3-ab38-c909f905fc4d",
+  "retryable": false
+}
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `error` | string | Human-readable message. The wording may change — do **not** branch on it |
+| `code` | string | **Stable** dotted identifier, e.g. `auth.api_key_invalid`. This is the contract — branch on this |
+| `type` | string | The segment after the **last** dot of `code` (e.g. `api_key_invalid`). Kept for older client compatibility |
+| `request_id` | string | The request id, identical to the `X-Request-Id` header |
+| `retryable` | bool | `true` when retrying the same request is sensible |
+| `hint` | string | Optional. Present on some errors only, with actionable guidance |
+
+Two headers accompany every error response:
+
+| Header | Contents |
+| --- | --- |
+| `X-Error-Code` | Same as the `code` field. Readable without parsing the body |
+| `X-Request-Id` | Same as the `request_id` field |
+
+<Callout type="info">
+`type` is derived mechanically from `code`, so it never carries extra
+information. If you are writing a new client, use `code` (or the `X-Error-Code`
+header) and ignore `type`.
+</Callout>
+
+### Reading the error code
+
+<Tabs items={["curl", "Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```bash
+curl -sS -D /tmp/h.txt https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-FAKE-EXAMPLE" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","messages":[{"role":"user","content":"hi"}]}'
+
+grep -i '^x-error-code\|^x-request-id' /tmp/h.txt
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+import httpx
+
+r = httpx.post(
+    "https://api.nexotao.com/v1/chat/completions",
+    headers={"Authorization": "Bearer sk-nexo-FAKE-EXAMPLE"},
+    json={"model": "claude-sonnet-4-6",
+          "messages": [{"role": "user", "content": "hi"}]},
+)
+
+if r.status_code >= 400:
+    body = r.json()
+    print(body["code"], body["request_id"], body["retryable"])
+    # headers alone are enough, no body parsing needed:
+    print(r.headers["x-error-code"], r.headers["x-request-id"])
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```js
+const res = await fetch("https://api.nexotao.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-nexo-FAKE-EXAMPLE",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    messages: [{ role: "user", content: "hi" }],
+  }),
+})
+
+if (!res.ok) {
+  const body = await res.json()
+  console.error(body.code, body.request_id, body.retryable)
+  console.error(res.headers.get("x-error-code"), res.headers.get("x-request-id"))
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## `request_id`
+
+Every request — successful or not — gets a unique `request_id`, sent in the
+`X-Request-Id` header and recorded server-side.
+
+- On error responses the same id also appears in the body as `request_id`.
+- **Log it in your application.** When reporting a problem, one `request_id` is
+  far more useful than a screenshot of the error message.
+- For streaming requests, `X-Request-Id` is sent **before** the first stream
+  byte, so it is still readable when a stream fails mid-flight.
+
+```bash
+curl -sS -D - -o /dev/null https://api.nexotao.com/v1/messages \
+  -H "Authorization: Bearer sk-nexo-FAKE-EXAMPLE" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","max_tokens":16,
+       "messages":[{"role":"user","content":"hi"}]}' \
+  | grep -i x-request-id
+```
+
+## Error code catalogue
+
+Grouped by HTTP status. The **Retry** column is the `retryable` field in the
+body.
+
+### 400 — Invalid request
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `request.invalid` | Body unreadable, `model` missing or not a string, empty `input` on `/v1/responses`, model not available on that endpoint, or images sent to a model without vision support | Fix the request body | `false` |
+| `request.invalid_request` | Request shape rejected before it reaches a backend — e.g. body is not a JSON object, a user message has empty content, or `tools` is not an array of objects whose `input_schema` has a root `type` | Fix the message/tool structure | `false` |
+| `request.unsupported_feature` | The requested feature is not served for that model on that endpoint — e.g. Claude structured outputs or web search outside `/v1/messages`, or tool use on a DeepSeek model | Move to a supporting endpoint/model; check `hint` if present | `false` |
+| `model.unknown` | `model` is not in the catalogue | Check the model id via `GET /v1/models` or [Models & Pricing](/en/model-harga) | `false` |
+| `upstream.context_length_exceeded` | The prompt exceeds the model's context window | Reduce input or enable compaction — see [Context Window](/en/context-window) | `false` |
+| `upstream.invalid_request` | The model backend rejected the request shape | Check unusual parameters (e.g. sampling values out of range) | `false` |
+| `upstream.unsupported_feature` | A parameter/feature is not supported by that model backend | Drop the parameter or switch models | `false` |
+
+### 401 — Authentication failed
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `auth.api_key_missing` | Neither `Authorization: Bearer` nor `x-api-key` was sent | Send an API key — see [Authentication](/en/autentikasi) | `false` |
+| `auth.api_key_invalid` | The key is not recognised | Use a valid key, or create one in the dashboard | `false` |
+| `auth.api_key_revoked` | The key existed but has been revoked | Create a new key | `false` |
+| `auth.unauthorized` | Dashboard session token missing or invalid (dashboard endpoints, not the API-key path) | Sign in again in the dashboard | `false` |
+
+<Callout type="warning">
+The three `auth.*` codes above will **never** succeed on retry with the same
+credential. A client that retries them automatically only burns its own RPM quota
+and slows down its own recovery.
+</Callout>
+
+### 402 — Balance
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `billing.insufficient_balance` | Balance is not enough to cover the estimated input plus a minimal answer | Top up, then resend | `false` |
+
+This check runs **before** the request is forwarded to a model, so a request
+rejected with 402 is never charged.
+
+### 403 — Forbidden
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `auth.account_deleted` | The account owning the key is marked deleted | Contact support | `false` |
+| `auth.forbidden` | Access denied on a dashboard endpoint | Contact support | `false` |
+
+### 404 / 405 — Routing
+
+| `code` | Status | When it happens | What to do | Retry |
+| --- | --- | --- | --- | --- |
+| `route.not_found` | 404 | The path does not exist. This includes `/v1/images/generations` and `/v1/audio/transcriptions`, which are **not served** | Check the endpoint list in the [API Reference](/en/api-reference) | `false` |
+| `resource.not_found` | 404 | The model id in `GET /v1/models/{id}` does not exist | Check the model id | `false` |
+| `usage.not_found` | 404 | Unknown `request_id` on `GET /usage/{request_id}` — a **dashboard-session** endpoint, not reachable with an API key | Verify the id and that it belongs to the same account | `false` |
+| `request.method_not_allowed` | 405 | Right path, wrong method (e.g. `GET` on `/v1/messages`) | Use `POST` | `false` |
+
+### 413 — Body too large
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `request.too_large` | The request body exceeds the size limit | Run `/compact` or start a new session; in agent integrations this usually means the conversation history has grown too long | `false` |
+
+### 429 — Rate limits and quotas
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `rate_limit.rpm_exceeded` | The key's requests-per-minute limit was exceeded | Back off and retry | `true` |
+| `rate_limit.tpm_exceeded` | The key's tokens-per-minute limit was exceeded | Back off, or shrink the prompt/`max_tokens` | `true` |
+| `gateway.capacity` | The Nexotao concurrency gate is full. Carries a short `Retry-After` | Retry after `Retry-After` | `true` |
+| `upstream.rate_limited` | The model backend throttled the call. `Retry-After` is forwarded when the backend sends one | Retry after `Retry-After`; check `hint` if present | `true` |
+| `quota.key_limit_exceeded` | The key's **spending limit** was reached — a budget cap, not a rate window | Raise or adjust the key limit in the dashboard, or wait for the next period | `false` |
+
+<Callout type="warning">
+`quota.key_limit_exceeded` is a 429 whose `retryable` is **`false`**. It is the
+one 429 you must not retry automatically: waiting a few seconds does not give the
+budget back. For daily/monthly limits, `Retry-After` carries the seconds until
+the period rolls over; an all-time total limit never resets and carries no
+`Retry-After`.
+</Callout>
+
+On the API-key path, responses also carry rate observability headers when the
+relevant limit is active for that key:
+
+| Header | Meaning |
+| --- | --- |
+| `X-RateLimit-Limit` / `-Remaining` / `-Reset` | Requests-per-minute quota |
+| `X-RateLimit-Limit-Tokens` / `-Remaining-Tokens` / `-Reset-Tokens` | Tokens-per-minute quota |
+| `X-Key-Limit-Micro` / `X-Key-Usage-Micro` / `X-Key-Remaining-Micro` / `X-Key-Limit-Period` | Per-key spending limit, in micro-rupiah |
+
+### 5xx — Server-side failures
+
+| `code` | Status | When it happens | What to do | Retry |
+| --- | --- | --- | --- | --- |
+| `internal.error` | 500 | An unexpected failure | Retry with backoff | `true` |
+| `internal.panic` | 500 | An unhandled failure; fully recorded server-side | Retry; report with the `request_id` if it repeats | `true` |
+| `dependency.upstream_unavailable` | 502 | The model backend failed, exhausted its attempts, or the connection dropped. Also the catch-all class for unrecognised backend failures | Retry with backoff; consider a different model | `true` |
+| `dependency.database_unavailable` | 503 | The database is temporarily unreachable (authentication, model catalogue, balance, or usage lookups) | Retry with backoff | `true` |
+| `dependency.upstream_unconfigured` | 503 | No backend is configured for that model | Use another model; report if it persists | `true` |
+| `billing.reconcile_failed` | 503 | Billing bookkeeping failed after the model call | Retry; no balance is deducted in this case | `true` |
+
+<Callout type="info">
+Model backend responses are never passed through verbatim. The status, body, and
+backend identity are classified into one of the codes above with a fixed message,
+and the raw detail stays in server logs only. Do not build logic on the
+assumption that you will see the model provider's original message.
+</Callout>
+
+## In-band streaming errors
+
+This is the easiest thing to miss in the whole API.
+
+<Callout type="warning">
+For streaming requests, **`status === 200` is not a success signal.** Once the
+gateway starts sending heartbeats, HTTP 200 has already been committed and cannot
+be taken back. Any failure after that point is delivered **inside the stream** as
+an error event. A client that only checks `response.ok` will read a failed
+request as an empty answer.
+</Callout>
+
+The error event's wire shape depends on the endpoint:
+
+<Tabs items={["/v1/chat/completions", "/v1/messages", "/v1/responses"]}>
+  <Tabs.Tab>
+
+A single `data:` chunk containing an `error` object, then `data: [DONE]`.
+
+```text
+data: {"error":{"message":"upstream service unavailable after retries; please retry","type":"server_error","code":"upstream_unavailable","request_id":"8997bda3-65c4-45c3-ab38-c909f905fc4d"}}
+
+data: [DONE]
+```
+
+Detection: a `data:` chunk with a top-level `error` key (rather than `choices`).
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+An event named `error` with an Anthropic-style payload, then `data: [DONE]`.
+
+```text
+event: error
+data: {"type":"error","error":{"type":"overloaded_error","message":"upstream service unavailable after retries; please retry","request_id":"8997bda3-65c4-45c3-ab38-c909f905fc4d"}}
+
+data: [DONE]
+```
+
+The `overloaded_error` type is deliberate: it makes Anthropic SDKs and Claude
+Code classify the failure as a transient, back-off-and-retry condition rather
+than a raw connection drop.
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+A `response.failed` event. Note this shape is **not** followed by `data: [DONE]`.
+
+```text
+event: response.failed
+data: {"type":"response.failed","response":{"id":"resp_8997bda3-65c4-45c3-ab38-c909f905fc4d","object":"response","status":"failed","output":[],"error":{"message":"upstream service unavailable after retries; please retry","type":"server_error","code":"upstream_unavailable"}}}
+```
+
+`id` is built as `resp_` + `request_id`, so you can recover the `request_id`
+straight from it.
+
+  </Tabs.Tab>
+</Tabs>
+
+The message is a fixed string chosen from the failure classification — for
+example "upstream capacity exhausted after waiting; please retry" for a throttle,
+"upstream timed out before starting the stream; please retry" for a timeout, or a
+specific message for an exceeded context window. When actionable guidance applies
+(e.g. a model-selection steer), it is appended to the message, because a stream
+has no room for a separate `hint` field.
+
+<Callout type="warning">
+The same trap applies to **non-streaming `/v1/responses`**. That endpoint sends
+keepalives so long calls are not dropped by intermediaries, which means HTTP 200
+can be committed before the outcome is known. If it then fails, you receive
+**HTTP 200** with a JSON body of `{"status":"failed","error":{...}}`. Always
+check `status` in the `/v1/responses` body, not just the HTTP code.
+</Callout>
+
+### Detection examples
+
+<Tabs items={["Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```python
+import json, httpx
+
+payload = {
+    "model": "claude-sonnet-4-6",
+    "messages": [{"role": "user", "content": "hi"}],
+    "stream": True,
+}
+
+with httpx.stream(
+    "POST", "https://api.nexotao.com/v1/chat/completions",
+    headers={"Authorization": "Bearer sk-nexo-FAKE-EXAMPLE"},
+    json=payload, timeout=None,
+) as r:
+    request_id = r.headers.get("x-request-id")
+    r.raise_for_status()  # necessary, but NOT sufficient
+
+    for line in r.iter_lines():
+        if not line.startswith("data: "):
+            continue
+        data = line[6:]
+        if data == "[DONE]":
+            break
+        chunk = json.loads(data)
+        if "error" in chunk:                     # in-band failure
+            err = chunk["error"]
+            raise RuntimeError(
+                f"{err.get('code')}: {err.get('message')} (request_id={request_id})"
+            )
+        # ... handle a normal chunk
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```js
+const res = await fetch("https://api.nexotao.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-nexo-FAKE-EXAMPLE",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    messages: [{ role: "user", content: "hi" }],
+    stream: true,
+  }),
+})
+
+const requestId = res.headers.get("x-request-id")
+if (!res.ok) throw new Error(`HTTP ${res.status} (request_id=${requestId})`)
+
+const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
+let buffer = ""
+
+for (;;) {
+  const { value, done } = await reader.read()
+  if (done) break
+  buffer += value
+
+  let idx
+  while ((idx = buffer.indexOf("\n\n")) !== -1) {
+    const event = buffer.slice(0, idx)
+    buffer = buffer.slice(idx + 2)
+
+    const dataLine = event.split("\n").find((l) => l.startsWith("data: "))
+    if (!dataLine) continue
+    const data = dataLine.slice(6)
+    if (data === "[DONE]") continue
+
+    const chunk = JSON.parse(data)
+    if (chunk.error) {
+      throw new Error(
+        `${chunk.error.code}: ${chunk.error.message} (request_id=${requestId})`,
+      )
+    }
+    // ... handle a normal chunk
+  }
+}
+```
+
+For `/v1/messages`, also watch for an `event: error` line; for `/v1/responses`,
+watch for `event: response.failed`.
+
+  </Tabs.Tab>
+</Tabs>
+
+## Retry guidance
+
+<Steps>
+
+### Check `retryable` first
+
+Retry only when the error body says `"retryable": true`. Codes with
+`retryable: false` — the whole `auth.*` family, `billing.insufficient_balance`,
+`model.unknown`, `route.not_found`, `request.*`, `quota.key_limit_exceeded` —
+will **never** succeed with an identical request.
+
+### Honour `Retry-After` when present
+
+If the response carries a `Retry-After` header, use it as the minimum delay
+instead of your own backoff schedule. Values coming from a backend are validated
+and clamped to a maximum of **3600 seconds**; implausible values are discarded so
+the header is simply not sent.
+
+### Exponential backoff with jitter
+
+Without `Retry-After`, double the delay on each attempt and add randomness so
+many clients do not stampede together after a single incident.
+
+### Cap the attempts
+
+Four or five attempts is plenty. After that, return the error to the caller along
+with its `request_id`.
+
+</Steps>
+
+```python
+import json, random, time, httpx
+
+NON_RETRYABLE_HTTP = {400, 401, 402, 403, 404, 405, 413}
+
+def call_with_retry(client, url, headers, payload, max_attempts=5):
+    delay = 1.0
+    for attempt in range(max_attempts):
+        r = client.post(url, headers=headers, json=payload)
+        if r.status_code < 400:
+            return r
+
+        body = {}
+        try:
+            body = r.json()
+        except json.JSONDecodeError:
+            pass
+
+        # The contract is `retryable`, not the HTTP status.
+        if not body.get("retryable", r.status_code not in NON_RETRYABLE_HTTP):
+            raise RuntimeError(
+                f"{body.get('code')}: {body.get('error')} "
+                f"(request_id={r.headers.get('x-request-id')})"
+            )
+
+        wait = delay
+        if ra := r.headers.get("retry-after"):
+            try:
+                wait = max(wait, min(int(ra), 3600))
+            except ValueError:
+                pass
+        time.sleep(wait + random.uniform(0, 0.5 * wait))   # jitter
+        delay *= 2
+
+    raise RuntimeError("attempts exhausted")
+```
+
+<Callout type="warning">
+Never wrap `auth.api_key_invalid` (or `auth.api_key_missing` /
+`auth.api_key_revoked`) in a retry loop. A wrong key is still wrong on the 100th
+attempt, and every attempt still counts against that key's RPM quota.
+</Callout>
+
+## Cost and post-hoc debugging
+
+**Non-streaming** responses carry the actual cost in headers:
+
+| Header | Meaning |
+| --- | --- |
+| `X-Cost-Rp` | Cost of this request in Rupiah |
+| `X-Request-Id` | The request id |
+
+On **SSE (streaming)** responses, `X-Cost-Rp` is deliberately **omitted**:
+headers must be written before the first byte, while the cost is only known once
+the stream ends.
+
+So for a streaming call, the way to find out what it cost is:
+
+<Steps>
+
+### Save the `X-Request-Id` from the response headers
+
+It is sent before the first stream byte, so it is available even when the stream
+later fails. Log it alongside the call.
+
+### Look the request up on the dashboard Usage page
+
+Find the matching request id there to see the reconciled figure — the model,
+token counts, and the exact charge that moved your balance.
+
+</Steps>
+
+<Callout type="warning">
+There is a `GET /usage/{request_id}` endpoint, but it is **not part of the
+API-key surface**. It authenticates with a dashboard session token, so sending
+`Authorization: Bearer sk-nexo-...` to it fails authentication with a 401
+`auth.unauthorized` rather than returning usage. If you hold only an API key,
+use the dashboard Usage page.
+</Callout>
+
+Whichever route you use, the reconciled record contains the fields below. Two of
+them are worth knowing:
+
+| Field | Meaning |
+| --- | --- |
+| `charge_micro` | Total charge in **micro-rupiah** (Rp 1 = 1,000,000 micro) |
+| `turns` | Number of charged upstream turns. Normally `1`; **greater than 1** when the gateway ran a server-side tool loop — which is what explains a charge larger than a single turn's tokens would suggest |
+
+The record's `status` tells you the final outcome, and in particular whether a
+failed request was charged at all:
+
+| `status` | Meaning |
+| --- | --- |
+| `ok` | Succeeded and charged |
+| `upstream_error` | The model backend failed; nothing charged |
+| `aborted_stream` | The stream opened then dropped before its terminal event with no usable output; **not charged** |
+| `usage_missing` | The backend replied 2xx but token counts could not be read; flagged and **not charged** |
+| `billing_error` | The answer was delivered but billing bookkeeping failed; recorded as 0 |
+| `fallback_429` / `fallback_oversize` | Zero-charge markers written when a request was rerouted to the next model in the chain |
+
+## Troubleshooting
+
+**401 `auth.api_key_missing`** — the auth header never arrived. With `curl`,
+check your quoting and line continuations (`\`). With an SDK, make sure
+`base_url`/`baseURL` points at `https://api.nexotao.com/v1` and that the key is
+actually set (not an empty environment variable).
+
+**401 `auth.api_key_invalid`** — the key is not recognised. Most common causes: a
+stray space or newline got copied along, the key belongs to a different
+environment, or it was deleted. Create a new key in the dashboard. See
+[Authentication](/en/autentikasi).
+
+**402 `billing.insufficient_balance`** — the balance cannot cover the estimated
+input plus a minimal answer. Nexotao checks this before calling a model, so a
+rejected request costs nothing. Top up in the dashboard; see
+[Billing & Pricing](/en/penagihan).
+
+**429 `rate_limit.rpm_exceeded` / `rate_limit.tpm_exceeded`** — the key's
+per-minute limit was exceeded. Lower concurrency, apply backoff, or shrink the
+prompt/`max_tokens`. The `X-RateLimit-*` headers show the remaining quota and
+seconds until the window rolls over.
+
+**429 `quota.key_limit_exceeded`** — the key's spending limit was reached. That
+is a budget cap you set yourself in the dashboard, not a rate throttle. Raise it
+or turn it off there.
+
+**400 `model.unknown`** — the model id is misspelled or no longer active. Fetch
+the valid list:
+
+```bash
+curl -sS https://api.nexotao.com/v1/models \
+  -H "Authorization: Bearer sk-nexo-FAKE-EXAMPLE"
+```
+
+**404 `route.not_found`** — the path is not served. The most frequent case is a
+generic OpenAI client calling `/v1/images/generations` or
+`/v1/audio/transcriptions`. Neither endpoint is **available** on Nexotao — see
+the served endpoint list in the [API Reference](/en/api-reference).
+
+**A stream ends with no text and no error** — this is almost always an in-band
+error your client did not parse. Revisit
+[In-band streaming errors](#in-band-streaming-errors) above, then look the
+request id up on the dashboard Usage page: a status of `aborted_stream` or
+`upstream_error` confirms the request failed and was not charged.
+
+Still stuck? Collect the `request_id`, the `code`, and the time it happened, then
+contact support through the dashboard. Without a `request_id`, a single request
+is nearly impossible to find in the logs.
+
+---
+
+# FAQ
+
+Source: https://docs.nexotao.com/en/faq
+
+import { Callout } from "nextra/components"
+
+# FAQ
+
+## What is Nexotao?
+
+A reseller for AI model access. With one account and one Rupiah balance, you can use
+top models for text — via web chat, API, or Claude Code, with no foreign credit card.
+
+## Is it safe?
+
+Your requests are forwarded to the official model providers for processing. We do
+not sell your data. Details are in the privacy policy at
+[nexotao.com](https://nexotao.com).
+
+## Can my balance expire?
+
+No. The balance does not expire unless stated otherwise, and remains usable until
+it runs out.
+
+## How do I pay?
+
+Top up via QRIS. No subscription — you only pay for the balance you add, and it is
+deducted based on usage.
+
+## Can I use it for Claude Code?
+
+Yes. Nexotao is compatible with the Anthropic endpoint, so Claude Code can be
+pointed at Nexotao and paid for in Rupiah. See [Claude Code](/en/claude-code).
+
+## Are there refunds?
+
+<Callout type="warning">
+  Top-ups are **final** and the balance is generally non-refundable. For cases such
+  as double charges or system failures, see the refund policy at
+  [nexotao.com](https://nexotao.com).
+</Callout>
+
+## How much does it cost?
+
+Live rates are on [Models & Pricing](/en/model-harga). They are currently well below
+official pricing — treat it as a promo price.
+
+## Why does DeepSeek sometimes return 429 / "server at capacity"?
+
+Because the request isn't a DeepSeek job. `DeepSeek-V4-Flash` is positioned for
+**high-volume, cheap** work — classification, extraction, short chat — and has a
+small capacity of about **20k tokens/minute (TPM)** per backend. A single
+**agentic/coding or large-context** request easily exceeds ~50k input tokens,
+overrunning one backend's entire per-minute budget, so it returns
+`429 server at capacity, retry shortly` — no number of parallel backends helps,
+because a single request cannot be split across backends.
+
+<Callout type="warning">
+  The fix isn't to keep retrying, it's to **use the right model**: for coding/agentic
+  and large context, select a **Claude (Opus/Sonnet)** model id directly (for example
+  `claude-opus-4-8`). DeepSeek stays the best pick for volume/cheap workloads.
+</Callout>
+
+---
+
+# Changelog
+
+Source: https://docs.nexotao.com/en/changelog
+
+# Changelog
+
+Notable changes to the Nexotao API and model catalog. Breaking changes and
+billing-affecting changes are called out explicitly.
+
+## 2026-07-26 — Claude Opus 5 is live, with a 1M-token context
+
+`claude-opus-5` joins the catalog through the same Anthropic endpoint. Change only
+the `model` value; your API key, base URL, and Rupiah balance stay the same.
+
+- **Introductory pricing** below the standing Opus tier, running until **Tuesday,
+  28 July 2026 at 23:59 WIB (UTC+7)**.
+
+  > **Update (2026-07-30):** the introductory period has ended. The price increase
+  > announced in this entry **was not applied** — Opus 5 still bills at its
+  > introductory rate. Current rates are always in `GET /models` and on
+  > [Models & Pricing](/en/model-harga).
+- **1,000,000-token context window** — far above the 350k of the Opus 4.x line. Read
+  `context_window` from `/v1/models`; don't carry one model's window over to another.
+  See [Context Window & Compaction](/en/context-window).
+- **Vision is supported** (image blocks on `/v1/messages`).
+- **Sampling parameters are rejected.** Like Opus 4.8 and 4.7, this model returns 400
+  for `temperature`, `top_p`, and `top_k`. The gateway strips all three before
+  forwarding, so existing clients keep working — but the values you send have no
+  effect.
+- **Capacity.** Opus 5 is served by **seven upstream deployments**, so there is
+  failover when one is saturated. Concurrent requests per model are still capped so
+  no single deployment saturates, so a sharp traffic spike can return
+  `429 server at capacity, retry shortly` — handle it the usual way, with retry +
+  backoff. The cap will be raised as real traffic patterns emerge.
+
+## 2026-07-15 — GPT-5.6 Sol, Terra, and Luna are live
+
+Three new GPT-5.6 deployments are available through the same OpenAI-compatible
+endpoint. Change only the `model` value; your API key, base URL, and Rupiah
+balance stay the same.
+
+- `gpt-5.6-luna` — **Rp 2,349 input / Rp 4,698 output** per 1M tokens.
+- `gpt-5.6-terra` — **Rp 4,500 input / Rp 9,000 output** per 1M tokens.
+- `gpt-5.6-sol` — **Rp 7,000 input / Rp 7,000 output** per 1M tokens.
+
+GPT cache tokens use the verified cache rates: reads at 10% of input and writes
+at 125% of input. The authoritative model list and rates are always available
+from `GET /models` and [Models & Pricing](/en/model-harga).
+
+## 2026-07-13 — Clearer model positioning: DeepSeek for volume/cheap, Claude for agentic
+
+The docs now spell out model selection. **`DeepSeek-V4-Flash` is for high-volume,
+cheap work** (classification, extraction, short chat); **Claude (Opus/Sonnet) is
+for coding/agentic & large context.** DeepSeek has a small capacity
+(~20k tokens/min), so a single agentic or large-context request can return
+`429 server at capacity, retry shortly`. See the [FAQ](/en/faq). No API or pricing
+change — guidance alignment only.
+
+## 2026-06-26 — Opus 4.8 rate update (+30%)
+
+Claude Opus 4.8 (`claude-opus-4-8`) received a new published price on this date, a
+**+30%** change from the previous rate.
+
+> **Update (2026-07-30):** the figures in this entry are a historical record as of
+> 2026-06-26 and are **not the current rate** — Opus 4.8 has been repriced several
+> times since. Current rates are always in `GET /models` and on
+> [Models & Pricing](/en/model-harga).
+
+### What changed at the time
+
+- **The Opus 4.8 rate rose by +30%** from the previous rate.
+- **`DeepSeek-V4-Pro` is unchanged.**
+- **Your balance keeps full value** — no credits are lost or revalued, and past
+  usage is **not** re-billed; the new rate applies to usage from here forward.
+
+### Why it matters
+
+You bill in Rupiah at the rate published when the request runs. A rate change
+applies to usage going forward — usage already settled at the old rate is not
+re-billed. If your cheaper-first workloads run on `DeepSeek-V4-Pro`, nothing
+changes for them.
+
+## 2026-06-25 — Published context window: read the real number, no silent truncation
+
+Every live model now publishes a verified `context_window`, so your client
+calibrates to the **true** window instead of hard-guessing 200k — and we never
+silently drop tokens behind your back.
+
+### What's new
+
+- **`context_window` is now published per model** on both `GET /models` (no key)
+  and `GET /v1/models`. It's a token count, and it's the source of truth — always
+  in sync with what the gateway actually serves.
+- **Current published windows:**
+  - `claude-opus-4-8` → **350,000 tokens** — larger than the legacy **200k** many
+    clients still assume by default.
+  - `DeepSeek-V4-Pro` → **131,072 tokens**.
+
+> **Note (2026-07-30):** `context_window` is only published for models whose hard
+> limit has been verified; for the others the field is `null`. The current list is on
+> [Context Window & Compaction](/en/context-window).
+
+### Why it matters
+
+Some endpoints **silently truncate** your context when a conversation outgrows the
+window: the agent keeps running but quietly loses the earliest messages, and you
+only find out when the answers get worse. **We don't do that.** When a prompt
+genuinely exceeds the window you get an explicit error — not a silent drop. And
+because we publish the real number, a calibrated client (for example **Claude
+Code**) compacts at the *right* time instead of tripping early against a guessed
+200k.
+
+```bash
+# Read the real window — no key needed
+curl https://api.nexotao.com/models   # each model carries context_window
+```
+
+### What you should do
+
+1. **Read `context_window` from the API** instead of hard-coding 200k (or assuming
+   1M — the published Opus window is 350k, not more).
+2. **Let your client compact.** See the
+   [Context Window & Compaction](/en/context-window) guide to calibrate Claude Code
+   and keep long sessions going.
+
+## 2026-06-24 — Catalog trim: two models, deprecated ids on a 30-day grace window
+
+We've trimmed the live model catalog to two models. If your code references any
+other model id, **read the billing note below** — it can affect what you're
+charged during the grace window.
+
+### What changed
+
+> **Update (2026-07-18):** this catalog trim was later **reversed**. The models
+> `claude-sonnet-4-6`, `gpt-5-mini`, and `DeepSeek-V4-Flash` are **active again** as
+> live, independently-priced models and were not removed. The entry below is kept as
+> a historical record. See [Models & Pricing](/en/model-harga) for the current live catalog.
+
+- **The live catalog is now two chat models only:**
+  - `claude-opus-4-8` (Claude Opus 4.8)
+  - `DeepSeek-V4-Pro` (DeepSeek V4 Pro)
+- **Image generation and audio transcription are no longer available.**
+  `POST /v1/images/generations` and `POST /v1/audio/transcriptions` are no longer
+  served — there are no active image or transcription models in the catalog.
+
+  > **Correction (2026-07-30):** this entry originally said both endpoints return
+  > `400`. In fact the routes are not registered at all, so both return **`404`**
+  > with the `code` `route.not_found`.
+- **Deprecated chat ids still work during a grace window, then stop.** A request
+  for a deprecated id is transparently routed to a live model during the grace
+  window. Deprecated ids are planned for removal **on or around 2026-07-24**,
+  after which they return `400 unknown model`. We'll announce the exact cutover.
+
+### Billing note — please read
+
+During the grace window, a deprecated id is **billed at the live model's rate**,
+not the old id's rate. Several deprecated ids were *cheaper* than the model they
+now route to, so a request that used to bill at a lower rate will bill at the
+canonical (higher) rate.
+
+This is balance-bounded — you are never billed for more than your balance covers,
+and a request that can't be covered is rejected rather than overdrawing — but it
+**is** a real price change for those ids. To avoid surprises, update your code to
+call a live id directly **now** rather than waiting for the cutoff.
+
+### Deprecated id → live model
+
+| Deprecated id        | Routes to (and billed as) | Note                          |
+| -------------------- | ------------------------- | ----------------------------- |
+| `claude-sonnet-4-6`  | `claude-opus-4-8`         | premium rate vs. old id        |
+| `claude-haiku-4-5`   | `claude-opus-4-8`         | premium rate; Claude Code background slot |
+| `gpt-5-mini`         | `DeepSeek-V4-Pro`         | premium rate vs. old id        |
+| `gpt-4.1-mini`       | `DeepSeek-V4-Pro`         | premium rate vs. old id        |
+| `DeepSeek-V4-Flash`  | `DeepSeek-V4-Pro`         | premium rate vs. old id        |
+
+Retired media models (no replacement): `FLUX.2-pro`, `gpt-4o-transcribe`,
+`gpt-4o-mini-transcribe`, `whisper`.
+
+### What you should do
+
+1. **Update your model id** to `claude-opus-4-8` or `DeepSeek-V4-Pro`.
+2. **Check your billing assumptions** if you were using a deprecated *cheaper*
+   id — you're now billed at the live model's rate.
+3. **Migrate soon.** Deprecated ids are planned for removal on or around
+   2026-07-24, after which they return `400`.
+
+Live rates are always available from `GET /models` and on the
+[Models & Pricing](/en/model-harga) page. Questions? See the [FAQ](/en/faq).

@@ -3,6 +3,8 @@ title: Core Concepts
 description: Plain-language explanations of Nexotao terms for beginners — AI models, tokens, API keys, endpoints, and balance. No jargon, no IT background needed.
 ---
 
+import { Callout } from "nextra/components"
+
 # Core Concepts
 
 New here? This page explains the terms you'll see, in everyday language. No technical
@@ -35,7 +37,9 @@ usually 1–2 tokens. Roughly **1 token ≈ 4 characters**.
 Why it matters: **cost is per token**. The longer your question and answer, the more
 tokens, the higher the cost. It's also why AI answers are sometimes length-limited.
 
-> Example: "Hello, how are you?" is about 5 tokens.
+<Callout type="info">
+  Example: "Hello, how are you?" is about 5 tokens.
+</Callout>
 
 ## API key
 
@@ -43,9 +47,12 @@ An **API** is how a program (code) talks to Nexotao — different from opening a
 in a browser. An **API key** is your private "key", shaped like `sk-nexo-...`, that
 proves a request comes from your account (and bills your balance).
 
-Treat it like a **password**: don't share it, don't put it in publicly visible code. If
-it leaks, revoke it in the dashboard and make a new one. Details in
-[Authentication](/en/autentikasi).
+<Callout type="warning">
+  Treat it like a **password**: don't share it, don't put it in publicly visible
+  code. If it leaks, revoke it in the dashboard and make a new one.
+</Callout>
+
+Details in [Authentication](/en/autentikasi).
 
 ## Endpoint
 

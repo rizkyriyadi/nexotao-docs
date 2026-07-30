@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useId, useMemo, useState } from "react"
 import { useRouter } from "nextra/hooks"
 import { fetchModels, type Model, type Locale } from "../lib/models"
 
@@ -72,6 +72,12 @@ export function Playground() {
   const { locale } = useRouter()
   const loc: Locale = locale === "en" ? "en" : "id"
   const t = T[loc]
+
+  const uid = useId()
+  const keyId = `${uid}-key`
+  const modelId = `${uid}-model`
+  const systemId = `${uid}-system`
+  const messageId = `${uid}-message`
 
   const [apiKey, setApiKey] = useState("")
   const [models, setModels] = useState<string[] | null>(null)
@@ -155,8 +161,11 @@ export function Playground() {
   return (
     <div style={{ border, borderRadius: 14, padding: 18, marginTop: 20 }}>
       <div style={{ marginBottom: 14 }}>
-        <label style={label}>{t.key}</label>
+        <label htmlFor={keyId} style={label}>
+          {t.key}
+        </label>
         <input
+          id={keyId}
           type="password"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
@@ -169,8 +178,10 @@ export function Playground() {
       </div>
 
       <div style={{ marginBottom: 14 }}>
-        <label style={label}>{t.model}</label>
-        <select value={model} onChange={(e) => setModel(e.target.value)} style={field}>
+        <label htmlFor={modelId} style={label}>
+          {t.model}
+        </label>
+        <select id={modelId} value={model} onChange={(e) => setModel(e.target.value)} style={field}>
           {modelList.map((m) => (
             <option key={m} value={m}>
               {m}
@@ -181,13 +192,24 @@ export function Playground() {
       </div>
 
       <div style={{ marginBottom: 14 }}>
-        <label style={label}>{t.system}</label>
-        <input value={system} onChange={(e) => setSystem(e.target.value)} placeholder={t.systemPh} style={field} />
+        <label htmlFor={systemId} style={label}>
+          {t.system}
+        </label>
+        <input
+          id={systemId}
+          value={system}
+          onChange={(e) => setSystem(e.target.value)}
+          placeholder={t.systemPh}
+          style={field}
+        />
       </div>
 
       <div style={{ marginBottom: 14 }}>
-        <label style={label}>{t.message}</label>
+        <label htmlFor={messageId} style={label}>
+          {t.message}
+        </label>
         <textarea
+          id={messageId}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={t.messagePh}
@@ -235,7 +257,8 @@ export function Playground() {
             </div>
           ) : (
             <>
-              <label style={label}>{t.response}</label>
+              {/* Not a <label>: this heads a read-only result panel, not a form control. */}
+              <div style={label}>{t.response}</div>
               <div
                 style={{
                   border,

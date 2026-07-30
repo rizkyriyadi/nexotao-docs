@@ -24,14 +24,46 @@ supaya request-mu tidak ditolak.
 
 Mengirim **body format OpenAI** ke endpoint **`/v1/messages`**.
 
-`/v1/messages` hanya menerima format **Anthropic native**. Kalau body-mu punya ciri
-OpenAI — misalnya `role: "system"` di dalam `messages`, `max_completion_tokens`,
-`frequency_penalty`, `top_p` pada Claude — request akan ditolak dengan
-`400 invalid request`.
+`/v1/messages` adalah jalur Anthropic native: body diteruskan ke upstream tanpa
+diterjemahkan. Ciri OpenAI yang tersisa di body ditangani dengan dua cara berbeda —
+sebagian **dibuang diam-diam**, sebagian **menyebabkan request gagal**.
+
+### Field yang dibuang diam-diam (bukan ditolak)
+
+Field khusus OpenAI berikut **tidak punya padanan di Messages API**. Gateway
+membuangnya dari body sebelum meneruskan ke upstream, jadi request tetap jalan —
+tapi **nilai yang kamu kirim tidak berpengaruh sama sekali**, dan tidak ada
+peringatan apa pun di respons:
+
+`frequency_penalty`, `presence_penalty`, `n`, `seed`, `user`, `logit_bias`,
+`logprobs`, `top_logprobs`, `stream_options`, `parallel_tool_calls`,
+`response_format`, `output_format`
+
+Selain itu:
+
+- `stop` **diganti nama** menjadi `stop_sequences` (padanan Anthropic-nya), jadi
+  maksudmu tetap terjaga. Kalau `stop_sequences` sudah ada, `stop` dibuang saja.
+- `context_management` dibuang — beta context-editing Anthropic belum ada di
+  upstream kami, dan request akan gagal kalau field itu diteruskan.
+- `temperature`, `top_p`, dan `top_k` dibuang **khusus untuk `claude-opus-5`,
+  `claude-opus-4-8`, dan `claude-opus-4-7`** — ketiga model itu memang sudah tidak
+  menerima parameter sampling. Pada `claude-opus-4-6` dan `claude-sonnet-4-6`
+  ketiganya **tetap diteruskan dan berfungsi normal**.
+
+### Yang benar-benar membuat request gagal
+
+- **`role: "system"` di dalam `messages`.** Messages API hanya mengenal role `user`
+  dan `assistant`; instruksi sistem adalah field `system` **terpisah** di level atas.
+- **`max_tokens` tidak diisi.** Di format Anthropic field ini **wajib**.
+- **Field OpenAI di luar daftar buang di atas**, misalnya `max_completion_tokens`.
+  Field itu diteruskan apa adanya dan ditolak upstream sebagai input asing.
+
+Kegagalan-kegagalan itu muncul sebagai `400` dengan `code` `upstream.invalid_request`.
 
 **Solusi:** kirim ke `/v1/chat/completions` saja (base URL berakhiran `/v1`).
 Endpoint itu menerima format OpenAI persis apa adanya, termasuk untuk model Claude,
-dan menerjemahkannya untukmu.
+lalu menerjemahkannya untukmu — `role: "system"` dipindahkan ke field `system`, dan
+`max_tokens` diisi default kalau kamu tidak mengirimnya.
 
 ```diff
 - POST https://api.nexotao.com/v1/messages        (format Anthropic saja)

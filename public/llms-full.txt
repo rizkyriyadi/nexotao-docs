@@ -1,0 +1,2619 @@
+# Nexotao Docs
+
+> Nexotao adalah reseller akses API model AI (Claude, GPT, Grok, DeepSeek) dengan satu saldo Rupiah. Kompatibel dengan SDK Anthropic dan OpenAI. Dokumentasi ini berbahasa Indonesia; versi Inggris ada di https://docs.nexotao.com/llms.en.txt.
+
+---
+
+# Pengantar
+
+Source: https://docs.nexotao.com/id
+
+# Pengantar Nexotao
+
+Nexotao adalah reseller akses model AI. Dengan **satu akun dan satu saldo Rupiah**,
+kamu bisa memakai model top untuk teks — lewat web chat, API, atau Claude Code.
+Tanpa kartu kredit luar negeri, tanpa langganan.
+
+## Cara kerja
+
+1. Isi saldo Rupiah lewat QRIS.
+2. Buat API key di dashboard.
+3. Panggil endpoint Nexotao dengan SDK yang sudah kamu kenal — biaya dipotong dari
+   saldo sesuai pemakaian.
+
+## Base URL
+
+```bash
+https://api.nexotao.com
+```
+
+## Kompatibel Anthropic & OpenAI
+
+Nexotao mengekspos endpoint yang kompatibel dengan kedua format, jadi kamu cukup
+mengganti base URL dan API key pada tool yang sudah ada:
+
+- **OpenAI** — `POST /v1/chat/completions` — untuk **semua model, termasuk Claude**.
+  Kalau ragu, pakai ini.
+- **Anthropic** — `POST /v1/messages` — hanya untuk model Claude, format Anthropic native.
+
+Panduan memilih ada di **[Endpoint & Format](/endpoint)**. Bingung menyambungkan tool
+coding-mu? Semua panduan step-by-step ada di **[Integrasi](/integrasi)** — Claude Code,
+Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, OpenCode, dan pola
+universal untuk tool lain.
+
+## Langkah berikutnya
+
+- [Konsep Dasar](/konsep) — istilah dasar untuk pemula (tanpa jargon).
+- [Quickstart](/quickstart) — dari daftar sampai request pertama.
+- [Playground](/playground) — coba API langsung di browser, tanpa kode.
+- [Endpoint & Format](/endpoint) — pilih endpoint yang benar.
+- [Integrasi](/integrasi) — hubungkan Claude Code, Codex, VS Code, dan tool lain.
+- [Penagihan & Harga](/penagihan) — sistem saldo Rupiah.
+
+---
+
+# Konsep Dasar
+
+Source: https://docs.nexotao.com/id/konsep
+
+import { Callout } from "nextra/components"
+
+# Konsep Dasar
+
+Baru pertama kali? Halaman ini menjelaskan istilah yang sering muncul, dengan bahasa
+sehari-hari. Tidak perlu latar belakang teknis.
+
+## Apa itu Nexotao?
+
+Nexotao adalah **jembatan** untuk memakai model AI terbaik (seperti Claude, GPT, dan
+DeepSeek) dengan **bayar pakai Rupiah lewat QRIS** — tanpa kartu kredit luar negeri
+dan tanpa langganan bulanan. Kamu isi saldo, lalu memakainya sesuai kebutuhan.
+
+## Model AI
+
+**Model** adalah "otak" yang menjawab pertanyaanmu. Tiap model punya karakter berbeda:
+
+- Ada yang **murah dan cepat** — cocok untuk tugas sederhana dan banyak (misalnya
+  mengelompokkan ribuan komentar).
+- Ada yang **pintar dan kuat** — cocok untuk tugas berat seperti menulis kode atau
+  menganalisis dokumen panjang.
+
+Analogi: seperti memilih kendaraan. Motor untuk jarak dekat yang irit; truk untuk
+angkut barang berat. Kamu pilih sesuai pekerjaan. Lihat pilihannya di
+[Model & Harga](/model-harga).
+
+## Token
+
+AI tidak menghitung "kata", tapi **token** — potongan kecil teks. Satu kata biasanya
+1–2 token. Kira-kira **1 token ≈ 4 huruf**.
+
+Kenapa penting? Karena **biaya dihitung per token**: makin panjang pertanyaan dan
+jawaban, makin banyak token, makin besar biayanya. Ini juga kenapa jawaban AI kadangkala
+dibatasi panjangnya.
+
+<Callout type="info">
+  Contoh: kalimat "Halo, apa kabar?" kira-kira 5 token.
+</Callout>
+
+## API key
+
+**API** adalah cara program (kode) berbicara dengan Nexotao — beda dengan membuka
+situs lewat browser. **API key** adalah "kunci" pribadimu, berbentuk `sk-nexo-...`,
+yang membuktikan bahwa request itu berasal dari akunmu (dan biayanya dipotong dari
+saldomu).
+
+<Callout type="warning">
+  Perlakukan seperti **kata sandi**: jangan dibagikan, jangan ditaruh di kode yang
+  bisa dilihat publik. Kalau bocor, cabut (revoke) di dashboard dan buat yang baru.
+</Callout>
+
+Detail di [Autentikasi](/autentikasi).
+
+## Endpoint
+
+**Endpoint** adalah "alamat" tujuan request-mu, misalnya
+`https://api.nexotao.com/v1/chat/completions`. Nexotao punya beberapa endpoint untuk
+format yang berbeda. Memilih endpoint yang benar itu penting — panduannya di
+[Endpoint & Format](/endpoint).
+
+## Saldo & biaya
+
+Kamu **isi saldo Rupiah** (mulai Rp 10.000 lewat QRIS), lalu tiap request memotong
+saldo **sesuai token yang dipakai**. Tidak ada langganan; saldo tidak hangus. Tiap
+respons memberi tahu biaya persisnya lewat header `X-Cost-Rp`. Detail di
+[Penagihan & Harga](/penagihan).
+
+## Context window
+
+Setiap model hanya bisa "mengingat" sejumlah token sekaligus dalam satu percakapan —
+itu **context window**-nya. Kalau percakapan terlalu panjang, bagian paling lama bisa
+"terlupa" atau request ditolak. Cara mengatasinya ada di
+[Context Window](/context-window).
+
+## Streaming
+
+**Streaming** artinya jawaban muncul **sedikit demi sedikit** (seperti mengetik),
+bukan sekaligus setelah selesai. Berguna agar terasa cepat pada jawaban panjang.
+
+---
+
+Sudah paham dasarnya? Lanjut ke [Quickstart](/quickstart) untuk request pertamamu,
+atau coba langsung di [Playground](/playground) tanpa menulis kode.
+
+---
+
+# Quickstart
+
+Source: https://docs.nexotao.com/id/quickstart
+
+import { Callout, Steps, Tabs } from "nextra/components"
+
+# Quickstart
+
+Dari nol sampai jalan dalam beberapa menit.
+
+<Steps>
+
+### Daftar
+
+Buat akun gratis di [nexotao.com](https://nexotao.com). Cukup email dan kata sandi.
+
+### Top-up saldo
+
+Isi saldo Rupiah mulai Rp 10.000 lewat **QRIS** atau **crypto (USDT / USDC)**. Saldo
+tidak kedaluwarsa dan dipotong per token sesuai pemakaian — tanpa langganan. Isi
+Rp 150.000+ dapat bonus saldo **+6%**, Rp 500.000+ dapat **+15%**.
+
+### Buat API key
+
+Di dashboard, buka **API Keys** lalu buat key baru. Bentuknya `sk-nexo-...`.
+
+<Callout type="warning">
+  Key hanya ditampilkan penuh **sekali**. Simpan baik-baik saat itu juga — kalau
+  hilang, kamu harus mencabutnya dan membuat key baru.
+</Callout>
+
+### Request pertama
+
+<Callout type="info">
+  **Mau coba tanpa ngoding dulu?** Buka [Playground](/playground) — tempel key,
+  pilih model, kirim. Belum paham istilahnya? Baca [Konsep Dasar](/konsep).
+</Callout>
+
+Cara paling mudah: endpoint **OpenAI** (`/v1/chat/completions`) — bekerja untuk
+**semua model, termasuk Claude**. Bingung memilih? Lihat [Endpoint & Format](/endpoint).
+
+<Tabs items={["Python (OpenAI)", "curl (Anthropic)", "Node.js (OpenAI)"]}>
+  <Tabs.Tab>
+
+Format OpenAI (`/v1/chat/completions`) — semua model:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="claude-opus-4-8",  # atau gpt-5.6-terra, DeepSeek-V4-Pro, dst.
+    messages=[{"role": "user", "content": "Halo"}],
+)
+print(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Format Anthropic native (`/v1/messages`) — hanya Claude:
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "Halo"}]
+  }'
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Node.js (format OpenAI):
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create({
+  model: "gpt-5.6-terra",
+  messages: [{ role: "user", content: "Halo" }],
+})
+console.log(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+Setiap respons menyertakan header `X-Cost-Rp` (biaya aktual dalam Rupiah) dan
+`X-Request-Id`. Lihat [Penagihan & Harga](/penagihan) untuk detail.
+
+### Ganti model cukup ubah satu string
+
+Panggilan yang sama, lebih murah atau lebih kuat — cukup ubah `model`:
+
+- `DeepSeek-V4-Flash` — workhorse super murah untuk kerjaan **volume tinggi**:
+  klasifikasi, ekstraksi, chat pendek. Bukan untuk agentic/coding atau konteks
+  besar (kapasitas ~20k TPM — request berat bisa kena `429 server at capacity`).
+- `claude-opus-4-8` — reasoning frontier untuk **coding/agentic & konteks besar**.
+- `claude-opus-5` — Opus terbaru, **konteks 1 juta token**, tarif input dan output
+  sama rata (lihat [Model & Harga](/model-harga)). Kapasitasnya masih terbatas, jadi
+  beban agentic berat lebih aman di Opus 4.8.
+- `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol` — keluarga GPT-5.6 dari tier
+  efisien, seimbang, sampai tier tertinggi dengan tarif Sol Rp 7.000 input/output.
+
+<Callout type="warning">
+  Id model bersifat **case-sensitive** — tulis persis seperti tertera. `deepseek-v4-pro`
+  bukan model yang sama dengan `DeepSeek-V4-Pro`, dan request-nya akan ditolak.
+</Callout>
+
+Lihat semua model dan harga hari ini di
+[nexotao.com/harga](https://www.nexotao.com/harga).
+
+</Steps>
+
+## Selanjutnya
+
+- [Teks & Chat](/teks)
+- [Claude Code](/claude-code) — generator config siap-pakai.
+
+---
+
+# Playground
+
+Source: https://docs.nexotao.com/id/playground
+
+import { Playground } from "../../components/playground"
+
+# Playground
+
+Coba Nexotao langsung di sini — tanpa menulis kode. Tempel **API key** kamu, pilih
+**model**, tulis **pesan**, lalu klik **Kirim**. Kamu akan lihat jawaban model beserta
+**biaya Rupiah**-nya.
+
+Belum punya key? Buat gratis di dashboard **[nexotao.com](https://nexotao.com)** (butuh
+saldo untuk memanggil model). Baru pertama kali? Baca [Konsep Dasar](/konsep) dulu.
+
+<Playground />
+
+## Setelah ini
+
+- Mau pakai dari kode? Lihat [Quickstart](/quickstart) dan [Teks & Chat](/teks).
+- Bingung endpoint mana? Lihat [Endpoint & Format](/endpoint).
+- Lihat harga tiap model di [Model & Harga](/model-harga).
+
+---
+
+# Endpoint & Format
+
+Source: https://docs.nexotao.com/id/endpoint
+
+# Endpoint & Format
+
+Nexotao punya dua "pintu masuk" untuk chat. Keduanya memakai model yang sama —
+yang berbeda cuma **format** request-nya. Halaman ini bantu kamu memilih yang benar
+supaya request-mu tidak ditolak.
+
+## Pilih dalam 5 detik
+
+| Kalau kamu… | Pakai endpoint | Base URL |
+| --- | --- | --- |
+| Pakai **OpenAI SDK / library**, atau tool yang minta "OpenAI base URL" | **`/v1/chat/completions`** | `https://api.nexotao.com/v1` |
+| Pakai **Anthropic SDK**, atau ingin format Anthropic native | **`/v1/messages`** | `https://api.nexotao.com` |
+| Pakai **Codex** (OpenAI Responses API) | **`/v1/responses`** | `https://api.nexotao.com/v1` |
+
+> **Aturan emas:** `/v1/chat/completions` menerima **semua model — termasuk Claude**.
+> Kalau ragu, pakai ini. Nexotao otomatis menerjemahkan formatnya.
+
+## Kesalahan paling umum
+
+Mengirim **body format OpenAI** ke endpoint **`/v1/messages`**.
+
+`/v1/messages` adalah jalur Anthropic native: body diteruskan ke upstream tanpa
+diterjemahkan. Ciri OpenAI yang tersisa di body ditangani dengan dua cara berbeda —
+sebagian **dibuang diam-diam**, sebagian **menyebabkan request gagal**.
+
+### Field yang dibuang diam-diam (bukan ditolak)
+
+Field khusus OpenAI berikut **tidak punya padanan di Messages API**. Gateway
+membuangnya dari body sebelum meneruskan ke upstream, jadi request tetap jalan —
+tapi **nilai yang kamu kirim tidak berpengaruh sama sekali**, dan tidak ada
+peringatan apa pun di respons:
+
+`frequency_penalty`, `presence_penalty`, `n`, `seed`, `user`, `logit_bias`,
+`logprobs`, `top_logprobs`, `stream_options`, `parallel_tool_calls`,
+`response_format`, `output_format`
+
+Selain itu:
+
+- `stop` **diganti nama** menjadi `stop_sequences` (padanan Anthropic-nya), jadi
+  maksudmu tetap terjaga. Kalau `stop_sequences` sudah ada, `stop` dibuang saja.
+- `context_management` dibuang — beta context-editing Anthropic belum ada di
+  upstream kami, dan request akan gagal kalau field itu diteruskan.
+- `temperature`, `top_p`, dan `top_k` dibuang **khusus untuk `claude-opus-5`,
+  `claude-opus-4-8`, dan `claude-opus-4-7`** — ketiga model itu memang sudah tidak
+  menerima parameter sampling. Pada `claude-opus-4-6` dan `claude-sonnet-4-6`
+  ketiganya **tetap diteruskan dan berfungsi normal**.
+
+### Yang benar-benar membuat request gagal
+
+- **`role: "system"` di dalam `messages`.** Messages API hanya mengenal role `user`
+  dan `assistant`; instruksi sistem adalah field `system` **terpisah** di level atas.
+- **`max_tokens` tidak diisi.** Di format Anthropic field ini **wajib**.
+- **Field OpenAI di luar daftar buang di atas**, misalnya `max_completion_tokens`.
+  Field itu diteruskan apa adanya dan ditolak upstream sebagai input asing.
+
+Kegagalan-kegagalan itu muncul sebagai `400` dengan `code` `upstream.invalid_request`.
+
+**Solusi:** kirim ke `/v1/chat/completions` saja (base URL berakhiran `/v1`).
+Endpoint itu menerima format OpenAI persis apa adanya, termasuk untuk model Claude,
+lalu menerjemahkannya untukmu — `role: "system"` dipindahkan ke field `system`, dan
+`max_tokens` diisi default kalau kamu tidak mengirimnya.
+
+```diff
+- POST https://api.nexotao.com/v1/messages        (format Anthropic saja)
++ POST https://api.nexotao.com/v1/chat/completions (format OpenAI, semua model)
+```
+
+## Cara 1 — Format OpenAI (paling umum)
+
+Endpoint `/v1/chat/completions`. Base URL **berakhiran `/v1`**, key dikirim lewat
+`Authorization: Bearer`. Bekerja untuk GPT, DeepSeek, Grok, **dan Claude**.
+
+```python
+from openai import OpenAI
+
+# Cukup ganti base URL — model apa pun, termasuk Claude
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="claude-opus-4-8",  # atau gpt-5.6-terra, DeepSeek-V4-Pro, dst.
+    messages=[
+        {"role": "system", "content": "Kamu asisten yang ringkas."},
+        {"role": "user", "content": "Jelaskan apa itu QRIS"},
+    ],
+)
+print(resp.choices[0].message.content)
+```
+
+```bash
+curl https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "messages": [{"role": "user", "content": "Halo"}]
+  }'
+```
+
+## Cara 2 — Format Anthropic native
+
+Endpoint `/v1/messages`. Base URL **tanpa `/v1`**, key dikirim lewat `x-api-key`.
+Hanya untuk model Claude, dan body harus format Anthropic (system di **luar**
+`messages`, wajib `max_tokens`).
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
+
+msg = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=256,
+    system="Kamu asisten yang ringkas.",   # di luar messages
+    messages=[{"role": "user", "content": "Jelaskan apa itu QRIS"}],
+)
+print(msg.content[0].text)
+```
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 256,
+    "messages": [{"role": "user", "content": "Halo"}]
+  }'
+```
+
+## Perbedaan singkat
+
+| | `/v1/chat/completions` | `/v1/messages` |
+| --- | --- | --- |
+| Format | OpenAI | Anthropic native |
+| Base URL | `…/v1` | `…` (tanpa `/v1`) |
+| Header key | `Authorization: Bearer` | `x-api-key` |
+| Model | Semua (GPT, DeepSeek, Grok, Claude) | Claude saja |
+| `system` | di dalam `messages` | field terpisah |
+| Wajib `max_tokens` | tidak | ya |
+
+Belum tahu bedanya token, model, atau API key? Baca dulu
+[Konsep Dasar](/konsep). Mau langsung coba tanpa ngoding? Buka
+[Playground](/playground).
+
+---
+
+# Autentikasi
+
+Source: https://docs.nexotao.com/id/autentikasi
+
+import { Callout, Tabs } from "nextra/components"
+
+# Autentikasi
+
+Semua permintaan ke API Nexotao butuh **API key** berbentuk `sk-nexo-...`. Buat dan
+kelola key di dashboard pada menu **API Keys**.
+
+## Mengirim API key
+
+Dua cara, tergantung format yang kamu pakai:
+
+<Tabs items={["Format OpenAI", "Format Anthropic"]}>
+  <Tabs.Tab>
+
+Untuk `/v1/chat/completions`, pakai header `Authorization: Bearer`.
+
+```bash
+-H "Authorization: Bearer sk-nexo-..."
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Untuk `/v1/messages`, pakai header `x-api-key`.
+
+```bash
+-H "x-api-key: sk-nexo-..."
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Keamanan key
+
+<Callout type="error">
+  Jangan pernah menempel key di kode klien (browser, aplikasi mobile) atau repo
+  publik. Key yang bocor bisa dipakai siapa saja untuk menghabiskan saldomu, dan
+  saldo yang sudah terpakai tidak bisa dikembalikan.
+</Callout>
+
+- Perlakukan key seperti kata sandi.
+- Simpan di environment variable atau secret manager di sisi server.
+- Kalau key bocor, **revoke** di dashboard dan buat yang baru. Key yang dicabut
+  langsung berhenti berlaku.
+- Satu akun boleh punya beberapa key — pisahkan per aplikasi agar mudah dicabut
+  sebagian.
+
+Key yang salah atau dicabut menghasilkan `401 Unauthorized`. Lihat
+[API Reference](/api-reference) untuk daftar kode error.
+
+---
+
+# Teks & Chat
+
+Source: https://docs.nexotao.com/id/teks
+
+import { Tabs } from "nextra/components"
+
+# Teks & Chat
+
+Dua format didukung untuk percakapan teks. Pilih yang cocok dengan tool-mu.
+
+## Anthropic — `POST /v1/messages`
+
+```bash
+curl https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 512,
+    "messages": [{"role": "user", "content": "Jelaskan apa itu QRIS"}]
+  }'
+```
+
+## OpenAI — `POST /v1/chat/completions`
+
+<Tabs items={["Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+
+resp = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Jelaskan apa itu QRIS"}],
+)
+print(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```javascript
+import OpenAI from "openai"
+
+const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
+
+const resp = await client.chat.completions.create({
+  model: "gpt-5-mini",
+  messages: [{ role: "user", content: "Jelaskan apa itu QRIS" }],
+})
+console.log(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Streaming (SSE)
+
+Set `stream: true` untuk menerima jawaban token demi token lewat Server-Sent Events.
+
+```python
+stream = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Tulis pantun singkat"}],
+    stream=True,
+)
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end="", flush=True)
+```
+
+## Vision
+
+Model yang mendukung penglihatan bisa menerima gambar pada pesan (lihat penanda
+vision di [Model & Harga](/model-harga)). Biaya tetap dihitung per token.
+
+Pemakaian teks ditagih per token; lihat [Penagihan & Harga](/penagihan).
+
+---
+
+# Context Window & Kompaksi
+
+Source: https://docs.nexotao.com/id/context-window
+
+# Context Window & Kompaksi
+
+Sesi panjang — apalagi dengan coding agent seperti **Claude Code** — terus
+menumpuk percakapan sampai tidak lagi muat di **context window** model. Halaman ini
+menjelaskan window yang kami publikasikan, cara mengkalibrasi klienmu ke window itu,
+dan cara menjaga sesi tetap jalan dengan **kompaksi** alih-alih kena error.
+
+## Kenapa context window ada
+
+Setiap model hanya bisa membaca sejumlah token terbatas sekaligus — itu **context
+window**-nya. Seluruh percakapan (pesanmu, balasan model, output tool, dan file yang
+sudah dibaca agent) dihitung ke dalamnya. Saat totalnya mendekati window, request
+berikutnya bisa ditolak dengan pesan *prompt too long*.
+
+### Nilai yang kami publikasikan: baca dari API
+
+Kami mempublikasikan window asli yang terverifikasi untuk tiap model aktif —
+**jangan menebak 200k**. Baca dari daftar model agar klienmu kalibrasi ke angka yang
+benar:
+
+```bash
+# Katalog publik (tanpa key) — termasuk context_window per model
+curl https://api.nexotao.com/models
+
+# Daftar format OpenAI (butuh key) — dipakai klien seperti Claude Code, n8n
+curl https://api.nexotao.com/v1/models \
+  -H "Authorization: Bearer sk-nexo-..."
+```
+
+Tiap objek model membawa field `context_window` (jumlah token).
+
+> **Field ini bisa `null`.** Saat ada, angkanya otoritatif — sinkron dengan apa yang
+> benar-benar dilayani gateway. Tapi `context_window` hanya dipublikasikan untuk model
+> yang batas kerasnya sudah kami verifikasi. Saat ini **6 dari 12 model live**
+> membawa angka; sisanya `null` karena penyedianya belum mempublikasikan batas yang
+> pasti. Jangan perlakukan `null` sebagai "tak terbatas", dan jangan menggantinya
+> dengan tebakan 200k — tangani sebagai *tidak diketahui*, lalu andalkan kompaksi
+> sisi klien plus error `400` yang eksplisit saat prompt kepanjangan.
+
+Nilai yang saat ini dipublikasikan:
+
+| Model | `context_window` |
+| --- | --- |
+| `claude-opus-5` | 1.000.000 |
+| `claude-opus-4-8` | 350.000 |
+| `claude-opus-4-7` | 350.000 |
+| `claude-opus-4-6` | 350.000 |
+| `claude-sonnet-4-6` | 350.000 |
+| `DeepSeek-V4-Pro` | 131.072 |
+
+Model lain (`DeepSeek-V4-Flash`, `gpt-5-mini`, `gpt-5.6-luna`, `gpt-5.6-sol`,
+`gpt-5.6-terra`, `grok-4.3`) mengembalikan `null`. Tabel ini bisa berubah — baca
+langsung dari API alih-alih menyalinnya.
+
+> **Catatan jujur.** Untuk model Claude, window yang kami publikasikan **lebih besar
+> dari 200k lama** yang masih diasumsikan banyak klien secara default — 350k token
+> untuk seluruh lini Opus 4.x dan Sonnet 4.6, serta 1 juta token untuk
+> `claude-opus-5`. Angkanya **beda per model**: jangan menebak 200k, dan jangan
+> menyamakan window satu model ke model lain. Karena window asli lebih besar dari
+> default 200k lama, klien yang belum dikalibrasi akan kompaksi *lebih awal* dari yang
+> diperlukan — kamu cuma kehilangan sebagian context yang bisa dipakai, tidak ada yang
+> rusak.
+
+## Kompaksi sisi klien
+
+**Kompaksi** mengganti riwayat panjang dengan ringkasan yang lebih pendek supaya sesi
+bisa lanjut. Klien keluarga Claude Code melakukannya untukmu:
+
+- **Autocompact** — saat percakapan mendekati context window, klien otomatis
+  meringkas giliran lama lalu lanjut. Ambangnya disetel dari window yang *diyakini*
+  klien dimiliki model. Banyak klien masih mengasumsikan default 200k lama, yang
+  **lebih kecil** dari window asli kami, jadi mereka autocompact lebih awal dari yang
+  perlu. Kalibrasi klien ke `context_window` yang kami publikasikan supaya autocompact
+  terpicu di ambang yang benar dan kamu bisa pakai seluruh window.
+- **`/compact`** — jalankan perintah ini kapan saja untuk kompaksi **manual**. Berguna
+  sebelum tugas besar, atau tepat setelah agent membaca banyak file. Bisa diberi
+  petunjuk, mis. `/compact simpan keputusan desain API dan test yang gagal`.
+- **`/clear`** — mulai context baru saat tugas sekarang selesai dan riwayatnya tak lagi
+  dibutuhkan. Cara termurah merebut kembali seluruh window.
+
+### Arahkan klien ke Nexotao dan model yang tepat
+
+Agar kompaksi kalibrasi dengan benar, arahkan klien ke base URL kami dan id model
+yang aktif:
+
+| Setting | Nilai |
+| --- | --- |
+| `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` |
+| `ANTHROPIC_AUTH_TOKEN` | API key `sk-nexo-...` milikmu |
+| `ANTHROPIC_MODEL` | `claude-opus-4-8` (model utama) |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-8` |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-4-6` |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-sonnet-4-6` (slot background) |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
+
+**Tier sonnet tersedia** — `claude-sonnet-4-6` adalah model live dengan tarifnya
+sendiri, jadi pakai langsung di slot sonnet. Yang **tidak** tersedia adalah tier
+haiku, sehingga slot background juga diarahkan ke `claude-sonnet-4-6` (model Claude
+termurah yang ada). Kalau klienmu tetap mengirim `claude-haiku-4-5`, gateway
+mengalihkannya ke `claude-opus-4-8` dan menagihnya dengan tarif Opus.
+
+Versi lama panduan ini menyebut `ANTHROPIC_SMALL_FAST_MODEL`. Yang dipakai
+generator kami sekarang adalah `ANTHROPIC_DEFAULT_SONNET_MODEL` dan
+`ANTHROPIC_DEFAULT_HAIKU_MODEL` — pakai dua variabel itu. Lihat
+[Claude Code](/claude-code) untuk config lengkap dan generator interaktifnya.
+
+## Setup per klien
+
+### Claude Code (dan keluarga Claude Code)
+
+1. Set variabel di atas (atau pakai generator di halaman [Claude Code](/claude-code)
+   untuk menghasilkan `~/.claude/settings.json`).
+2. **Window:** Claude Code menurunkan window dari model. Baca angka pastinya dari
+   `context_window` di `/v1/models`. Untuk model Claude angkanya **lebih besar** dari
+   200k lama yang masih diasumsikan sebagian klien, jadi asumsi usang cuma membuat
+   klien kompaksi *lebih awal* (kehilangan context yang bisa dipakai, tidak ada yang
+   rusak). Kalau klienmu memungkinkan set context window model, set ke nilai yang
+   dipublikasikan supaya autocompact dan `/compact` terpicu di ambang yang benar.
+3. Jalankan `claude` dan pakai `/compact` / `/clear` untuk mengelola sesi panjang.
+
+### Klien OpenAI-compatible lain
+
+Untuk tool yang bicara format OpenAI (n8n, skrip, app sendiri):
+
+- Base URL: `https://api.nexotao.com/v1`
+- Model: `claude-opus-4-8` (gaya Anthropic via `/v1/messages`) atau
+  `gpt-5-mini` (gaya OpenAI via `/v1/chat/completions`).
+- Klien begini biasanya tidak kompaksi otomatis — jaga riwayatmu sendiri tetap pendek:
+  pangkas atau ringkas giliran lama sebelum tiap panggilan, dan baca `context_window`
+  dari `/v1/models` untuk tahu budget-mu. Kalau field-nya `null` untuk model yang kamu
+  pakai, pangkas berdasarkan ukuran riwayatmu sendiri dan perlakukan `400`
+  `upstream.context_length_exceeded` sebagai sinyal untuk meringkas.
+
+## Saat prompt melebihi window
+
+Kalau request kebesaran, gateway kami mengembalikan **error upstream yang jujur**
+(bukan 502 generic), supaya klienmu bisa bereaksi:
+
+| Status | `code` | Arti | Yang harus dilakukan |
+| --- | --- | --- | --- |
+| `400` | `upstream.context_length_exceeded` | Prompt melebihi context window model | Kompaksi, ringkas, atau mulai baru — lihat di bawah |
+| `413` | `request.too_large` | Body permintaan melebihi batas ukuran gateway | Jalankan `/compact` atau mulai sesi baru |
+| `429` | `upstream.rate_limited` | Kena rate limit upstream | Mundur lalu coba lagi; kami teruskan `Retry-After` bila ada |
+
+Opsi pemulihan, dari yang termudah:
+
+1. **Kompaksi** — jalankan `/compact` (Claude Code) untuk meringkas riwayat lalu
+   lanjut tugas yang sama.
+2. **Mulai sesi baru** — `/clear`, atau buka chat baru, saat tugas sekarang selesai.
+   Tempel hanya ringkasan yang masih kamu butuhkan.
+3. **Pecah input** — kalau satu file atau paste yang jadi masalah, kirim per potongan
+   kecil alih-alih satu pesan raksasa.
+
+Pemakaian dipotong dari saldo Rupiah dengan cara yang sama apa pun cara kamu mengelola
+context — lihat [Penagihan & Harga](/penagihan). Detail kode error ada di
+[Kode Error](/errors); pertanyaan umum ada di [FAQ](/faq).
+
+---
+
+# Integrasi — Semua Tool AI
+
+Source: https://docs.nexotao.com/id/integrasi
+
+import { Callout, Steps } from "nextra/components"
+import { ToolGrid, ToolLogo } from "../../components/tool-logo"
+
+# Integrasi
+
+Nexotao bukan model baru yang harus kamu pelajari dari nol. Nexotao adalah **gerbang
+(gateway)** ke model AI yang sudah kamu pakai — Claude, GPT, DeepSeek, Grok — hanya
+saja **base URL** dan **API key**-nya diganti ke Nexotao, dan tagihannya dipotong dari
+saldo Rupiah.
+
+Artinya: tool coding apa pun yang bisa diarahkan ke endpoint kustom **bisa dipakai
+dengan Nexotao**. Halaman ini menjelaskan pola integrasinya, lalu tautan step-by-step
+per tool.
+
+## Dua "mode" — cukup ingat ini
+
+Semua integrasi turun ke salah satu dari dua mode. Kalau kamu paham ini, kamu bisa
+menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
+
+| Mode | Base URL | Header / env | Model | Dipakai untuk |
+| ---- | -------- | ------------ | ----- | ------------- |
+| **Anthropic-compat** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | `claude-opus-4-8`, `claude-sonnet-4-6`, … | Model **Claude** & tool yang berbicara format Anthropic (Claude Code, Cline mode Anthropic) |
+| **OpenAI-compat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, … | Model **OpenAI/DeepSeek/Grok** & tool format OpenAI (Codex, Aider, Continue, dll.) |
+
+<div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
+  <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
+  <ToolLogo src="/logos/openai.svg" alt="OpenAI / Codex" size={26} />
+  <ToolLogo src="/logos/vscode.svg" alt="VS Code" size={26} />
+  <ToolLogo src="/logos/cline.svg" alt="Cline" size={26} />
+  <ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={26} />
+  <ToolLogo src="/logos/deepseek.svg" alt="DeepSeek" size={26} />
+  <ToolLogo src="/logos/grok.svg" alt="Grok" size={26} />
+  <ToolLogo src="/logos/copilot.svg" alt="GitHub Copilot" size={26} />
+  <ToolLogo src="/logos/cursor.svg" alt="Cursor" size={26} />
+</div>
+
+<Callout type="warning">
+  **Aturan cepat base URL** — ini penyebab kegagalan integrasi paling sering. Tool
+  OpenAI-compat butuh akhiran `/v1` (`https://api.nexotao.com/v1`) dan menambahkan
+  `/chat/completions` sendiri. Tool Anthropic-compat pakai host polos
+  (`https://api.nexotao.com`) dan menambahkan `/v1/messages` sendiri. Field API key
+  selalu diisi apa adanya: `sk-nexo-...`.
+</Callout>
+
+## Pilih tool kamu
+
+<ToolGrid items={[
+  { logo: "/logos/claude.svg", name: "Claude Code", desc: "Coding agent CLI dari Anthropic. Generator config siap-tempel.", href: "/claude-code", mode: "anthropic" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Coding agent terminal dari OpenAI, diarahkan ke model Nexotao.", href: "/codex", mode: "openai" },
+  { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "Extension AI di VS Code — provider kustom OpenAI/Anthropic.", href: "/vscode", mode: "both" },
+  { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Agent coding di terminal. Konfigurasi env / config file.", href: "/terminal-agents", mode: "both" },
+  { logo: "/logos/cursor.svg", name: "Tool lain (universal)", desc: "Cursor, Copilot, atau tool apa pun yang menerima base URL kustom.", href: "/kompatibel", mode: "both" },
+]} />
+
+## Belum punya API key?
+
+<Steps>
+
+### Daftar
+
+Buat akun di [nexotao.com](https://nexotao.com) — cukup email.
+
+### Top-up saldo
+
+Isi saldo lewat QRIS mulai Rp 10.000.
+
+### Buat API key
+
+Buat key `sk-nexo-...` di menu **API Keys**.
+
+</Steps>
+
+Detail ada di [Quickstart](/quickstart) dan [Autentikasi](/autentikasi).
+
+## Model yang tersedia
+
+Lihat daftar & tarif live di [Model & Harga](/model-harga). Ringkas:
+
+- **Anthropic-compat:** `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`
+- **OpenAI-compat:** `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`
+
+---
+
+# Claude Code
+
+Source: https://docs.nexotao.com/id/claude-code
+
+import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
+
+# Claude Code
+
+Jalankan coding agent **Claude Code** lewat akses Nexotao dan bayar pakai Rupiah.
+Cukup arahkan Claude Code ke base URL Nexotao dan pakai API key-mu — tanpa kartu
+kredit luar negeri.
+
+## Generator config
+
+Pilih model dan tempel API key; salin hasilnya ke `~/.claude/settings.json`, atau
+pakai versi `export` untuk shell.
+
+<ClaudeCodeGenerator />
+
+## Catatan konfigurasi
+
+- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
+- `ANTHROPIC_MODEL` = model Claude yang kamu pilih di generator.
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` = model tier opus dari katalog live.
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`. **Tier sonnet tersedia**
+  dan dipakai apa adanya.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = juga `claude-sonnet-4-6`. Tier haiku **tidak**
+  ada di katalog kami, jadi slot background diarahkan ke model Claude termurah yang
+  tersedia. Kalau klienmu tetap mengirim `claude-haiku-4-5`, gateway mengalihkannya
+  ke `claude-opus-4-8` dan **menagihnya dengan tarif Opus** — set variabel ini supaya
+  tidak kena tarif itu.
+- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` agar kompatibel.
+
+## Langkah per sistem operasi
+
+### macOS / Linux (Ubuntu)
+
+1. Install Claude Code (lihat dokumentasi resmi Anthropic).
+2. Simpan config di `~/.claude/settings.json` dari generator di atas, **atau** tempel
+   blok `export` ke `~/.zshrc` / `~/.bashrc`:
+
+   ```bash
+   source ~/.zshrc   # atau ~/.bashrc
+   ```
+3. Jalankan `claude` dari direktori proyekmu.
+
+### Windows
+
+1. Install Claude Code.
+2. Buat berkas `settings.json` di `%USERPROFILE%\.claude\settings.json` dengan isi
+   dari generator, atau set environment variable lewat PowerShell:
+
+   ```powershell
+   setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
+   setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
+   ```
+3. Buka terminal baru lalu jalankan `claude`.
+
+Biaya pemakaian Claude Code dipotong dari saldo Rupiah, sama seperti panggilan teks
+biasa. Lihat [Penagihan & Harga](/penagihan).
+
+---
+
+# Cara Pakai Claude Code Bayar Rupiah (tanpa kartu kredit)
+
+Source: https://docs.nexotao.com/id/claude-code-rupiah
+
+import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
+
+# Pakai Claude Code, bayar Rupiah, tanpa kartu kredit luar negeri
+
+Mau pakai **Claude Code** dari Indonesia tapi nggak punya kartu kredit luar negeri?
+Panduan ini lengkap dari awal sampai jalan: bikin akun, top up **saldo Rupiah** pakai
+QRIS, arahkan Claude Code ke base URL Nexotao, lalu jalankan sesi agent pertamamu —
+bayar per token dalam Rupiah, tanpa langganan.
+
+Nexotao adalah gateway yang **kompatibel dengan Anthropic**: Claude Code bicara ke
+Nexotao persis seperti ke API Anthropic, jadi yang kamu ubah cuma base URL dan API
+key-nya.
+
+> **Yang kamu butuhkan:** email, aplikasi pembayaran QRIS (GoPay, OVO, DANA, m-banking,
+> dll.), dan Claude Code yang sudah ter-install. Tanpa Visa/Mastercard, tanpa PayPal,
+> tanpa saldo dolar.
+
+## 1. Daftar akun
+
+Daftar di [nexotao.com](https://nexotao.com) cukup dengan email dan password. Akun baru
+mulai dari saldo nol — kamu isi di langkah berikutnya.
+
+## 2. Top up saldo Rupiah pakai QRIS
+
+Buka **Top Up** di dashboard lalu bayar via **QRIS**, mulai dari **Rp 10.000**. Saldo
+dalam Rupiah, dipotong per token sesuai pemakaian, **tidak ada masa kadaluarsa**, dan
+**tanpa langganan**.
+
+Top up lebih besar dapat bonus: **+6%** untuk Rp 150.000 dan **+15%** untuk Rp 500.000.
+
+## 3. Buat API key
+
+Di dashboard, buka **API Keys** → **Create key**. Bentuknya seperti `sk-nexo-...`. Salin
+sekarang — key lengkap cuma ditampilkan sekali.
+
+## 4. Generate config Claude Code
+
+Pilih model Claude dan tempel API key-mu di bawah. Config dibuat di browser-mu dan tidak
+dikirim ke mana pun. Salin `settings.json` ke `~/.claude/settings.json`, atau pakai blok
+`export` untuk shell.
+
+<ClaudeCodeGenerator />
+
+Di balik layar ini mengatur:
+
+- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
+- `ANTHROPIC_AUTH_TOKEN` = API key `sk-nexo-...` milikmu
+- `ANTHROPIC_MODEL` = model Claude yang kamu pilih di generator
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6` — tier sonnet tersedia
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-sonnet-4-6` juga. Tier haiku tidak ada di
+  katalog kami, jadi slot background dipetakan ke model Claude termurah yang tersedia
+  — Claude Code tetap jalan normal.
+- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` agar kompatibel.
+
+## 5. Jalankan Claude Code
+
+### macOS / Linux
+
+Simpan `settings.json` hasil generator ke `~/.claude/settings.json` **atau** tempel blok
+`export` ke `~/.zshrc` / `~/.bashrc` lalu reload:
+
+```bash
+source ~/.zshrc   # atau ~/.bashrc
+```
+
+Lalu dari direktori proyekmu:
+
+```bash
+claude
+```
+
+### Windows
+
+Buat `%USERPROFILE%\.claude\settings.json` dengan isi dari generator, atau set variabel
+lewat PowerShell:
+
+```powershell
+setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
+setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
+```
+
+Buka terminal baru lalu jalankan `claude`.
+
+## 6. Cek apakah jalan — dan berapa biayanya
+
+Minta Claude Code melakukan hal kecil ("jelaskan file ini", "tambah satu test"). Kalau
+dia merespons, saldo Rupiah-mu sudah menggerakkannya.
+
+Mau pastikan jalur penagihannya langsung? Respons **non-streaming** Nexotao membawa
+header `X-Cost-Rp` — biaya persis request itu dalam Rupiah. Bisa kamu lihat lewat
+panggilan API biasa:
+
+```bash
+curl -i https://api.nexotao.com/v1/messages \
+  -H "x-api-key: sk-nexo-..." \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-opus-4-8",
+    "max_tokens": 64,
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+Cari `X-Cost-Rp` dan `X-Request-Id` di header respons. Pemakaian Claude Code dipotong
+dari saldo yang sama, persis seperti panggilan ini.
+
+Catatan: Claude Code memakai **streaming**, dan respons streaming tidak membawa
+`X-Cost-Rp` — biayanya belum diketahui saat header dikirim. Rincian biaya tiap sesi
+tetap bisa dilihat di halaman **Usage** pada dashboard. Lihat
+[Penagihan & Harga](/penagihan).
+
+## FAQ
+
+**Apakah perlu kartu kredit luar negeri untuk pakai Claude Code?**
+Tidak. Kamu top up saldo Rupiah via QRIS mulai Rp 10.000 dan bayar per token. Tanpa
+Visa/Mastercard atau rekening dolar.
+
+**Apakah ini API resmi Anthropic?**
+Bukan — Nexotao adalah gateway yang **kompatibel dengan Anthropic**. Claude Code diarahkan
+ke base URL Nexotao dan jalan sama seperti biasa, ditagih dari saldo Rupiah-mu.
+
+**Bagaimana cara penagihannya?**
+Per token (input + output), diambil dari satu saldo Rupiah. Respons non-streaming
+mengembalikan header `X-Cost-Rp` berisi biaya Rupiah yang persis; untuk respons
+streaming, lihat rinciannya di halaman **Usage** pada dashboard. Tanpa langganan;
+saldo tidak kadaluarsa.
+
+**Model apa saja yang bisa dipakai di Claude Code?**
+Model Claude yang tersedia lewat gateway: Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, dan
+Sonnet 4.6. Pilih model utama di generator config di atas.
+
+## Langkah berikutnya
+
+- [Claude Code](/claude-code) — referensi config lengkap dan catatan per OS.
+- [Quickstart](/quickstart) — request API pertamamu via curl / Python / Node.
+- [Penagihan & Harga](/penagihan) — cara kerja saldo Rupiah dan header biaya.
+
+---
+
+# Codex CLI
+
+Source: https://docs.nexotao.com/id/codex
+
+import { Callout, Steps, Tabs } from "nextra/components"
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+  <ToolLogo src="/logos/openai.svg" alt="Codex" size={34} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compat</span>
+</div>
+
+# Codex CLI
+
+**Codex** adalah coding agent terminal dari OpenAI. Codex berbicara format
+**OpenAI-compat**, jadi arahkan ke endpoint `https://api.nexotao.com/v1` dan pakai
+model OpenAI-compat Nexotao: `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`,
+`gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, atau `DeepSeek-V4-Flash`.
+
+<Callout type="info">
+  Untuk model **Claude**, pakai [Claude Code](/claude-code) (format Anthropic). Codex
+  tidak punya mode Anthropic.
+</Callout>
+
+<Steps>
+
+### Install Codex
+
+Ikuti dokumentasi resmi OpenAI Codex. Cek instalasi:
+
+```bash
+codex --version
+```
+
+### Set API key sebagai environment variable
+
+Codex membaca key dari env var (bukan disimpan di file config).
+
+<Tabs items={["macOS / Linux", "Windows PowerShell"]}>
+  <Tabs.Tab>
+
+```bash
+# tambahkan ke ~/.zshrc atau ~/.bashrc
+export OPENAI_API_KEY="sk-nexo-..."
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```powershell
+setx OPENAI_API_KEY "sk-nexo-..."
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+### Daftarkan Nexotao sebagai provider
+
+Buka (atau buat) `~/.codex/config.toml` lalu isi:
+
+```toml
+# ~/.codex/config.toml
+model = "gpt-5.6-sol"         # model default; ganti sesuai kebutuhan
+model_provider = "nexotao"
+forced_login_method = "api"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"   # WAJIB pakai /v1
+env_key = "OPENAI_API_KEY"                # nama env var berisi sk-nexo-...
+wire_api = "responses"                    # WAJIB "responses"; "chat" sudah dihapus Codex
+```
+
+### Jalankan
+
+Dari direktori proyekmu:
+
+```bash
+codex
+```
+
+Ganti model kapan saja lewat flag:
+
+```bash
+codex -m grok-4.3
+codex -m DeepSeek-V4-Pro
+```
+
+</Steps>
+
+## Catatan penting
+
+<Callout type="warning">
+  Dua nilai di `config.toml` paling sering salah: **`base_url` harus berakhiran
+  `/v1`** (Codex menambahkan `/responses` sendiri), dan **`wire_api` harus
+  `"responses"`**. Codex versi terbaru sudah **menghapus** `wire_api = "chat"`, jadi
+  konfigurasi lama tidak akan jalan.
+</Callout>
+
+- Nexotao mengekspos endpoint Responses (`/v1/responses`) dengan streaming penuh —
+  jadi Codex jalan normal.
+- **Provider ID** (`nexotao`) tidak boleh memakai nama cadangan seperti `openai`,
+  `ollama`, atau `lmstudio`.
+- Key **tidak** disimpan di `config.toml`; hanya nama env var-nya (`env_key`).
+
+Biaya dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).
+
+---
+
+# VS Code (Cline, Roo Code, Continue, Kilo Code)
+
+Source: https://docs.nexotao.com/id/vscode
+
+import { Callout } from "nextra/components"
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/vscode.svg" alt="VS Code" size={34} />
+  <ToolLogo src="/logos/cline.svg" alt="Cline" size={30} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compat &amp; Anthropic</span>
+</div>
+
+# VS Code
+
+Extension AI populer di **VS Code** — Cline, Roo Code, Continue.dev, Kilo Code — semua
+mendukung **provider kustom**. Cukup pilih tipe provider, isi base URL Nexotao, dan
+tempel API key `sk-nexo-...`.
+
+Ingat dua mode:
+
+- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, model `gpt-5-mini`,
+  `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`.
+- **Anthropic** → base URL `https://api.nexotao.com`, model `claude-opus-4-8`,
+  `claude-sonnet-4-6`, dll.
+
+---
+
+## Cline
+
+<ToolLogo src="/logos/cline.svg" alt="Cline" size={26} />
+
+1. Install extension **Cline** dari VS Code Marketplace.
+2. Buka panel Cline → ikon **⚙️ Settings**.
+3. Untuk model **OpenAI-compat**:
+   - **API Provider** → `OpenAI Compatible`
+   - **Base URL** → `https://api.nexotao.com/v1`
+   - **API Key** → `sk-nexo-...`
+   - **Model ID** → mis. `gpt-5-mini`
+4. Untuk model **Claude**:
+   - **API Provider** → `Anthropic`
+   - Centang **Use custom base URL** → `https://api.nexotao.com` *(tanpa `/v1`)*
+   - **API Key** → `sk-nexo-...`
+   - **Model** → mis. `claude-opus-4-8`
+
+<Callout type="warning">
+  Jangan isi Base URL OpenAI Compatible dengan `https://api.openai.com/v1` — itu
+  provider "OpenAI" yang berbeda, dan request-mu tidak akan sampai ke Nexotao.
+</Callout>
+
+---
+
+## Roo Code
+
+Roo Code adalah turunan Cline; langkahnya mirip.
+
+1. Install extension **Roo Code**.
+2. Panel Roo Code → ikon **gear** → **API Provider**.
+3. **OpenAI Compatible**: Base URL `https://api.nexotao.com/v1`, API Key `sk-nexo-...`,
+   Model mis. `gpt-5-mini`.
+4. **Anthropic**: aktifkan **Use custom base URL** → `https://api.nexotao.com`, API Key
+   `sk-nexo-...`, Model `claude-opus-4-8`.
+
+<Callout type="info">
+  Roo Code memakai **native tool calling** untuk jalur OpenAI Compatible. Model yang
+  dipilih harus mendukung function/tool calling — `gpt-5-mini` dan model Nexotao
+  lainnya sudah mendukung.
+</Callout>
+
+---
+
+## Continue.dev
+
+<ToolLogo src="/logos/vscode.svg" alt="Continue in VS Code" size={26} />
+
+Continue dikonfigurasi lewat file `~/.continue/config.yaml`.
+
+```yaml
+# ~/.continue/config.yaml
+models:
+  - name: GPT-5 Mini (Nexotao)
+    provider: openai
+    model: gpt-5-mini
+    apiBase: https://api.nexotao.com/v1
+    apiKey: sk-nexo-...
+
+  - name: Claude Opus 4.8 (Nexotao)
+    provider: anthropic
+    model: claude-opus-4-8
+    apiBase: https://api.nexotao.com
+    apiKey: sk-nexo-...
+```
+
+- `provider: openai` → `apiBase` **pakai** `/v1`.
+- `provider: anthropic` → `apiBase` **tanpa** `/v1`.
+- File lama `config.json` masih terbaca tapi sudah *deprecated* — tulis `config.yaml`.
+
+---
+
+## Kilo Code
+
+1. Install extension **Kilo Code**.
+2. Panel Kilo → **Settings (gear)** → tab **Providers** → **Custom provider**.
+3. Isi dialog:
+   - **Provider ID** → `nexotao`
+   - **Provider API** → `OpenAI Compatible` (untuk gpt/grok/deepseek) atau
+     `Anthropic Messages` (untuk Claude)
+   - **Base URL** → `https://api.nexotao.com/v1` (OpenAI-compat) atau
+     `https://api.nexotao.com` (Anthropic)
+   - **API key** → `sk-nexo-...`
+   - **Models** → Kilo bisa auto-ambil dari `/v1/models`, atau masukkan ID manual.
+
+<Callout type="info">
+  Untuk memakai Claude **dan** gpt/deepseek sekaligus, buat dua custom provider —
+  satu `OpenAI Compatible`, satu `Anthropic Messages`.
+</Callout>
+
+---
+
+## GitHub Copilot / lainnya
+
+Tool yang tidak punya field provider kustom (mis. GitHub Copilot standar) belum bisa
+diarahkan ke Nexotao. Untuk tool semacam itu, lihat [Tool lain (universal)](/kompatibel)
+— pola umum untuk apa pun yang menerima base URL.
+
+Biaya semua tool dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).
+
+---
+
+# Aider & OpenCode
+
+Source: https://docs.nexotao.com/id/terminal-agents
+
+import { Callout, Tabs } from "nextra/components"
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={32} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compat &amp; Anthropic</span>
+</div>
+
+# Aider & OpenCode
+
+Dua coding agent terminal populer. Keduanya bisa diarahkan ke Nexotao lewat env var
+atau config file.
+
+---
+
+## Aider
+
+Aider merutekan model lewat LiteLLM, jadi kamu bisa pakai jalur OpenAI-compat
+(disarankan) atau Anthropic.
+
+<Tabs items={["Model OpenAI-compat (disarankan)", "Model Claude (via LiteLLM)"]}>
+<Tabs.Tab>
+
+```bash
+export OPENAI_API_BASE=https://api.nexotao.com/v1
+export OPENAI_API_KEY=sk-nexo-...
+
+aider --model openai/gpt-5-mini
+```
+
+- Prefix `openai/` **wajib** — itu yang memberi tahu Aider memakai endpoint
+  OpenAI-compat.
+- `OPENAI_API_BASE` harus pakai `/v1`.
+- Model lain: `openai/grok-4.3`, `openai/DeepSeek-V4-Pro`.
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```bash
+export ANTHROPIC_API_BASE=https://api.nexotao.com
+export ANTHROPIC_API_KEY=sk-nexo-...
+
+aider --model anthropic/claude-opus-4-8
+```
+
+- `ANTHROPIC_API_BASE` **tanpa** `/v1`.
+- Kalau versi Aider/LiteLLM-mu tidak mengambil base URL ini, pakai saja jalur
+  OpenAI-compat.
+
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  Aider mungkin memunculkan peringatan "unknown model" untuk ID `sk-nexo` — aman,
+  bisa diabaikan.
+</Callout>
+
+---
+
+## OpenCode
+
+<ToolLogo src="/logos/opencode.svg" alt="OpenCode" size={26} />
+
+OpenCode dikonfigurasi lewat `opencode.json` (di root proyek atau
+`~/.config/opencode/opencode.json`).
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "nexotao": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Nexotao",
+      "options": {
+        "baseURL": "https://api.nexotao.com/v1",
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "models": {
+        "gpt-5-mini": {
+          "name": "GPT-5 Mini (Nexotao)",
+          "limit": { "context": 128000, "output": 65536 }
+        }
+      }
+    }
+  }
+}
+```
+
+Lalu:
+
+```bash
+export OPENAI_API_KEY=sk-nexo-...
+opencode          # pilih model lewat /models
+```
+
+- Pakai `npm: "@ai-sdk/openai-compatible"` untuk endpoint `/chat/completions`.
+- `baseURL` harus pakai `/v1`.
+- `apiKey` mendukung sintaks `{env:VAR}`; simpan key di env var, bukan di file.
+
+<Callout type="warning">
+  Provider kustom **wajib** mendeklarasikan `models` beserta `limit.context` /
+  `limit.output`. Kalau tidak, pelacakan context OpenCode bisa rusak.
+</Callout>
+
+Biaya dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).
+
+---
+
+# Tool Lain (Universal)
+
+Source: https://docs.nexotao.com/id/kompatibel
+
+import { Callout, Tabs } from "nextra/components"
+import { ToolLogo } from "../../components/tool-logo"
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
+  <ToolLogo src="/logos/cursor.svg" alt="Cursor" size={30} />
+  <ToolLogo src="/logos/openai.svg" alt="OpenAI SDK" size={30} />
+  <ToolLogo src="/logos/claude.svg" alt="Anthropic SDK" size={30} />
+  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compat &amp; Anthropic</span>
+</div>
+
+# Tool Lain (Universal)
+
+Belum menemukan tool-mu di daftar? Selama tool itu bisa diarahkan ke **base URL
+kustom** dan menerima **API key**, tool itu bisa dipakai dengan Nexotao. Prinsipnya
+sama: ganti base URL + key, lalu pilih model.
+
+## Pola universal
+
+**OpenAI-compat** (untuk gpt/grok/deepseek, **dan Claude**, serta mayoritas tool):
+
+| Field | Nilai |
+| ----- | ----- |
+| Base URL | `https://api.nexotao.com/v1` |
+| API Key | `sk-nexo-...` |
+| Header | `Authorization: Bearer sk-nexo-...` |
+| Model | `gpt-5.6-terra`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`, `claude-opus-4-8` |
+
+<Callout type="info">
+  Endpoint OpenAI-compat menerima **semua model, termasuk Claude** — jadi kalau
+  tool-mu berformat OpenAI, cukup pakai pola ini untuk semuanya. Detail:
+  [Endpoint & Format](/endpoint).
+</Callout>
+
+**Anthropic-compat** (opsional — hanya untuk body format Anthropic native):
+
+| Field | Nilai |
+| ----- | ----- |
+| Base URL | `https://api.nexotao.com` |
+| API Key | `sk-nexo-...` |
+| Header | `x-api-key: sk-nexo-...` |
+| Model | `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6` |
+
+## Contoh
+
+<Tabs items={["SDK OpenAI", "SDK Anthropic", "Variabel lingkungan"]}>
+  <Tabs.Tab>
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
+resp = client.chat.completions.create(
+    model="gpt-5-mini",
+    messages=[{"role": "user", "content": "Halo"}],
+)
+print(resp.choices[0].message.content)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
+msg = client.messages.create(
+    model="claude-opus-4-8",
+    max_tokens=256,
+    messages=[{"role": "user", "content": "Halo"}],
+)
+print(msg.content[0].text)
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Untuk tool yang membaca variabel lingkungan:
+
+```bash
+# Gaya OpenAI
+export OPENAI_BASE_URL=https://api.nexotao.com/v1
+export OPENAI_API_KEY=sk-nexo-...
+
+# Gaya Anthropic
+export ANTHROPIC_BASE_URL=https://api.nexotao.com
+export ANTHROPIC_AUTH_TOKEN=sk-nexo-...
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Cursor & tool berbasis cloud
+
+Sebagian tool (mis. Cursor) merutekan request lewat server mereka sendiri, sehingga
+base URL kustom kadang terbatas atau tidak tersedia. Cek apakah tool punya opsi
+"Override OpenAI Base URL" / "Custom API key". Jika ada, isi dengan pola OpenAI-compat
+di atas. Jika tidak, tool tersebut belum bisa dipakai dengan Nexotao.
+
+## Checklist kalau gagal
+
+<Callout type="warning">
+  Penyebab paling sering: salah `/v1`. OpenAI-compat **butuh** `/v1`;
+  Anthropic-compat **tanpa** `/v1`.
+</Callout>
+
+- Model tidak dikenal? Cocokkan persis dengan ID di [Model & Harga](/model-harga).
+- `401`? Key salah/dicabut — buat baru di dashboard. Lihat [Autentikasi](/autentikasi).
+- Butuh daftar error lengkap? Lihat [API Reference](/api-reference).
+
+Biaya dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).
+
+---
+
+# Model & Harga
+
+Source: https://docs.nexotao.com/id/model-harga
+
+import { LivePricing } from "../../components/live-pricing"
+
+# Model & Harga
+
+**Sama modelnya dengan Anthropic dan OpenAI langsung.** Bedanya: bayar per
+token pakai QRIS. Tanpa kartu USD, tanpa langganan bulanan, tanpa FX card fee.
+
+## Nama tampilan vs Model ID
+
+Nama seperti **GPT-5.6 Sol** adalah **nama tampilan** untuk dibaca manusia.
+Saat memanggil API, gunakan **Model ID** persis seperti `gpt-5.6-sol`.
+Model ID bersifat **case-sensitive**: jangan mengubah huruf besar/kecil dan
+jangan memakai nama tampilan sebagai nilai `model`.
+
+Lihat semua Model ID langsung dari katalog live:
+
+```bash
+curl -s https://api.nexotao.com/models | jq -r '.models[].model'
+```
+
+Seluruh 12 model live beserta Model ID-nya:
+
+| Nama tampilan | Model ID untuk API |
+| --- | --- |
+| DeepSeek V4 Flash | `DeepSeek-V4-Flash` |
+| DeepSeek V4 Pro | `DeepSeek-V4-Pro` |
+| GPT-5 Mini | `gpt-5-mini` |
+| GPT-5.6 Luna | `gpt-5.6-luna` |
+| GPT-5.6 Sol | `gpt-5.6-sol` |
+| GPT-5.6 Terra | `gpt-5.6-terra` |
+| Grok 4.3 | `grok-4.3` |
+| Claude Opus 4.6 | `claude-opus-4-6` |
+| Claude Opus 4.7 | `claude-opus-4-7` |
+| Claude Opus 4.8 | `claude-opus-4-8` |
+| Claude Opus 5 | `claude-opus-5` |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
+
+Katalog live tetap yang menentukan — kalau tabel ini dan `GET /models` berbeda,
+percaya `GET /models`.
+
+## Memilih model
+
+Positioning tiap model. Untuk tarifnya, lihat tabel live di bawah.
+
+| Model | Cocok untuk |
+| --- | --- |
+| `DeepSeek-V4-Flash` | Volume tinggi & hemat: klasifikasi, ekstraksi, chat pendek. |
+| `DeepSeek-V4-Pro` | DeepSeek dengan kualitas lebih tinggi; konteks 131.072 token. |
+| `gpt-5-mini` | Tier OpenAI paling hemat — classifier, extract, batch. Mendukung vision. |
+| `gpt-5.6-luna` | Efisien untuk kerja harian dan volume tinggi. |
+| `gpt-5.6-terra` | Seimbang untuk coding, analisis, dan workflow agent. |
+| `gpt-5.6-sol` | Tier GPT-5.6 tertinggi; tarif input dan output sama rata. |
+| `grok-4.3` | Alternatif di luar keluarga GPT dan Claude. |
+| `claude-opus-4-6` | Opus yang **masih menerima** `temperature` / `top_p` / `top_k`. |
+| `claude-opus-4-7` | Opus generasi sebelumnya; parameter sampling tidak lagi diterima. |
+| `claude-opus-4-8` | Model reasoning terkuat untuk coding dan agentic. |
+| `claude-opus-5` | Opus generasi terbaru; konteks 1.000.000 token. |
+| `claude-sonnet-4-6` | Cepat + pintar untuk chat produk volume tinggi; sampling tetap berfungsi. |
+
+Model Claude dan `gpt-5-mini` mendukung **vision** (input gambar); model lain
+teks saja. Cek `supports_vision` di `GET /models` untuk memastikan.
+
+> **Pilih model sesuai kerjaannya.** `DeepSeek` cocok untuk beban **volume
+> tinggi & hemat** — klasifikasi, ekstraksi, chat pendek — **bukan untuk
+> agentic/coding atau konteks besar**. Kapasitasnya kecil (~20k token/menit),
+> jadi satu request agentic/large-context bisa kena `429 server at capacity`.
+> Untuk **coding/agentic & konteks besar**, pakai **Claude (Opus/Sonnet)** atau
+> **GPT-5.6**.
+
+## Tarif live per juta token
+
+Tiap model punya tarif per juta token untuk **input**, **output**, dan (untuk
+Claude/GPT) **cache-read + cache-write**. Nilai di sini diambil langsung dari
+`GET /models` — selalu sinkron dengan katalog live, tanpa harga yang di-hardcode
+di halaman.
+
+<LivePricing />
+
+## Cara membaca tarif
+
+- **Teks** — tarif per 1 juta token, terpisah untuk input dan output.
+- **Cache (Claude/GPT)** — cache-read jauh lebih murah dari input biasa; cache-write
+  sedikit lebih mahal dari input biasa. Detail di [Penagihan & Harga](/penagihan).
+- **Yang ditagih** — selalu `jumlah_token × tarif_model_saat_itu`, dibulatkan ke
+  atas. Tidak ada biaya per request atau biaya minimum.
+
+Butuh perkiraan biaya sebelum memanggil API? Ambil tarifnya dari
+`GET /models` lalu kalikan dengan perkiraan jumlah token-mu — atau lihat
+[nexotao.com/harga](https://nexotao.com/harga) untuk kalkulator dan
+perbandingan harga.
+
+Detail penagihan, cache, dan billing per request ada di [Penagihan & Harga](/penagihan).
+
+---
+
+# Penagihan & Harga
+
+Source: https://docs.nexotao.com/id/penagihan
+
+import { LivePricing } from "../../components/live-pricing"
+
+# Penagihan & Harga
+
+Nexotao memakai sistem **token-based** dengan **satu saldo Rupiah**. Tidak ada kredit
+terpisah — semua pemakaian dipotong dari saldo yang sama.
+
+## Satuan biaya
+
+| Jenis | Dasar penagihan |
+| --- | --- |
+| Teks / Chat | per token (input dan output) |
+
+Semua pembulatan ke atas agar pemakaian kecil tidak pernah menjadi nol.
+
+## Header biaya
+
+Setiap respons menyertakan `X-Request-Id` — id permintaan untuk pelacakan.
+
+Header biayanya **beda antara non-streaming dan streaming**:
+
+| | Non-streaming | Streaming (SSE) |
+| --- | --- | --- |
+| `X-Request-Id` | ada | ada |
+| `X-Cost-Rp` | ada — biaya aktual dalam Rupiah | **tidak ada** |
+
+Pada respons streaming, header sudah dikirim sebelum token pertama mengalir, jadi
+biaya finalnya belum bisa dihitung saat itu. Karena itu `X-Cost-Rp` sengaja tidak
+dikirim, bukan dikirim bernilai nol.
+
+### Mengambil biaya sesudah streaming
+
+Simpan `X-Request-Id` dari header, lalu ambil angka finalnya lewat
+`GET /usage/{request_id}` setelah stream selesai.
+
+> **Endpoint ini memakai sesi dashboard, bukan API key.** Autentikasinya token
+> login dashboard, jadi `sk-nexo-...` akan dibalas `401 auth.unauthorized`.
+> Kalau kamu memanggil dari kode yang cuma punya API key, lihat rincian
+> pemakaian di halaman **Usage** pada dashboard.
+
+Responsnya berisi angka final yang sudah direkonsiliasi:
+
+```json
+{
+  "model": "claude-opus-4-8",
+  "input_tokens": 1240,
+  "output_tokens": 380,
+  "cache_read_tokens": 0,
+  "cache_write_tokens": 0,
+  "charge_micro": 16200000,
+  "status": "ok",
+  "turns": 1
+}
+```
+
+- `charge_micro` — biaya dalam **micro-rupiah** (Rp 1 = 1.000.000 micro).
+- `turns` — jumlah giliran upstream yang ditagih. Normalnya `1`; bisa lebih dari
+  satu kalau gateway menjalankan loop tool di sisi server, dan itulah yang
+  menjelaskan biaya yang terlihat lebih besar dari satu giliran.
+
+Catatan pemakaian ditulis setelah stream selesai dan direkonsiliasi. Kalau kamu
+memanggilnya terlalu cepat, endpoint membalas `404` dengan kode `usage.not_found` —
+tunggu sebentar lalu ulangi. Kode `503` `dependency.database_unavailable` berarti
+gangguan sementara; ulangi dengan backoff.
+
+## Harga live
+
+Tabel berikut diambil langsung dari katalog live `GET /models` (hanya harga jual):
+
+<LivePricing />
+
+Lihat juga [Model & Harga](/model-harga) untuk daftar lengkap, atau
+[nexotao.com/harga](https://nexotao.com/harga).
+
+---
+
+# API Reference
+
+Source: https://docs.nexotao.com/id/api-reference
+
+# API Reference
+
+Base URL: `https://api.nexotao.com`. Autentikasi lewat API key — lihat
+[Autentikasi](/autentikasi).
+
+## Endpoint
+
+| Method | Path | Fungsi |
+| --- | --- | --- |
+| `GET` | `/models` | Katalog harga publik untuk situs (tanpa key) |
+| `GET` | `/v1/models` | Daftar model format OpenAI (butuh key) — dipakai n8n dsb. |
+| `GET` | `/v1/models/{id}` | Detail satu model format OpenAI (butuh key) |
+| `POST` | `/v1/chat/completions` | Chat format OpenAI (DeepSeek dan Claude) |
+| `POST` | `/v1/responses` | Format OpenAI Responses — mendukung streaming; dipakai Codex CLI |
+| `POST` | `/v1/messages` | Chat format Anthropic (model Claude) |
+
+## Header respons
+
+| Header | Arti |
+| --- | --- |
+| `X-Request-Id` | Id permintaan untuk pelacakan. Ada di semua respons, termasuk streaming |
+| `X-Cost-Rp` | Biaya aktual permintaan dalam Rupiah. **Hanya pada respons non-streaming** |
+| `X-Error-Code` | Nilai `code` dari body error. Hanya pada respons error |
+
+Pada respons streaming (SSE), `X-Cost-Rp` **tidak dikirim** — biayanya belum
+diketahui saat header di-flush. Ambil angka final dari `GET /usage/{request_id}`;
+lihat [Penagihan & Harga](/penagihan).
+
+## Kode error
+
+| Status | Arti | Tindakan |
+| --- | --- | --- |
+| `400` | Permintaan tidak valid | Periksa body/parameter |
+| `401` | API key salah atau dicabut | Buat / pakai key yang aktif |
+| `402` | Saldo kurang | Top-up saldo Rupiah |
+| `413` | Body permintaan terlalu besar | Kompaksi riwayat atau mulai sesi baru |
+| `429` | Terlalu banyak permintaan | Coba lagi dengan backoff |
+| `502` | Upstream tidak tersedia | Coba lagi dengan backoff |
+
+### Bentuk body error
+
+Semua error mengembalikan JSON dengan bentuk yang sama:
+
+```json
+{
+  "error": "invalid api key",
+  "code": "auth.api_key_invalid",
+  "type": "api_key_invalid",
+  "request_id": "8997bda3-65c4-45c3-ab38-c909f905fc4d",
+  "retryable": false
+}
+```
+
+| Field | Tipe | Arti |
+| --- | --- | --- |
+| `error` | string | Pesan yang bisa dibaca manusia. Teksnya bisa berubah — jangan dipakai untuk logika |
+| `code` | string | Identifier stabil bertitik, mis. `auth.api_key_invalid`. **Ini yang dipakai program** |
+| `type` | string | Segmen setelah titik terakhir pada `code` (mis. `api_key_invalid`). Kompatibilitas klien lama |
+| `request_id` | string | Id permintaan, sama dengan header `X-Request-Id`. Sertakan saat melapor |
+| `retryable` | bool | `true` bila mengulang permintaan yang sama masuk akal (mis. rate limit, error upstream) |
+| `hint` | string | Opsional. Muncul hanya pada sebagian error, berisi saran tindakan |
+
+Cabangkan program pada `code` (atau header `X-Error-Code`), bukan pada `error`.
+Daftar lengkap kode ada di [Kode Error](/errors).
+
+## GET /models
+
+Mengembalikan daftar model aktif beserta harga jual (tanpa data biaya internal).
+Dipakai oleh tabel harga live di halaman [Penagihan](/penagihan) dan
+[Model & Harga](/model-harga).
+
+```bash
+curl https://api.nexotao.com/models
+```
+
+Setiap item memuat: `model`, `display_name`, `tier`, `provider`, `supports_vision`,
+`modality`, dan kolom harga `*_micro` (micro-rupiah; 1 Rp = 1.000.000 micro).
+
+---
+
+# Error & Debugging
+
+Source: https://docs.nexotao.com/id/errors
+
+import { Callout, Steps, Tabs } from "nextra/components"
+
+# Error & Debugging
+
+Halaman ini adalah referensi lengkap kegagalan pada API Nexotao: bentuk body
+error, arti tiap kode, mana yang boleh diulang, dan cara melacak satu permintaan
+setelah kejadian.
+
+Base URL: `https://api.nexotao.com`.
+
+## Amplop error
+
+Setiap error dari API dikembalikan sebagai satu objek JSON dengan bentuk yang
+sama, apa pun endpoint-nya.
+
+```json
+{
+  "error": "invalid api key",
+  "code": "auth.api_key_invalid",
+  "type": "api_key_invalid",
+  "request_id": "8997bda3-65c4-45c3-ab38-c909f905fc4d",
+  "retryable": false
+}
+```
+
+| Field | Tipe | Arti |
+| --- | --- | --- |
+| `error` | string | Pesan untuk manusia. Teksnya bisa berubah sewaktu-waktu — **jangan** dipakai sebagai kondisi program |
+| `code` | string | Identifier bertitik yang **stabil**, mis. `auth.api_key_invalid`. Inilah kontraknya — cabangkan logika di sini |
+| `type` | string | Potongan setelah titik **terakhir** dari `code` (mis. `api_key_invalid`). Ada demi kompatibilitas klien lama |
+| `request_id` | string | Id permintaan, sama persis dengan header `X-Request-Id` |
+| `retryable` | bool | `true` bila mengulang permintaan yang sama masuk akal |
+| `hint` | string | Opsional. Hanya muncul pada sebagian error, berisi saran tindakan konkret |
+
+Dua header selalu menyertai respons error:
+
+| Header | Isi |
+| --- | --- |
+| `X-Error-Code` | Sama dengan field `code`. Bisa dibaca tanpa mem-parsing body |
+| `X-Request-Id` | Sama dengan field `request_id` |
+
+<Callout type="info">
+`type` diturunkan otomatis dari `code`, jadi ia tidak pernah membawa informasi
+tambahan. Kalau Anda menulis klien baru, pakai `code` (atau header
+`X-Error-Code`) dan abaikan `type`.
+</Callout>
+
+### Membaca kode error
+
+<Tabs items={["curl", "Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```bash
+curl -sS -D /tmp/h.txt https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-CONTOH-PALSU" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","messages":[{"role":"user","content":"halo"}]}'
+
+grep -i '^x-error-code\|^x-request-id' /tmp/h.txt
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+import httpx
+
+r = httpx.post(
+    "https://api.nexotao.com/v1/chat/completions",
+    headers={"Authorization": "Bearer sk-nexo-CONTOH-PALSU"},
+    json={"model": "claude-sonnet-4-6",
+          "messages": [{"role": "user", "content": "halo"}]},
+)
+
+if r.status_code >= 400:
+    body = r.json()
+    print(body["code"], body["request_id"], body["retryable"])
+    # header juga cukup, tanpa parsing body:
+    print(r.headers["x-error-code"], r.headers["x-request-id"])
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```js
+const res = await fetch("https://api.nexotao.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-nexo-CONTOH-PALSU",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    messages: [{ role: "user", content: "halo" }],
+  }),
+})
+
+if (!res.ok) {
+  const body = await res.json()
+  console.error(body.code, body.request_id, body.retryable)
+  console.error(res.headers.get("x-error-code"), res.headers.get("x-request-id"))
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## `request_id`
+
+Setiap permintaan — berhasil maupun gagal — mendapat `request_id` unik yang
+dikirim di header `X-Request-Id` dan dicatat di sisi server.
+
+- Pada respons error, id yang sama juga ada di body sebagai `request_id`.
+- **Simpan id ini di log aplikasi Anda.** Saat melapor ke dukungan, satu
+  `request_id` jauh lebih berguna daripada tangkapan layar pesan error.
+- Untuk permintaan streaming, `X-Request-Id` dikirim **sebelum** byte pertama
+  stream, jadi ia tetap terbaca meski stream gagal di tengah jalan.
+
+```bash
+curl -sS -D - -o /dev/null https://api.nexotao.com/v1/messages \
+  -H "Authorization: Bearer sk-nexo-CONTOH-PALSU" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","max_tokens":16,
+       "messages":[{"role":"user","content":"halo"}]}' \
+  | grep -i x-request-id
+```
+
+## Katalog kode error
+
+Dikelompokkan per status HTTP. Kolom **Retry** adalah nilai field `retryable`
+pada body.
+
+### 400 — Permintaan tidak valid
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `request.invalid` | Body tidak terbaca, `model` kosong/bukan string, `input` kosong pada `/v1/responses`, model tidak tersedia di endpoint tersebut, atau gambar dikirim ke model tanpa dukungan vision | Perbaiki body permintaan | `false` |
+| `request.invalid_request` | Bentuk permintaan ditolak sebelum mencapai backend — mis. body bukan objek JSON, pesan user berisi konten kosong, atau `tools` tidak berbentuk array objek dengan `input_schema` yang punya `type` di akar | Perbaiki struktur pesan/tool | `false` |
+| `request.unsupported_feature` | Fitur yang diminta tidak dilayani untuk model itu di endpoint itu — mis. structured outputs atau web search Claude di luar `/v1/messages`, atau tool-use pada model DeepSeek | Pindah ke endpoint/model yang mendukung; lihat `hint` bila ada | `false` |
+| `model.unknown` | `model` tidak ada di katalog | Cek id model di `GET /v1/models` atau [Model & Harga](/model-harga) | `false` |
+| `upstream.context_length_exceeded` | Prompt melebihi context window model | Kecilkan input atau aktifkan kompaksi — lihat [Context Window](/context-window) | `false` |
+| `upstream.invalid_request` | Backend model menolak bentuk permintaan | Periksa parameter yang tidak lazim (mis. sampling di luar rentang) | `false` |
+| `upstream.unsupported_feature` | Parameter/fitur tidak didukung backend model tersebut | Hapus parameter itu atau ganti model | `false` |
+
+### 401 — Autentikasi gagal
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `auth.api_key_missing` | Tidak ada `Authorization: Bearer` maupun `x-api-key` | Kirim API key — lihat [Autentikasi](/autentikasi) | `false` |
+| `auth.api_key_invalid` | Key tidak dikenali | Pakai key yang benar; buat baru di dashboard | `false` |
+| `auth.api_key_revoked` | Key pernah ada tapi sudah dicabut | Buat key baru | `false` |
+| `auth.unauthorized` | Token sesi dashboard hilang/tidak valid (endpoint dashboard, bukan jalur API key) | Login ulang di dashboard | `false` |
+
+<Callout type="warning">
+Tiga kode `auth.*` di atas **tidak akan pernah** berhasil bila diulang dengan
+kredensial yang sama. Klien yang mengulangnya otomatis hanya membakar kuota RPM
+dan memperlambat pemulihannya sendiri.
+</Callout>
+
+### 402 — Saldo
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `billing.insufficient_balance` | Saldo tidak cukup untuk menutup estimasi input plus jawaban minimal | Top-up saldo, lalu kirim ulang | `false` |
+
+Pemeriksaan ini terjadi **sebelum** permintaan diteruskan ke model, jadi
+permintaan yang ditolak 402 tidak menagih apa pun.
+
+### 403 — Ditolak
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `auth.account_deleted` | Akun pemilik key berstatus terhapus | Hubungi dukungan | `false` |
+| `auth.forbidden` | Akses ditolak pada endpoint dashboard | Hubungi dukungan | `false` |
+
+### 404 / 405 — Rute
+
+| `code` | Status | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- | --- |
+| `route.not_found` | 404 | Path tidak ada. Termasuk `/v1/images/generations` dan `/v1/audio/transcriptions`, yang **tidak dilayani** | Cek daftar endpoint di [API Reference](/api-reference) | `false` |
+| `resource.not_found` | 404 | Id model pada `GET /v1/models/{id}` tidak ada | Cek id model | `false` |
+| `usage.not_found` | 404 | `request_id` tidak dikenal pada `GET /usage/{request_id}` — endpoint **sesi dashboard**, bukan jalur API key | Pastikan id-nya benar dan milik akun yang sama | `false` |
+| `request.method_not_allowed` | 405 | Path benar, method salah (mis. `GET` ke `/v1/messages`) | Pakai `POST` | `false` |
+
+### 413 — Body terlalu besar
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `request.too_large` | Body permintaan melewati batas ukuran | Jalankan `/compact` atau mulai sesi baru; pada integrasi agent ini biasanya berarti riwayat percakapan sudah terlalu panjang | `false` |
+
+### 429 — Rate limit dan kuota
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `rate_limit.rpm_exceeded` | Batas permintaan per menit untuk key terlampaui | Backoff, lalu ulangi | `true` |
+| `rate_limit.tpm_exceeded` | Batas token per menit untuk key terlampaui | Backoff, atau kecilkan prompt/`max_tokens` | `true` |
+| `gateway.capacity` | Gerbang konkurensi Nexotao sedang penuh. Membawa `Retry-After` singkat | Ulangi setelah `Retry-After` | `true` |
+| `upstream.rate_limited` | Backend model melempar throttle. `Retry-After` diteruskan bila backend mengirimnya | Ulangi setelah `Retry-After`; lihat `hint` bila ada | `true` |
+| `quota.key_limit_exceeded` | **Batas belanja per key** terlampaui — ini pagu anggaran, bukan jendela laju | Naikkan/atur limit key di dashboard, atau tunggu periode berikutnya | `false` |
+
+<Callout type="warning">
+`quota.key_limit_exceeded` berstatus 429 tapi `retryable` **`false`**. Ini
+satu-satunya 429 yang tidak boleh di-retry otomatis: menunggu beberapa detik
+tidak mengembalikan anggaran. Untuk limit harian/bulanan, `Retry-After`
+menunjukkan sisa detik sampai periode berganti; limit total (sepanjang masa)
+tidak pernah reset dan tidak membawa `Retry-After`.
+</Callout>
+
+Pada jalur API key, respons juga membawa header observabilitas laju bila fitur
+terkait aktif untuk key tersebut:
+
+| Header | Arti |
+| --- | --- |
+| `X-RateLimit-Limit` / `-Remaining` / `-Reset` | Kuota permintaan per menit |
+| `X-RateLimit-Limit-Tokens` / `-Remaining-Tokens` / `-Reset-Tokens` | Kuota token per menit |
+| `X-Key-Limit-Micro` / `X-Key-Usage-Micro` / `X-Key-Remaining-Micro` / `X-Key-Limit-Period` | Batas belanja per key, dalam micro-rupiah |
+
+### 5xx — Gangguan sisi server
+
+| `code` | Status | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- | --- |
+| `internal.error` | 500 | Kegagalan tak terduga | Ulangi dengan backoff | `true` |
+| `internal.panic` | 500 | Kegagalan tak tertangani; sudah tercatat lengkap di sisi server | Ulangi; laporkan dengan `request_id` bila berulang | `true` |
+| `dependency.upstream_unavailable` | 502 | Backend model gagal, kehabisan percobaan, atau koneksi putus. Ini juga kelas penampung untuk kegagalan backend yang tidak dikenali | Ulangi dengan backoff; pertimbangkan model lain | `true` |
+| `dependency.database_unavailable` | 503 | Basis data sementara tidak bisa dihubungi (autentikasi, katalog model, saldo, atau pembacaan usage) | Ulangi dengan backoff | `true` |
+| `dependency.upstream_unconfigured` | 503 | Tidak ada backend terkonfigurasi untuk model tersebut | Pakai model lain; laporkan bila menetap | `true` |
+| `billing.reconcile_failed` | 503 | Pencatatan tagihan gagal setelah panggilan model | Ulangi; saldo tidak terpotong pada kasus ini | `true` |
+
+<Callout type="info">
+Isi respons dari backend model tidak pernah diteruskan apa adanya. Status, body,
+dan identitas backend diklasifikasikan dulu menjadi salah satu kode di atas
+dengan pesan tetap, lalu detail aslinya hanya disimpan di log server. Jadi jangan
+membangun logika di atas asumsi bahwa Anda akan melihat pesan asli dari penyedia
+model.
+</Callout>
+
+## Error in-band pada streaming
+
+Ini bagian paling mudah terlewat di seluruh API.
+
+<Callout type="warning">
+Untuk permintaan streaming, **`status === 200` bukan tanda sukses.** Begitu
+gerbang mulai mengirim heartbeat, status HTTP 200 sudah terkirim dan tidak bisa
+ditarik kembali. Kegagalan setelah titik itu dikirim **di dalam stream** sebagai
+event error. Klien yang hanya memeriksa `response.ok` akan menganggap permintaan
+gagal sebagai jawaban kosong.
+</Callout>
+
+Bentuk event error berbeda menurut endpoint:
+
+<Tabs items={["/v1/chat/completions", "/v1/messages", "/v1/responses"]}>
+  <Tabs.Tab>
+
+Satu chunk `data:` berisi objek `error`, lalu ditutup `data: [DONE]`.
+
+```text
+data: {"error":{"message":"upstream service unavailable after retries; please retry","type":"server_error","code":"upstream_unavailable","request_id":"8997bda3-65c4-45c3-ab38-c909f905fc4d"}}
+
+data: [DONE]
+```
+
+Deteksi: chunk `data:` yang punya kunci `error` di level teratas (bukan
+`choices`).
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Event bernama `error` dengan payload bergaya Anthropic, lalu `data: [DONE]`.
+
+```text
+event: error
+data: {"type":"error","error":{"type":"overloaded_error","message":"upstream service unavailable after retries; please retry","request_id":"8997bda3-65c4-45c3-ab38-c909f905fc4d"}}
+
+data: [DONE]
+```
+
+Tipe `overloaded_error` dipilih agar SDK Anthropic dan Claude Code
+mengklasifikasikannya sebagai kondisi sementara yang layak di-backoff, bukan
+sebagai koneksi putus mentah.
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Event `response.failed`. Perhatikan: bentuk ini **tidak** diikuti `data: [DONE]`.
+
+```text
+event: response.failed
+data: {"type":"response.failed","response":{"id":"resp_8997bda3-65c4-45c3-ab38-c909f905fc4d","object":"response","status":"failed","output":[],"error":{"message":"upstream service unavailable after retries; please retry","type":"server_error","code":"upstream_unavailable"}}}
+```
+
+`id` dibentuk sebagai `resp_` + `request_id`, jadi Anda bisa mengambil
+`request_id` langsung dari situ.
+
+  </Tabs.Tab>
+</Tabs>
+
+Pesannya adalah teks tetap yang dipilih dari klasifikasi kegagalan — mis.
+"upstream capacity exhausted after waiting; please retry" untuk throttle,
+"upstream timed out before starting the stream; please retry" untuk timeout, atau
+pesan spesifik untuk context window yang terlampaui. Kalau ada saran yang relevan
+(mis. arahan pemilihan model), saran itu ditempelkan ke akhir pesan, karena stream
+tidak punya tempat untuk field `hint` terpisah.
+
+<Callout type="warning">
+Jebakan yang sama berlaku pada **`/v1/responses` non-streaming**. Endpoint itu
+mengirim keepalive agar koneksi panjang tidak diputus perantara, sehingga HTTP
+200 bisa sudah terkirim sebelum hasilnya diketahui. Bila kemudian gagal, Anda
+menerima **HTTP 200** dengan body JSON `{"status":"failed","error":{...}}`.
+Selalu periksa `status` pada body `/v1/responses`, bukan hanya kode HTTP.
+</Callout>
+
+### Contoh deteksi
+
+<Tabs items={["Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```python
+import json, httpx
+
+payload = {
+    "model": "claude-sonnet-4-6",
+    "messages": [{"role": "user", "content": "halo"}],
+    "stream": True,
+}
+
+with httpx.stream(
+    "POST", "https://api.nexotao.com/v1/chat/completions",
+    headers={"Authorization": "Bearer sk-nexo-CONTOH-PALSU"},
+    json=payload, timeout=None,
+) as r:
+    request_id = r.headers.get("x-request-id")
+    r.raise_for_status()  # perlu, TAPI tidak cukup
+
+    for line in r.iter_lines():
+        if not line.startswith("data: "):
+            continue
+        data = line[6:]
+        if data == "[DONE]":
+            break
+        chunk = json.loads(data)
+        if "error" in chunk:                     # kegagalan in-band
+            err = chunk["error"]
+            raise RuntimeError(
+                f"{err.get('code')}: {err.get('message')} (request_id={request_id})"
+            )
+        # ... proses chunk normal
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```js
+const res = await fetch("https://api.nexotao.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-nexo-CONTOH-PALSU",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    messages: [{ role: "user", content: "halo" }],
+    stream: true,
+  }),
+})
+
+const requestId = res.headers.get("x-request-id")
+if (!res.ok) throw new Error(`HTTP ${res.status} (request_id=${requestId})`)
+
+const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
+let buffer = ""
+
+for (;;) {
+  const { value, done } = await reader.read()
+  if (done) break
+  buffer += value
+
+  let idx
+  while ((idx = buffer.indexOf("\n\n")) !== -1) {
+    const event = buffer.slice(0, idx)
+    buffer = buffer.slice(idx + 2)
+
+    const dataLine = event.split("\n").find((l) => l.startsWith("data: "))
+    if (!dataLine) continue
+    const data = dataLine.slice(6)
+    if (data === "[DONE]") continue
+
+    const chunk = JSON.parse(data)
+    if (chunk.error) {
+      throw new Error(
+        `${chunk.error.code}: ${chunk.error.message} (request_id=${requestId})`,
+      )
+    }
+    // ... proses chunk normal
+  }
+}
+```
+
+Untuk `/v1/messages`, periksa juga baris `event: error`; untuk `/v1/responses`,
+periksa `event: response.failed`.
+
+  </Tabs.Tab>
+</Tabs>
+
+## Panduan retry
+
+<Steps>
+
+### Cek `retryable` lebih dulu
+
+Ulangi hanya bila body error menyatakan `"retryable": true`. Kode dengan
+`retryable: false` — seluruh keluarga `auth.*`, `billing.insufficient_balance`,
+`model.unknown`, `route.not_found`, `request.*`, `quota.key_limit_exceeded` —
+**tidak akan pernah** berhasil dengan permintaan yang identik.
+
+### Hormati `Retry-After` bila ada
+
+Bila responsnya membawa header `Retry-After`, pakai angkanya sebagai jeda minimum
+alih-alih jadwal backoff Anda sendiri. Nilai dari backend divalidasi dan
+dibatasi maksimum **3600 detik**; nilai yang tidak masuk akal dibuang sehingga
+headernya tidak dikirim sama sekali.
+
+### Backoff eksponensial dengan jitter
+
+Tanpa `Retry-After`, gandakan jeda tiap percobaan dan tambahkan keacakan supaya
+banyak klien tidak menyerbu bersamaan setelah satu insiden.
+
+### Batasi jumlah percobaan
+
+Empat sampai lima percobaan sudah cukup. Setelah itu, kembalikan error ke
+pemanggil beserta `request_id`-nya.
+
+</Steps>
+
+```python
+import json, random, time, httpx
+
+NON_RETRYABLE_HTTP = {400, 401, 402, 403, 404, 405, 413}
+
+def call_with_retry(client, url, headers, payload, max_attempts=5):
+    delay = 1.0
+    for attempt in range(max_attempts):
+        r = client.post(url, headers=headers, json=payload)
+        if r.status_code < 400:
+            return r
+
+        body = {}
+        try:
+            body = r.json()
+        except json.JSONDecodeError:
+            pass
+
+        # Kontraknya adalah `retryable`, bukan status HTTP.
+        if not body.get("retryable", r.status_code not in NON_RETRYABLE_HTTP):
+            raise RuntimeError(
+                f"{body.get('code')}: {body.get('error')} "
+                f"(request_id={r.headers.get('x-request-id')})"
+            )
+
+        wait = delay
+        if ra := r.headers.get("retry-after"):
+            try:
+                wait = max(wait, min(int(ra), 3600))
+            except ValueError:
+                pass
+        time.sleep(wait + random.uniform(0, 0.5 * wait))   # jitter
+        delay *= 2
+
+    raise RuntimeError("kehabisan percobaan")
+```
+
+<Callout type="warning">
+Jangan pernah membungkus `auth.api_key_invalid` (atau `auth.api_key_missing` /
+`auth.api_key_revoked`) dalam loop retry. Key yang salah tetap salah pada
+percobaan ke-100, dan setiap percobaan tetap dihitung terhadap kuota RPM key
+tersebut.
+</Callout>
+
+## Biaya dan penelusuran setelah kejadian
+
+Respons **non-streaming** membawa biaya aktual di header:
+
+| Header | Arti |
+| --- | --- |
+| `X-Cost-Rp` | Biaya permintaan ini dalam Rupiah |
+| `X-Request-Id` | Id permintaan |
+
+Pada respons **SSE (streaming)**, `X-Cost-Rp` sengaja **tidak** dikirim: header
+harus ditulis sebelum byte pertama, sementara biaya baru diketahui setelah stream
+selesai.
+
+Jadi untuk permintaan streaming, cara mengetahui biayanya adalah:
+
+<Steps>
+
+### Simpan `X-Request-Id` dari header respons
+
+Header ini dikirim sebelum byte pertama stream, jadi tetap tersedia bahkan ketika
+stream kemudian gagal. Catat bersama panggilannya.
+
+### Cari permintaan itu di halaman Usage pada dashboard
+
+Temukan id permintaan yang cocok untuk melihat angka final — model, jumlah token,
+dan tagihan persis yang memotong saldo Anda.
+
+</Steps>
+
+<Callout type="warning">
+Ada endpoint `GET /usage/{request_id}`, tetapi ia **bukan bagian dari permukaan
+API key**. Endpoint itu diautentikasi dengan token sesi dashboard, sehingga
+mengirim `Authorization: Bearer sk-nexo-...` ke sana gagal autentikasi dengan 401
+`auth.unauthorized`, bukan mengembalikan data pemakaian. Kalau Anda hanya
+memegang API key, pakai halaman Usage di dashboard.
+</Callout>
+
+Lewat jalur mana pun, catatan finalnya memuat field berikut. Dua di antaranya
+perlu dipahami:
+
+| Field | Arti |
+| --- | --- |
+| `charge_micro` | Total tagihan dalam **micro-rupiah** (Rp 1 = 1.000.000 micro) |
+| `turns` | Jumlah giliran upstream yang ditagih. Normalnya `1`; **lebih dari 1** ketika gerbang menjalankan tool loop sisi server — inilah penjelasan tagihan yang terlihat lebih besar daripada perkiraan dari satu giliran saja |
+
+Field `status` memberi tahu hasil akhirnya, khususnya apakah permintaan yang
+gagal itu ditagih atau tidak:
+
+| `status` | Arti |
+| --- | --- |
+| `ok` | Berhasil dan ditagih |
+| `upstream_error` | Backend model gagal; tidak ada tagihan |
+| `aborted_stream` | Stream terbuka lalu putus sebelum event penutup tanpa keluaran berguna; **tidak ditagih** |
+| `usage_missing` | Backend membalas 2xx tapi jumlah token tidak terbaca; ditandai dan **tidak ditagih** |
+| `billing_error` | Jawaban sudah terkirim tapi pencatatan tagihan gagal; tercatat sebagai 0 |
+| `fallback_429` / `fallback_oversize` | Penanda nol-biaya saat permintaan dialihkan ke model berikutnya dalam rantai |
+
+## Troubleshooting
+
+**401 `auth.api_key_missing`** — header autentikasi tidak terkirim. Pada `curl`,
+periksa tanda kutip dan baris lanjutan (`\`). Pada SDK, pastikan
+`base_url`/`baseURL` menunjuk ke `https://api.nexotao.com/v1` dan key benar-benar
+ter-set (bukan variabel lingkungan kosong).
+
+**401 `auth.api_key_invalid`** — key tidak dikenali. Penyebab paling sering:
+spasi atau baris baru ikut tersalin, key milik lingkungan lain, atau key sudah
+dihapus. Buat key baru di dashboard. Lihat [Autentikasi](/autentikasi).
+
+**402 `billing.insufficient_balance`** — saldo tidak cukup untuk menutup estimasi
+input plus jawaban minimal. Nexotao memeriksa ini sebelum memanggil model, jadi
+permintaan yang ditolak tidak menagih apa pun. Top-up lewat dashboard; lihat
+[Penagihan & Harga](/penagihan).
+
+**429 `rate_limit.rpm_exceeded` / `rate_limit.tpm_exceeded`** — batas per menit
+key terlampaui. Turunkan konkurensi, terapkan backoff, atau kecilkan
+prompt/`max_tokens`. Header `X-RateLimit-*` menunjukkan sisa kuota dan detik
+sampai jendela berganti.
+
+**429 `quota.key_limit_exceeded`** — batas belanja key tercapai. Ini pagu
+anggaran yang Anda sendiri pasang di dashboard, bukan throttle laju. Naikkan atau
+matikan limitnya di sana.
+
+**400 `model.unknown`** — id model salah ketik atau model sudah tidak aktif.
+Ambil daftar yang sah:
+
+```bash
+curl -sS https://api.nexotao.com/v1/models \
+  -H "Authorization: Bearer sk-nexo-CONTOH-PALSU"
+```
+
+**404 `route.not_found`** — path tidak dilayani. Yang paling sering: klien
+OpenAI-generik memanggil `/v1/images/generations` atau
+`/v1/audio/transcriptions`. Kedua endpoint itu **tidak tersedia** di Nexotao —
+lihat daftar endpoint yang dilayani di [API Reference](/api-reference).
+
+**Stream berakhir tanpa teks, tanpa error** — hampir selalu error in-band yang
+tidak diparse klien Anda. Kembali ke bagian
+[Error in-band pada streaming](#error-in-band-pada-streaming) di atas, lalu cari
+id permintaan itu di halaman Usage pada dashboard: status `aborted_stream` atau
+`upstream_error` menegaskan permintaan itu gagal dan tidak ditagih.
+
+Masih buntu? Kumpulkan `request_id`, `code`, dan waktu kejadian, lalu hubungi
+dukungan lewat dashboard. Tanpa `request_id`, satu permintaan hampir tidak
+mungkin ditemukan di log.
+
+---
+
+# FAQ
+
+Source: https://docs.nexotao.com/id/faq
+
+import { Callout } from "nextra/components"
+
+# FAQ
+
+## Apa itu Nexotao?
+
+Reseller akses model AI. Dengan satu akun dan satu saldo Rupiah, kamu bisa memakai
+model top untuk teks — lewat web chat, API, atau Claude Code, tanpa kartu kredit
+luar negeri.
+
+## Apakah aman?
+
+Permintaanmu diteruskan ke penyedia model resmi untuk diproses. Kami tidak menjual
+datamu. Detail ada di kebijakan privasi di [nexotao.com](https://nexotao.com).
+
+## Apakah saldo bisa hangus?
+
+Tidak. Saldo tidak kedaluwarsa kecuali dinyatakan lain, dan tetap bisa dipakai
+sampai habis.
+
+## Bagaimana cara membayar?
+
+Top-up lewat QRIS. Tanpa langganan — kamu hanya membayar saldo yang diisi, dan
+terpotong sesuai pemakaian.
+
+## Bisa dipakai untuk Claude Code?
+
+Bisa. Nexotao kompatibel dengan endpoint Anthropic, jadi Claude Code bisa diarahkan
+ke Nexotao dan dibayar pakai Rupiah. Lihat [Claude Code](/claude-code).
+
+## Apakah ada refund?
+
+<Callout type="warning">
+  Top-up bersifat **final** dan saldo umumnya non-refundable. Untuk kasus seperti
+  dobel-charge atau kegagalan sistem, lihat kebijakan refund di
+  [nexotao.com](https://nexotao.com).
+</Callout>
+
+## Berapa harganya?
+
+Tarif live ada di [Model & Harga](/model-harga). Saat ini jauh di bawah harga
+official — anggap harga promo.
+
+## Kenapa DeepSeek kadang balas 429 / "server at capacity"?
+
+Karena request-nya bukan untuk DeepSeek. `DeepSeek-V4-Flash` diposisikan untuk
+kerjaan **volume tinggi & hemat** — klasifikasi, ekstraksi, chat pendek — dan
+kapasitasnya kecil, sekitar **20k token/menit (TPM)** per backend. Satu request
+**agentic/coding atau konteks besar** gampang menembus ~50k token input, sudah
+melampaui jatah satu backend, jadi balas `429 server at capacity, retry shortly`
+— sebanyak apa pun backend paralel tidak menolong, karena satu request tidak
+bisa dipecah antar-backend.
+
+<Callout type="warning">
+  Solusinya bukan retry berulang, tapi **pakai model yang tepat**: untuk
+  coding/agentic dan konteks besar, pilih langsung id model **Claude
+  (Opus/Sonnet)**, misalnya `claude-opus-4-8`. DeepSeek tetap pilihan terbaik untuk
+  beban volume/murah.
+</Callout>
+
+---
+
+# Changelog
+
+Source: https://docs.nexotao.com/id/changelog
+
+# Changelog
+
+Perubahan penting pada API dan katalog model Nexotao. Perubahan yang memutus
+kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplisit.
+
+## 2026-07-26 — Claude Opus 5 live, konteks 1 juta token
+
+`claude-opus-5` masuk katalog lewat endpoint Anthropic yang sama. Cukup ganti nilai
+`model`; API key, base URL, dan saldo Rupiah tetap sama.
+
+- **Harga perkenalan** di bawah tier Opus yang berlaku, sampai **Selasa, 28 Juli 2026
+  pukul 23.59 WIB**.
+
+  > **Update (2026-07-30):** periode perkenalan sudah berakhir. Kenaikan harga yang
+  > diumumkan di entri ini **tidak jadi diberlakukan** — tarif Opus 5 saat ini tetap
+  > sama dengan tarif perkenalannya. Tarif yang berlaku selalu ada di `GET /models`
+  > dan [Model & Harga](/model-harga).
+- **Context window 1.000.000 token** — jauh di atas 350k milik Opus 4.x. Baca
+  `context_window` dari `/v1/models`, jangan menyamakan window antar model. Lihat
+  [Context Window & Kompaksi](/context-window).
+- **Vision didukung** (blok gambar di `/v1/messages`).
+- **Parameter sampling ditolak.** Seperti Opus 4.8 dan 4.7, model ini membalas 400
+  untuk `temperature`, `top_p`, dan `top_k`. Gateway membuang ketiganya sebelum
+  meneruskan request, jadi klien lama tidak perlu diubah — tapi nilai yang kamu kirim
+  memang tidak berpengaruh.
+- **Kapasitas.** Opus 5 dilayani **tujuh deployment upstream**, jadi ada failover
+  kalau salah satu sedang penuh. Meski begitu, request paralel per model masih
+  dibatasi supaya tiap deployment tidak jenuh, jadi lonjakan trafik yang tajam bisa
+  membalas `429 server at capacity, retry shortly` — tangani seperti biasa dengan
+  retry + backoff. Batas ini akan dinaikkan seiring pola trafik nyata terlihat.
+
+## 2026-07-15 — GPT-5.6 Sol, Terra, dan Luna live
+
+Tiga deployment GPT-5.6 baru tersedia lewat endpoint kompatibel OpenAI yang sama.
+Cukup ganti nilai `model`; API key, base URL, dan saldo Rupiah tetap sama.
+
+- `gpt-5.6-luna` — **Rp 2.349 input / Rp 4.698 output** per 1 juta token.
+- `gpt-5.6-terra` — **Rp 4.500 input / Rp 9.000 output** per 1 juta token.
+- `gpt-5.6-sol` — **Rp 7.000 input / Rp 7.000 output** per 1 juta token.
+
+Token cache GPT mengikuti tarif cache terverifikasi: cache-read 10% dari input
+dan cache-write 125% dari input. Daftar dan tarif authoritative selalu tersedia
+di `GET /models` serta [Model & Harga](/model-harga).
+
+## 2026-07-13 — Positioning model diperjelas: DeepSeek untuk volume/hemat, Claude untuk agentic
+
+Dokumentasi kini menegaskan pemilihan model. **`DeepSeek-V4-Flash` untuk kerjaan
+volume tinggi & hemat** (klasifikasi, ekstraksi, chat pendek); **Claude
+(Opus/Sonnet) untuk coding/agentic & konteks besar.** DeepSeek berkapasitas kecil
+(~20k token/menit), jadi satu request agentic/large-context bisa membalas
+`429 server at capacity, retry shortly`. Lihat [FAQ](/faq). Tidak ada perubahan
+API atau harga — hanya penyelarasan panduan.
+
+## 2026-06-26 — Pembaruan tarif Opus 4.8 (+30%)
+
+Claude Opus 4.8 (`claude-opus-4-8`) mendapat tarif publikasi baru pada tanggal
+ini, naik **+30%** dari tarif sebelumnya.
+
+> **Update (2026-07-30):** angka pada entri ini adalah catatan sejarah per
+> 2026-06-26 dan **bukan tarif yang berlaku sekarang** — Opus 4.8 sudah beberapa
+> kali dihargai ulang sejak saat itu. Tarif yang berlaku selalu ada di
+> `GET /models` dan [Model & Harga](/model-harga).
+
+### Apa yang berubah saat itu
+
+- **Tarif Opus 4.8 naik +30%** dari tarif sebelumnya.
+- **`DeepSeek-V4-Pro` tidak berubah.**
+- **Saldo kamu tetap penuh** — tidak ada kredit yang hilang atau dinilai ulang,
+  dan pemakaian lampau **tidak** ditagih ulang; tarif baru berlaku untuk
+  pemakaian ke depan.
+
+### Kenapa ini penting
+
+Kamu ditagih dalam Rupiah pada tarif yang dipublikasikan saat request berjalan.
+Perubahan tarif berlaku untuk pemakaian ke depan — pemakaian yang sudah selesai
+pada tarif lama tidak ditagih ulang. Kalau beban kerja hemat-dulu kamu jalan di
+`DeepSeek-V4-Pro`, tidak ada yang berubah untuknya.
+
+## 2026-06-25 — Context window dipublikasikan: baca angka aslinya, tanpa truncation diam-diam
+
+Setiap model live kini mempublikasikan `context_window` yang terverifikasi, jadi
+klienmu kalibrasi ke window yang **sebenarnya** alih-alih menebak 200k — dan kami
+tidak pernah membuang token diam-diam di belakangmu.
+
+### Apa yang baru
+
+- **`context_window` kini dipublikasikan per model** di `GET /models` (tanpa key)
+  maupun `GET /v1/models`. Ini jumlah token, dan inilah sumber kebenarannya —
+  selalu sinkron dengan yang benar-benar dilayani gateway.
+- **Window yang dipublikasikan saat ini:**
+  - `claude-opus-4-8` → **350.000 token** — lebih besar dari **200k** lama yang
+    masih diasumsikan banyak klien secara default.
+  - `DeepSeek-V4-Pro` → **131.072 token**.
+
+> **Catatan (2026-07-30):** `context_window` hanya dipublikasikan untuk model yang
+> batas kerasnya sudah terverifikasi; untuk model lain field-nya `null`. Daftar
+> terkini ada di [Context Window & Kompaksi](/context-window).
+
+### Kenapa ini penting
+
+Sebagian endpoint **memotong (truncate) context-mu diam-diam** saat percakapan
+melebihi window: agent tetap jalan tapi diam-diam kehilangan pesan-pesan paling
+awal, dan kamu baru sadar saat jawabannya memburuk. **Kami tidak begitu.** Saat
+prompt memang melebihi window, kamu mendapat error eksplisit — bukan pembuangan
+diam-diam. Dan karena kami mempublikasikan angka aslinya, klien yang terkalibrasi
+(misalnya **Claude Code**) melakukan kompaksi pada waktu yang *tepat* alih-alih
+tersandung lebih awal di tebakan 200k.
+
+```bash
+# Baca window aslinya — tanpa key
+curl https://api.nexotao.com/models   # tiap model membawa context_window
+```
+
+### Yang perlu kamu lakukan
+
+1. **Baca `context_window` dari API** alih-alih menanam 200k (atau mengasumsikan
+   1M — window Opus yang dipublikasikan adalah 350k, tidak lebih).
+2. **Biarkan klienmu melakukan kompaksi.** Lihat panduan
+   [Context Window & Kompaksi](/context-window) untuk mengkalibrasi Claude Code
+   dan menjaga sesi panjang tetap jalan.
+
+## 2026-06-24 — Penyederhanaan katalog: dua model, id lama dalam masa tenggang 30 hari
+
+Kami menyederhanakan katalog model live menjadi dua model. Jika kode Anda memakai
+id model lain, **baca catatan penagihan di bawah** — ada kemungkinan tarif yang
+Anda bayar berubah selama masa tenggang.
+
+### Apa yang berubah
+
+> **Update (2026-07-18):** penciutan katalog ini kemudian **dibatalkan**. Model
+> `claude-sonnet-4-6`, `gpt-5-mini`, dan `DeepSeek-V4-Flash` kini **aktif kembali**
+> sebagai model live dengan tarif sendiri, dan tidak jadi dihapus. Entri di bawah
+> disimpan sebagai catatan sejarah. Katalog live terkini ada di [Model & Harga](/model-harga).
+
+- **Katalog live kini hanya dua model chat:**
+  - `claude-opus-4-8` (Claude Opus 4.8)
+  - `DeepSeek-V4-Pro` (DeepSeek V4 Pro)
+- **Generate gambar dan transcribe audio tidak lagi tersedia.**
+  `POST /v1/images/generations` dan `POST /v1/audio/transcriptions` sudah tidak
+  dilayani — tidak ada model gambar atau transcribe yang aktif di katalog.
+
+  > **Koreksi (2026-07-30):** entri ini semula menulis kedua endpoint membalas
+  > `400`. Yang benar, route-nya memang tidak terdaftar, jadi keduanya membalas
+  > **`404`** dengan `code` `route.not_found`.
+- **Id lama masih berfungsi selama masa tenggang, lalu berhenti.** Permintaan
+  dengan id lama dialihkan secara transparan ke model live selama masa tenggang.
+  Id lama direncanakan untuk dihapus **sekitar 2026-07-24**, setelah itu
+  mengembalikan `400 unknown model`. Kami akan mengumumkan waktu cutover pastinya.
+
+### Catatan penagihan — mohon dibaca
+
+Selama masa tenggang, id lama **ditagih dengan tarif model live**, bukan tarif id
+lamanya. Beberapa id lama tarifnya *lebih murah* daripada model tujuannya
+sekarang, jadi permintaan yang dulu ditagih lebih murah kini ditagih dengan tarif
+kanonik (lebih tinggi).
+
+Ini dibatasi saldo — Anda tidak pernah ditagih melebihi saldo yang tersedia, dan
+permintaan yang tidak tertutup saldo akan ditolak, bukan membuat saldo minus —
+tetapi ini **memang** perubahan tarif nyata untuk id-id tersebut. Agar tidak ada
+kejutan, perbarui kode Anda agar memanggil id live secara langsung **sekarang**,
+jangan menunggu sampai batas waktu.
+
+### Id lama → model live
+
+| Id lama              | Dialihkan ke (dan ditagih sebagai) | Catatan                       |
+| -------------------- | ---------------------------------- | ----------------------------- |
+| `claude-sonnet-4-6`  | `claude-opus-4-8`                  | tarif premium vs. id lama      |
+| `claude-haiku-4-5`   | `claude-opus-4-8`                  | tarif premium; slot background Claude Code |
+| `gpt-5-mini`         | `DeepSeek-V4-Pro`                  | tarif premium vs. id lama      |
+| `gpt-4.1-mini`       | `DeepSeek-V4-Pro`                  | tarif premium vs. id lama      |
+| `DeepSeek-V4-Flash`  | `DeepSeek-V4-Pro`                  | tarif premium vs. id lama      |
+
+Model media yang dipensiunkan (tanpa pengganti): `FLUX.2-pro`, `gpt-4o-transcribe`,
+`gpt-4o-mini-transcribe`, `whisper`.
+
+### Yang perlu Anda lakukan
+
+1. **Perbarui id model** menjadi `claude-opus-4-8` atau `DeepSeek-V4-Pro`.
+2. **Periksa asumsi penagihan Anda** jika sebelumnya memakai id lama yang *lebih
+   murah* — kini Anda ditagih dengan tarif model live.
+3. **Migrasi secepatnya.** Id lama direncanakan untuk dihapus sekitar
+   2026-07-24, setelah itu mengembalikan `400`.
+
+Tarif live selalu tersedia dari `GET /models` dan di halaman
+[Model & Harga](/model-harga). Ada pertanyaan? Lihat [FAQ](/faq).

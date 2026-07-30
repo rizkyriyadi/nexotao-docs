@@ -3,6 +3,7 @@ title: VS Code (Cline, Roo Code, Continue, Kilo Code)
 description: Sambungkan extension AI di VS Code — Cline, Roo Code, Continue.dev, Kilo Code — ke Nexotao lewat provider OpenAI-compat atau Anthropic. Langkah demi langkah.
 ---
 
+import { Callout } from "nextra/components"
 import { ToolLogo } from "../../components/tool-logo"
 
 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
@@ -43,8 +44,10 @@ Ingat dua mode:
    - **API Key** → `sk-nexo-...`
    - **Model** → mis. `claude-opus-4-8`
 
-> Jangan isi Base URL OpenAI Compatible dengan `https://api.openai.com/v1` — itu
-> provider "OpenAI" yang berbeda.
+<Callout type="warning">
+  Jangan isi Base URL OpenAI Compatible dengan `https://api.openai.com/v1` — itu
+  provider "OpenAI" yang berbeda, dan request-mu tidak akan sampai ke Nexotao.
+</Callout>
 
 ---
 
@@ -59,9 +62,11 @@ Roo Code adalah turunan Cline; langkahnya mirip.
 4. **Anthropic**: aktifkan **Use custom base URL** → `https://api.nexotao.com`, API Key
    `sk-nexo-...`, Model `claude-opus-4-8`.
 
-> Roo Code memakai **native tool calling** untuk jalur OpenAI Compatible. Model yang
-> dipilih harus mendukung function/tool calling — `gpt-5-mini` dan model Nexotao
-> lainnya sudah mendukung.
+<Callout type="info">
+  Roo Code memakai **native tool calling** untuk jalur OpenAI Compatible. Model yang
+  dipilih harus mendukung function/tool calling — `gpt-5-mini` dan model Nexotao
+  lainnya sudah mendukung.
+</Callout>
 
 ---
 
@@ -106,8 +111,10 @@ models:
    - **API key** → `sk-nexo-...`
    - **Models** → Kilo bisa auto-ambil dari `/v1/models`, atau masukkan ID manual.
 
-> Untuk memakai Claude **dan** gpt/deepseek sekaligus, buat dua custom provider —
-> satu `OpenAI Compatible`, satu `Anthropic Messages`.
+<Callout type="info">
+  Untuk memakai Claude **dan** gpt/deepseek sekaligus, buat dua custom provider —
+  satu `OpenAI Compatible`, satu `Anthropic Messages`.
+</Callout>
 
 ---
 

@@ -3,6 +3,8 @@ title: FAQ
 description: Pertanyaan umum tentang Nexotao — keamanan, saldo, pembayaran QRIS, Claude Code, dan refund.
 ---
 
+import { Callout } from "nextra/components"
+
 # FAQ
 
 ## Apa itu Nexotao?
@@ -33,9 +35,11 @@ ke Nexotao dan dibayar pakai Rupiah. Lihat [Claude Code](/claude-code).
 
 ## Apakah ada refund?
 
-Top-up bersifat final dan saldo umumnya non-refundable. Untuk kasus seperti
-dobel-charge atau kegagalan sistem, lihat kebijakan refund di
-[nexotao.com](https://nexotao.com).
+<Callout type="warning">
+  Top-up bersifat **final** dan saldo umumnya non-refundable. Untuk kasus seperti
+  dobel-charge atau kegagalan sistem, lihat kebijakan refund di
+  [nexotao.com](https://nexotao.com).
+</Callout>
 
 ## Berapa harganya?
 
@@ -52,7 +56,9 @@ melampaui jatah satu backend, jadi balas `429 server at capacity, retry shortly`
 — sebanyak apa pun backend paralel tidak menolong, karena satu request tidak
 bisa dipecah antar-backend.
 
-Solusinya bukan retry berulang, tapi **pakai model yang tepat**: untuk
-coding/agentic dan konteks besar, pilih langsung id model **Claude
-(Opus/Sonnet)**, misalnya `claude-opus-4-8`. DeepSeek tetap pilihan terbaik
-untuk beban volume/murah.
+<Callout type="warning">
+  Solusinya bukan retry berulang, tapi **pakai model yang tepat**: untuk
+  coding/agentic dan konteks besar, pilih langsung id model **Claude
+  (Opus/Sonnet)**, misalnya `claude-opus-4-8`. DeepSeek tetap pilihan terbaik untuk
+  beban volume/murah.
+</Callout>

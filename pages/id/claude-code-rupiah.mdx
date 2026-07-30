@@ -50,9 +50,11 @@ Di balik layar ini mengatur:
 
 - `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
 - `ANTHROPIC_AUTH_TOKEN` = API key `sk-nexo-...` milikmu
-- `ANTHROPIC_MODEL` = model Claude yang kamu pilih (Opus 4.8)
-- Background task (haiku) dipetakan ke `claude-opus-4-8` karena tier sonnet dan haiku
-  tidak tersedia — Claude Code tetap jalan normal.
+- `ANTHROPIC_MODEL` = model Claude yang kamu pilih di generator
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6` — tier sonnet tersedia
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-sonnet-4-6` juga. Tier haiku tidak ada di
+  katalog kami, jadi slot background dipetakan ke model Claude termurah yang tersedia
+  — Claude Code tetap jalan normal.
 - `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` agar kompatibel.
 
 ## 5. Jalankan Claude Code
@@ -89,9 +91,9 @@ Buka terminal baru lalu jalankan `claude`.
 Minta Claude Code melakukan hal kecil ("jelaskan file ini", "tambah satu test"). Kalau
 dia merespons, saldo Rupiah-mu sudah menggerakkannya.
 
-Mau pastikan jalur penagihannya langsung? Setiap respons Nexotao membawa header
-`X-Cost-Rp` — biaya persis request itu dalam Rupiah. Bisa kamu lihat lewat panggilan API
-biasa:
+Mau pastikan jalur penagihannya langsung? Respons **non-streaming** Nexotao membawa
+header `X-Cost-Rp` — biaya persis request itu dalam Rupiah. Bisa kamu lihat lewat
+panggilan API biasa:
 
 ```bash
 curl -i https://api.nexotao.com/v1/messages \
@@ -108,6 +110,11 @@ curl -i https://api.nexotao.com/v1/messages \
 Cari `X-Cost-Rp` dan `X-Request-Id` di header respons. Pemakaian Claude Code dipotong
 dari saldo yang sama, persis seperti panggilan ini.
 
+Catatan: Claude Code memakai **streaming**, dan respons streaming tidak membawa
+`X-Cost-Rp` — biayanya belum diketahui saat header dikirim. Rincian biaya tiap sesi
+tetap bisa dilihat di halaman **Usage** pada dashboard. Lihat
+[Penagihan & Harga](/penagihan).
+
 ## FAQ
 
 **Apakah perlu kartu kredit luar negeri untuk pakai Claude Code?**
@@ -119,13 +126,14 @@ Bukan — Nexotao adalah gateway yang **kompatibel dengan Anthropic**. Claude Co
 ke base URL Nexotao dan jalan sama seperti biasa, ditagih dari saldo Rupiah-mu.
 
 **Bagaimana cara penagihannya?**
-Per token (input + output), diambil dari satu saldo Rupiah. Tiap respons mengembalikan
-header `X-Cost-Rp` berisi biaya Rupiah yang persis. Tanpa langganan; saldo tidak
-kadaluarsa.
+Per token (input + output), diambil dari satu saldo Rupiah. Respons non-streaming
+mengembalikan header `X-Cost-Rp` berisi biaya Rupiah yang persis; untuk respons
+streaming, lihat rinciannya di halaman **Usage** pada dashboard. Tanpa langganan;
+saldo tidak kadaluarsa.
 
 **Model apa saja yang bisa dipakai di Claude Code?**
-Model Claude yang tersedia lewat gateway: Opus 4.8 (utama), plus Opus 4.7, Opus 4.6,
-dan Sonnet 4.6. Pilih model utama di generator config di atas.
+Model Claude yang tersedia lewat gateway: Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, dan
+Sonnet 4.6. Pilih model utama di generator config di atas.
 
 ## Langkah berikutnya
 

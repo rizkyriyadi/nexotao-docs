@@ -3,6 +3,7 @@ title: Codex CLI
 description: Use OpenAI Codex CLI with Nexotao models (GPT-5.6, gpt-5-mini, Grok, DeepSeek) and pay in Rupiah. Step-by-step ~/.codex/config.toml setup.
 ---
 
+import { Callout, Steps, Tabs } from "nextra/components"
 import { ToolLogo } from "../../components/tool-logo"
 
 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
@@ -17,10 +18,14 @@ format, so point it at `https://api.nexotao.com/v1` and use Nexotao's OpenAI-com
 models: `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-5-mini`, `grok-4.3`,
 `DeepSeek-V4-Pro`, or `DeepSeek-V4-Flash`.
 
-> For **Claude** models, use [Claude Code](/claude-code) (Anthropic format). Codex has
-> no Anthropic mode.
+<Callout type="info">
+  For **Claude** models, use [Claude Code](/en/claude-code) (Anthropic format). Codex
+  has no Anthropic mode.
+</Callout>
 
-## 1. Install Codex
+<Steps>
+
+### Install Codex
 
 Follow OpenAI's official Codex docs. Verify:
 
@@ -28,21 +33,29 @@ Follow OpenAI's official Codex docs. Verify:
 codex --version
 ```
 
-## 2. Set the API key as an environment variable
+### Set the API key as an environment variable
 
 Codex reads the key from an env var (it is not stored in the config file).
 
+<Tabs items={["macOS / Linux", "Windows PowerShell"]}>
+  <Tabs.Tab>
+
 ```bash
-# macOS / Linux — add to ~/.zshrc or ~/.bashrc
+# add to ~/.zshrc or ~/.bashrc
 export OPENAI_API_KEY="sk-nexo-..."
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
 ```powershell
-# Windows PowerShell
 setx OPENAI_API_KEY "sk-nexo-..."
 ```
 
-## 3. Register Nexotao as a provider
+  </Tabs.Tab>
+</Tabs>
+
+### Register Nexotao as a provider
 
 Open (or create) `~/.codex/config.toml` and add:
 
@@ -59,7 +72,7 @@ env_key = "OPENAI_API_KEY"                # env var holding sk-nexo-...
 wire_api = "responses"                    # REQUIRED "responses"; Codex removed "chat"
 ```
 
-## 4. Run
+### Run
 
 From your project directory:
 
@@ -74,14 +87,21 @@ codex -m grok-4.3
 codex -m DeepSeek-V4-Pro
 ```
 
+</Steps>
+
 ## Important notes
 
-- **`base_url` must end in `/v1`** — Codex appends `/responses` itself.
-- **`wire_api = "responses"`** is required. Recent Codex versions **removed**
-  `wire_api = "chat"`, and Nexotao exposes the Responses API (`/v1/responses`)
-  with full streaming — so Codex works out of the box.
+<Callout type="warning">
+  Two values in `config.toml` are the usual culprits: **`base_url` must end in `/v1`**
+  (Codex appends `/responses` itself), and **`wire_api` must be `"responses"`**.
+  Recent Codex versions **removed** `wire_api = "chat"`, so older configs will not
+  work.
+</Callout>
+
+- Nexotao exposes the Responses API (`/v1/responses`) with full streaming — so Codex
+  works out of the box.
 - The **provider ID** (`nexotao`) cannot reuse reserved names like `openai`, `ollama`,
   or `lmstudio`.
 - The key is **not** stored in `config.toml`; only the env var name (`env_key`) is.
 
-Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/penagihan).
+Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).

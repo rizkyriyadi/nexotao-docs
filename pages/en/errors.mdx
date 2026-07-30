@@ -1,0 +1,584 @@
+---
+title: Errors & Debugging
+description: Complete Nexotao error reference — the error envelope, stable codes, request_id, catalogue by HTTP status, in-band streaming errors, and retry guidance.
+---
+
+import { Callout, Steps, Tabs } from "nextra/components"
+
+# Errors & Debugging
+
+This page is the complete reference for failures on the Nexotao API: the shape of
+an error body, what each code means, which ones are worth retrying, and how to
+trace a single request after the fact.
+
+Base URL: `https://api.nexotao.com`.
+
+## The error envelope
+
+Every API error is returned as a single JSON object with the same shape,
+regardless of the endpoint.
+
+```json
+{
+  "error": "invalid api key",
+  "code": "auth.api_key_invalid",
+  "type": "api_key_invalid",
+  "request_id": "8997bda3-65c4-45c3-ab38-c909f905fc4d",
+  "retryable": false
+}
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `error` | string | Human-readable message. The wording may change — do **not** branch on it |
+| `code` | string | **Stable** dotted identifier, e.g. `auth.api_key_invalid`. This is the contract — branch on this |
+| `type` | string | The segment after the **last** dot of `code` (e.g. `api_key_invalid`). Kept for older client compatibility |
+| `request_id` | string | The request id, identical to the `X-Request-Id` header |
+| `retryable` | bool | `true` when retrying the same request is sensible |
+| `hint` | string | Optional. Present on some errors only, with actionable guidance |
+
+Two headers accompany every error response:
+
+| Header | Contents |
+| --- | --- |
+| `X-Error-Code` | Same as the `code` field. Readable without parsing the body |
+| `X-Request-Id` | Same as the `request_id` field |
+
+<Callout type="info">
+`type` is derived mechanically from `code`, so it never carries extra
+information. If you are writing a new client, use `code` (or the `X-Error-Code`
+header) and ignore `type`.
+</Callout>
+
+### Reading the error code
+
+<Tabs items={["curl", "Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```bash
+curl -sS -D /tmp/h.txt https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-FAKE-EXAMPLE" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","messages":[{"role":"user","content":"hi"}]}'
+
+grep -i '^x-error-code\|^x-request-id' /tmp/h.txt
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+import httpx
+
+r = httpx.post(
+    "https://api.nexotao.com/v1/chat/completions",
+    headers={"Authorization": "Bearer sk-nexo-FAKE-EXAMPLE"},
+    json={"model": "claude-sonnet-4-6",
+          "messages": [{"role": "user", "content": "hi"}]},
+)
+
+if r.status_code >= 400:
+    body = r.json()
+    print(body["code"], body["request_id"], body["retryable"])
+    # headers alone are enough, no body parsing needed:
+    print(r.headers["x-error-code"], r.headers["x-request-id"])
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```js
+const res = await fetch("https://api.nexotao.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-nexo-FAKE-EXAMPLE",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    messages: [{ role: "user", content: "hi" }],
+  }),
+})
+
+if (!res.ok) {
+  const body = await res.json()
+  console.error(body.code, body.request_id, body.retryable)
+  console.error(res.headers.get("x-error-code"), res.headers.get("x-request-id"))
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## `request_id`
+
+Every request — successful or not — gets a unique `request_id`, sent in the
+`X-Request-Id` header and recorded server-side.
+
+- On error responses the same id also appears in the body as `request_id`.
+- **Log it in your application.** When reporting a problem, one `request_id` is
+  far more useful than a screenshot of the error message.
+- For streaming requests, `X-Request-Id` is sent **before** the first stream
+  byte, so it is still readable when a stream fails mid-flight.
+
+```bash
+curl -sS -D - -o /dev/null https://api.nexotao.com/v1/messages \
+  -H "Authorization: Bearer sk-nexo-FAKE-EXAMPLE" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","max_tokens":16,
+       "messages":[{"role":"user","content":"hi"}]}' \
+  | grep -i x-request-id
+```
+
+## Error code catalogue
+
+Grouped by HTTP status. The **Retry** column is the `retryable` field in the
+body.
+
+### 400 — Invalid request
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `request.invalid` | Body unreadable, `model` missing or not a string, empty `input` on `/v1/responses`, model not available on that endpoint, or images sent to a model without vision support | Fix the request body | `false` |
+| `request.invalid_request` | Request shape rejected before it reaches a backend — e.g. body is not a JSON object, a user message has empty content, or `tools` is not an array of objects whose `input_schema` has a root `type` | Fix the message/tool structure | `false` |
+| `request.unsupported_feature` | The requested feature is not served for that model on that endpoint — e.g. Claude structured outputs or web search outside `/v1/messages`, or tool use on a DeepSeek model | Move to a supporting endpoint/model; check `hint` if present | `false` |
+| `model.unknown` | `model` is not in the catalogue | Check the model id via `GET /v1/models` or [Models & Pricing](/en/model-harga) | `false` |
+| `upstream.context_length_exceeded` | The prompt exceeds the model's context window | Reduce input or enable compaction — see [Context Window](/en/context-window) | `false` |
+| `upstream.invalid_request` | The model backend rejected the request shape | Check unusual parameters (e.g. sampling values out of range) | `false` |
+| `upstream.unsupported_feature` | A parameter/feature is not supported by that model backend | Drop the parameter or switch models | `false` |
+
+### 401 — Authentication failed
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `auth.api_key_missing` | Neither `Authorization: Bearer` nor `x-api-key` was sent | Send an API key — see [Authentication](/en/autentikasi) | `false` |
+| `auth.api_key_invalid` | The key is not recognised | Use a valid key, or create one in the dashboard | `false` |
+| `auth.api_key_revoked` | The key existed but has been revoked | Create a new key | `false` |
+| `auth.unauthorized` | Dashboard session token missing or invalid (dashboard endpoints, not the API-key path) | Sign in again in the dashboard | `false` |
+
+<Callout type="warning">
+The three `auth.*` codes above will **never** succeed on retry with the same
+credential. A client that retries them automatically only burns its own RPM quota
+and slows down its own recovery.
+</Callout>
+
+### 402 — Balance
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `billing.insufficient_balance` | Balance is not enough to cover the estimated input plus a minimal answer | Top up, then resend | `false` |
+
+This check runs **before** the request is forwarded to a model, so a request
+rejected with 402 is never charged.
+
+### 403 — Forbidden
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `auth.account_deleted` | The account owning the key is marked deleted | Contact support | `false` |
+| `auth.forbidden` | Access denied on a dashboard endpoint | Contact support | `false` |
+
+### 404 / 405 — Routing
+
+| `code` | Status | When it happens | What to do | Retry |
+| --- | --- | --- | --- | --- |
+| `route.not_found` | 404 | The path does not exist. This includes `/v1/images/generations` and `/v1/audio/transcriptions`, which are **not served** | Check the endpoint list in the [API Reference](/en/api-reference) | `false` |
+| `resource.not_found` | 404 | The model id in `GET /v1/models/{id}` does not exist | Check the model id | `false` |
+| `usage.not_found` | 404 | Unknown `request_id` on `GET /usage/{request_id}` — a **dashboard-session** endpoint, not reachable with an API key | Verify the id and that it belongs to the same account | `false` |
+| `request.method_not_allowed` | 405 | Right path, wrong method (e.g. `GET` on `/v1/messages`) | Use `POST` | `false` |
+
+### 413 — Body too large
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `request.too_large` | The request body exceeds the size limit | Run `/compact` or start a new session; in agent integrations this usually means the conversation history has grown too long | `false` |
+
+### 429 — Rate limits and quotas
+
+| `code` | When it happens | What to do | Retry |
+| --- | --- | --- | --- |
+| `rate_limit.rpm_exceeded` | The key's requests-per-minute limit was exceeded | Back off and retry | `true` |
+| `rate_limit.tpm_exceeded` | The key's tokens-per-minute limit was exceeded | Back off, or shrink the prompt/`max_tokens` | `true` |
+| `gateway.capacity` | The Nexotao concurrency gate is full. Carries a short `Retry-After` | Retry after `Retry-After` | `true` |
+| `upstream.rate_limited` | The model backend throttled the call. `Retry-After` is forwarded when the backend sends one | Retry after `Retry-After`; check `hint` if present | `true` |
+| `quota.key_limit_exceeded` | The key's **spending limit** was reached — a budget cap, not a rate window | Raise or adjust the key limit in the dashboard, or wait for the next period | `false` |
+
+<Callout type="warning">
+`quota.key_limit_exceeded` is a 429 whose `retryable` is **`false`**. It is the
+one 429 you must not retry automatically: waiting a few seconds does not give the
+budget back. For daily/monthly limits, `Retry-After` carries the seconds until
+the period rolls over; an all-time total limit never resets and carries no
+`Retry-After`.
+</Callout>
+
+On the API-key path, responses also carry rate observability headers when the
+relevant limit is active for that key:
+
+| Header | Meaning |
+| --- | --- |
+| `X-RateLimit-Limit` / `-Remaining` / `-Reset` | Requests-per-minute quota |
+| `X-RateLimit-Limit-Tokens` / `-Remaining-Tokens` / `-Reset-Tokens` | Tokens-per-minute quota |
+| `X-Key-Limit-Micro` / `X-Key-Usage-Micro` / `X-Key-Remaining-Micro` / `X-Key-Limit-Period` | Per-key spending limit, in micro-rupiah |
+
+### 5xx — Server-side failures
+
+| `code` | Status | When it happens | What to do | Retry |
+| --- | --- | --- | --- | --- |
+| `internal.error` | 500 | An unexpected failure | Retry with backoff | `true` |
+| `internal.panic` | 500 | An unhandled failure; fully recorded server-side | Retry; report with the `request_id` if it repeats | `true` |
+| `dependency.upstream_unavailable` | 502 | The model backend failed, exhausted its attempts, or the connection dropped. Also the catch-all class for unrecognised backend failures | Retry with backoff; consider a different model | `true` |
+| `dependency.database_unavailable` | 503 | The database is temporarily unreachable (authentication, model catalogue, balance, or usage lookups) | Retry with backoff | `true` |
+| `dependency.upstream_unconfigured` | 503 | No backend is configured for that model | Use another model; report if it persists | `true` |
+| `billing.reconcile_failed` | 503 | Billing bookkeeping failed after the model call | Retry; no balance is deducted in this case | `true` |
+
+<Callout type="info">
+Model backend responses are never passed through verbatim. The status, body, and
+backend identity are classified into one of the codes above with a fixed message,
+and the raw detail stays in server logs only. Do not build logic on the
+assumption that you will see the model provider's original message.
+</Callout>
+
+## In-band streaming errors
+
+This is the easiest thing to miss in the whole API.
+
+<Callout type="warning">
+For streaming requests, **`status === 200` is not a success signal.** Once the
+gateway starts sending heartbeats, HTTP 200 has already been committed and cannot
+be taken back. Any failure after that point is delivered **inside the stream** as
+an error event. A client that only checks `response.ok` will read a failed
+request as an empty answer.
+</Callout>
+
+The error event's wire shape depends on the endpoint:
+
+<Tabs items={["/v1/chat/completions", "/v1/messages", "/v1/responses"]}>
+  <Tabs.Tab>
+
+A single `data:` chunk containing an `error` object, then `data: [DONE]`.
+
+```text
+data: {"error":{"message":"upstream service unavailable after retries; please retry","type":"server_error","code":"upstream_unavailable","request_id":"8997bda3-65c4-45c3-ab38-c909f905fc4d"}}
+
+data: [DONE]
+```
+
+Detection: a `data:` chunk with a top-level `error` key (rather than `choices`).
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+An event named `error` with an Anthropic-style payload, then `data: [DONE]`.
+
+```text
+event: error
+data: {"type":"error","error":{"type":"overloaded_error","message":"upstream service unavailable after retries; please retry","request_id":"8997bda3-65c4-45c3-ab38-c909f905fc4d"}}
+
+data: [DONE]
+```
+
+The `overloaded_error` type is deliberate: it makes Anthropic SDKs and Claude
+Code classify the failure as a transient, back-off-and-retry condition rather
+than a raw connection drop.
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+A `response.failed` event. Note this shape is **not** followed by `data: [DONE]`.
+
+```text
+event: response.failed
+data: {"type":"response.failed","response":{"id":"resp_8997bda3-65c4-45c3-ab38-c909f905fc4d","object":"response","status":"failed","output":[],"error":{"message":"upstream service unavailable after retries; please retry","type":"server_error","code":"upstream_unavailable"}}}
+```
+
+`id` is built as `resp_` + `request_id`, so you can recover the `request_id`
+straight from it.
+
+  </Tabs.Tab>
+</Tabs>
+
+The message is a fixed string chosen from the failure classification — for
+example "upstream capacity exhausted after waiting; please retry" for a throttle,
+"upstream timed out before starting the stream; please retry" for a timeout, or a
+specific message for an exceeded context window. When actionable guidance applies
+(e.g. a model-selection steer), it is appended to the message, because a stream
+has no room for a separate `hint` field.
+
+<Callout type="warning">
+The same trap applies to **non-streaming `/v1/responses`**. That endpoint sends
+keepalives so long calls are not dropped by intermediaries, which means HTTP 200
+can be committed before the outcome is known. If it then fails, you receive
+**HTTP 200** with a JSON body of `{"status":"failed","error":{...}}`. Always
+check `status` in the `/v1/responses` body, not just the HTTP code.
+</Callout>
+
+### Detection examples
+
+<Tabs items={["Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```python
+import json, httpx
+
+payload = {
+    "model": "claude-sonnet-4-6",
+    "messages": [{"role": "user", "content": "hi"}],
+    "stream": True,
+}
+
+with httpx.stream(
+    "POST", "https://api.nexotao.com/v1/chat/completions",
+    headers={"Authorization": "Bearer sk-nexo-FAKE-EXAMPLE"},
+    json=payload, timeout=None,
+) as r:
+    request_id = r.headers.get("x-request-id")
+    r.raise_for_status()  # necessary, but NOT sufficient
+
+    for line in r.iter_lines():
+        if not line.startswith("data: "):
+            continue
+        data = line[6:]
+        if data == "[DONE]":
+            break
+        chunk = json.loads(data)
+        if "error" in chunk:                     # in-band failure
+            err = chunk["error"]
+            raise RuntimeError(
+                f"{err.get('code')}: {err.get('message')} (request_id={request_id})"
+            )
+        # ... handle a normal chunk
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```js
+const res = await fetch("https://api.nexotao.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-nexo-FAKE-EXAMPLE",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    messages: [{ role: "user", content: "hi" }],
+    stream: true,
+  }),
+})
+
+const requestId = res.headers.get("x-request-id")
+if (!res.ok) throw new Error(`HTTP ${res.status} (request_id=${requestId})`)
+
+const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
+let buffer = ""
+
+for (;;) {
+  const { value, done } = await reader.read()
+  if (done) break
+  buffer += value
+
+  let idx
+  while ((idx = buffer.indexOf("\n\n")) !== -1) {
+    const event = buffer.slice(0, idx)
+    buffer = buffer.slice(idx + 2)
+
+    const dataLine = event.split("\n").find((l) => l.startsWith("data: "))
+    if (!dataLine) continue
+    const data = dataLine.slice(6)
+    if (data === "[DONE]") continue
+
+    const chunk = JSON.parse(data)
+    if (chunk.error) {
+      throw new Error(
+        `${chunk.error.code}: ${chunk.error.message} (request_id=${requestId})`,
+      )
+    }
+    // ... handle a normal chunk
+  }
+}
+```
+
+For `/v1/messages`, also watch for an `event: error` line; for `/v1/responses`,
+watch for `event: response.failed`.
+
+  </Tabs.Tab>
+</Tabs>
+
+## Retry guidance
+
+<Steps>
+
+### Check `retryable` first
+
+Retry only when the error body says `"retryable": true`. Codes with
+`retryable: false` — the whole `auth.*` family, `billing.insufficient_balance`,
+`model.unknown`, `route.not_found`, `request.*`, `quota.key_limit_exceeded` —
+will **never** succeed with an identical request.
+
+### Honour `Retry-After` when present
+
+If the response carries a `Retry-After` header, use it as the minimum delay
+instead of your own backoff schedule. Values coming from a backend are validated
+and clamped to a maximum of **3600 seconds**; implausible values are discarded so
+the header is simply not sent.
+
+### Exponential backoff with jitter
+
+Without `Retry-After`, double the delay on each attempt and add randomness so
+many clients do not stampede together after a single incident.
+
+### Cap the attempts
+
+Four or five attempts is plenty. After that, return the error to the caller along
+with its `request_id`.
+
+</Steps>
+
+```python
+import json, random, time, httpx
+
+NON_RETRYABLE_HTTP = {400, 401, 402, 403, 404, 405, 413}
+
+def call_with_retry(client, url, headers, payload, max_attempts=5):
+    delay = 1.0
+    for attempt in range(max_attempts):
+        r = client.post(url, headers=headers, json=payload)
+        if r.status_code < 400:
+            return r
+
+        body = {}
+        try:
+            body = r.json()
+        except json.JSONDecodeError:
+            pass
+
+        # The contract is `retryable`, not the HTTP status.
+        if not body.get("retryable", r.status_code not in NON_RETRYABLE_HTTP):
+            raise RuntimeError(
+                f"{body.get('code')}: {body.get('error')} "
+                f"(request_id={r.headers.get('x-request-id')})"
+            )
+
+        wait = delay
+        if ra := r.headers.get("retry-after"):
+            try:
+                wait = max(wait, min(int(ra), 3600))
+            except ValueError:
+                pass
+        time.sleep(wait + random.uniform(0, 0.5 * wait))   # jitter
+        delay *= 2
+
+    raise RuntimeError("attempts exhausted")
+```
+
+<Callout type="warning">
+Never wrap `auth.api_key_invalid` (or `auth.api_key_missing` /
+`auth.api_key_revoked`) in a retry loop. A wrong key is still wrong on the 100th
+attempt, and every attempt still counts against that key's RPM quota.
+</Callout>
+
+## Cost and post-hoc debugging
+
+**Non-streaming** responses carry the actual cost in headers:
+
+| Header | Meaning |
+| --- | --- |
+| `X-Cost-Rp` | Cost of this request in Rupiah |
+| `X-Request-Id` | The request id |
+
+On **SSE (streaming)** responses, `X-Cost-Rp` is deliberately **omitted**:
+headers must be written before the first byte, while the cost is only known once
+the stream ends.
+
+So for a streaming call, the way to find out what it cost is:
+
+<Steps>
+
+### Save the `X-Request-Id` from the response headers
+
+It is sent before the first stream byte, so it is available even when the stream
+later fails. Log it alongside the call.
+
+### Look the request up on the dashboard Usage page
+
+Find the matching request id there to see the reconciled figure — the model,
+token counts, and the exact charge that moved your balance.
+
+</Steps>
+
+<Callout type="warning">
+There is a `GET /usage/{request_id}` endpoint, but it is **not part of the
+API-key surface**. It authenticates with a dashboard session token, so sending
+`Authorization: Bearer sk-nexo-...` to it fails authentication with a 401
+`auth.unauthorized` rather than returning usage. If you hold only an API key,
+use the dashboard Usage page.
+</Callout>
+
+Whichever route you use, the reconciled record contains the fields below. Two of
+them are worth knowing:
+
+| Field | Meaning |
+| --- | --- |
+| `charge_micro` | Total charge in **micro-rupiah** (Rp 1 = 1,000,000 micro) |
+| `turns` | Number of charged upstream turns. Normally `1`; **greater than 1** when the gateway ran a server-side tool loop — which is what explains a charge larger than a single turn's tokens would suggest |
+
+The record's `status` tells you the final outcome, and in particular whether a
+failed request was charged at all:
+
+| `status` | Meaning |
+| --- | --- |
+| `ok` | Succeeded and charged |
+| `upstream_error` | The model backend failed; nothing charged |
+| `aborted_stream` | The stream opened then dropped before its terminal event with no usable output; **not charged** |
+| `usage_missing` | The backend replied 2xx but token counts could not be read; flagged and **not charged** |
+| `billing_error` | The answer was delivered but billing bookkeeping failed; recorded as 0 |
+| `fallback_429` / `fallback_oversize` | Zero-charge markers written when a request was rerouted to the next model in the chain |
+
+## Troubleshooting
+
+**401 `auth.api_key_missing`** — the auth header never arrived. With `curl`,
+check your quoting and line continuations (`\`). With an SDK, make sure
+`base_url`/`baseURL` points at `https://api.nexotao.com/v1` and that the key is
+actually set (not an empty environment variable).
+
+**401 `auth.api_key_invalid`** — the key is not recognised. Most common causes: a
+stray space or newline got copied along, the key belongs to a different
+environment, or it was deleted. Create a new key in the dashboard. See
+[Authentication](/en/autentikasi).
+
+**402 `billing.insufficient_balance`** — the balance cannot cover the estimated
+input plus a minimal answer. Nexotao checks this before calling a model, so a
+rejected request costs nothing. Top up in the dashboard; see
+[Billing & Pricing](/en/penagihan).
+
+**429 `rate_limit.rpm_exceeded` / `rate_limit.tpm_exceeded`** — the key's
+per-minute limit was exceeded. Lower concurrency, apply backoff, or shrink the
+prompt/`max_tokens`. The `X-RateLimit-*` headers show the remaining quota and
+seconds until the window rolls over.
+
+**429 `quota.key_limit_exceeded`** — the key's spending limit was reached. That
+is a budget cap you set yourself in the dashboard, not a rate throttle. Raise it
+or turn it off there.
+
+**400 `model.unknown`** — the model id is misspelled or no longer active. Fetch
+the valid list:
+
+```bash
+curl -sS https://api.nexotao.com/v1/models \
+  -H "Authorization: Bearer sk-nexo-FAKE-EXAMPLE"
+```
+
+**404 `route.not_found`** — the path is not served. The most frequent case is a
+generic OpenAI client calling `/v1/images/generations` or
+`/v1/audio/transcriptions`. Neither endpoint is **available** on Nexotao — see
+the served endpoint list in the [API Reference](/en/api-reference).
+
+**A stream ends with no text and no error** — this is almost always an in-band
+error your client did not parse. Revisit
+[In-band streaming errors](#in-band-streaming-errors) above, then look the
+request id up on the dashboard Usage page: a status of `aborted_stream` or
+`upstream_error` confirms the request failed and was not charged.
+
+Still stuck? Collect the `request_id`, the `code`, and the time it happened, then
+contact support through the dashboard. Without a `request_id`, a single request
+is nearly impossible to find in the logs.

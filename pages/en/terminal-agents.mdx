@@ -3,6 +3,7 @@ title: Aider & OpenCode
 description: Use the Aider and OpenCode terminal coding agents with Nexotao. Env-var and config-file setup for both OpenAI-compat and Claude models.
 ---
 
+import { Callout, Tabs } from "nextra/components"
 import { ToolLogo } from "../../components/tool-logo"
 
 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
@@ -22,7 +23,8 @@ config file.
 Aider routes models through LiteLLM, so you can use the OpenAI-compat path
 (recommended) or the Anthropic path.
 
-### OpenAI-compat models (recommended)
+<Tabs items={["OpenAI-compat models (recommended)", "Claude models (via LiteLLM)"]}>
+<Tabs.Tab>
 
 ```bash
 export OPENAI_API_BASE=https://api.nexotao.com/v1
@@ -36,7 +38,8 @@ aider --model openai/gpt-5-mini
 - `OPENAI_API_BASE` must include `/v1`.
 - Other models: `openai/grok-4.3`, `openai/DeepSeek-V4-Pro`.
 
-### Claude models (via LiteLLM)
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```bash
 export ANTHROPIC_API_BASE=https://api.nexotao.com
@@ -47,9 +50,14 @@ aider --model anthropic/claude-opus-4-8
 
 - `ANTHROPIC_API_BASE` **without** `/v1`.
 - If your Aider/LiteLLM version doesn't pick up this base URL, just use the
-  OpenAI-compat path above.
+  OpenAI-compat path.
 
-> Aider may show an "unknown model" warning for `sk-nexo` IDs — harmless, ignore it.
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  Aider may show an "unknown model" warning for `sk-nexo` IDs — harmless, ignore it.
+</Callout>
 
 ---
 
@@ -91,8 +99,11 @@ opencode          # pick a model via /models
 
 - Use `npm: "@ai-sdk/openai-compatible"` for the `/chat/completions` endpoint.
 - `baseURL` must include `/v1`.
-- Custom providers **must** declare `models` with `limit.context` / `limit.output` —
-  otherwise context tracking breaks.
 - `apiKey` supports `{env:VAR}` syntax; keep the key in an env var, not the file.
 
-Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/penagihan).
+<Callout type="warning">
+  Custom providers **must** declare `models` with `limit.context` / `limit.output`.
+  Without them, OpenCode's context tracking breaks.
+</Callout>
+
+Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).

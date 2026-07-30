@@ -1,0 +1,586 @@
+---
+title: Error & Debugging
+description: Referensi lengkap error Nexotao — amplop error, kode stabil (code), request_id, katalog per status HTTP, error in-band pada streaming, dan panduan retry.
+---
+
+import { Callout, Steps, Tabs } from "nextra/components"
+
+# Error & Debugging
+
+Halaman ini adalah referensi lengkap kegagalan pada API Nexotao: bentuk body
+error, arti tiap kode, mana yang boleh diulang, dan cara melacak satu permintaan
+setelah kejadian.
+
+Base URL: `https://api.nexotao.com`.
+
+## Amplop error
+
+Setiap error dari API dikembalikan sebagai satu objek JSON dengan bentuk yang
+sama, apa pun endpoint-nya.
+
+```json
+{
+  "error": "invalid api key",
+  "code": "auth.api_key_invalid",
+  "type": "api_key_invalid",
+  "request_id": "8997bda3-65c4-45c3-ab38-c909f905fc4d",
+  "retryable": false
+}
+```
+
+| Field | Tipe | Arti |
+| --- | --- | --- |
+| `error` | string | Pesan untuk manusia. Teksnya bisa berubah sewaktu-waktu — **jangan** dipakai sebagai kondisi program |
+| `code` | string | Identifier bertitik yang **stabil**, mis. `auth.api_key_invalid`. Inilah kontraknya — cabangkan logika di sini |
+| `type` | string | Potongan setelah titik **terakhir** dari `code` (mis. `api_key_invalid`). Ada demi kompatibilitas klien lama |
+| `request_id` | string | Id permintaan, sama persis dengan header `X-Request-Id` |
+| `retryable` | bool | `true` bila mengulang permintaan yang sama masuk akal |
+| `hint` | string | Opsional. Hanya muncul pada sebagian error, berisi saran tindakan konkret |
+
+Dua header selalu menyertai respons error:
+
+| Header | Isi |
+| --- | --- |
+| `X-Error-Code` | Sama dengan field `code`. Bisa dibaca tanpa mem-parsing body |
+| `X-Request-Id` | Sama dengan field `request_id` |
+
+<Callout type="info">
+`type` diturunkan otomatis dari `code`, jadi ia tidak pernah membawa informasi
+tambahan. Kalau Anda menulis klien baru, pakai `code` (atau header
+`X-Error-Code`) dan abaikan `type`.
+</Callout>
+
+### Membaca kode error
+
+<Tabs items={["curl", "Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```bash
+curl -sS -D /tmp/h.txt https://api.nexotao.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-nexo-CONTOH-PALSU" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","messages":[{"role":"user","content":"halo"}]}'
+
+grep -i '^x-error-code\|^x-request-id' /tmp/h.txt
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```python
+import httpx
+
+r = httpx.post(
+    "https://api.nexotao.com/v1/chat/completions",
+    headers={"Authorization": "Bearer sk-nexo-CONTOH-PALSU"},
+    json={"model": "claude-sonnet-4-6",
+          "messages": [{"role": "user", "content": "halo"}]},
+)
+
+if r.status_code >= 400:
+    body = r.json()
+    print(body["code"], body["request_id"], body["retryable"])
+    # header juga cukup, tanpa parsing body:
+    print(r.headers["x-error-code"], r.headers["x-request-id"])
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```js
+const res = await fetch("https://api.nexotao.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-nexo-CONTOH-PALSU",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    messages: [{ role: "user", content: "halo" }],
+  }),
+})
+
+if (!res.ok) {
+  const body = await res.json()
+  console.error(body.code, body.request_id, body.retryable)
+  console.error(res.headers.get("x-error-code"), res.headers.get("x-request-id"))
+}
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## `request_id`
+
+Setiap permintaan — berhasil maupun gagal — mendapat `request_id` unik yang
+dikirim di header `X-Request-Id` dan dicatat di sisi server.
+
+- Pada respons error, id yang sama juga ada di body sebagai `request_id`.
+- **Simpan id ini di log aplikasi Anda.** Saat melapor ke dukungan, satu
+  `request_id` jauh lebih berguna daripada tangkapan layar pesan error.
+- Untuk permintaan streaming, `X-Request-Id` dikirim **sebelum** byte pertama
+  stream, jadi ia tetap terbaca meski stream gagal di tengah jalan.
+
+```bash
+curl -sS -D - -o /dev/null https://api.nexotao.com/v1/messages \
+  -H "Authorization: Bearer sk-nexo-CONTOH-PALSU" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"claude-sonnet-4-6","max_tokens":16,
+       "messages":[{"role":"user","content":"halo"}]}' \
+  | grep -i x-request-id
+```
+
+## Katalog kode error
+
+Dikelompokkan per status HTTP. Kolom **Retry** adalah nilai field `retryable`
+pada body.
+
+### 400 — Permintaan tidak valid
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `request.invalid` | Body tidak terbaca, `model` kosong/bukan string, `input` kosong pada `/v1/responses`, model tidak tersedia di endpoint tersebut, atau gambar dikirim ke model tanpa dukungan vision | Perbaiki body permintaan | `false` |
+| `request.invalid_request` | Bentuk permintaan ditolak sebelum mencapai backend — mis. body bukan objek JSON, pesan user berisi konten kosong, atau `tools` tidak berbentuk array objek dengan `input_schema` yang punya `type` di akar | Perbaiki struktur pesan/tool | `false` |
+| `request.unsupported_feature` | Fitur yang diminta tidak dilayani untuk model itu di endpoint itu — mis. structured outputs atau web search Claude di luar `/v1/messages`, atau tool-use pada model DeepSeek | Pindah ke endpoint/model yang mendukung; lihat `hint` bila ada | `false` |
+| `model.unknown` | `model` tidak ada di katalog | Cek id model di `GET /v1/models` atau [Model & Harga](/model-harga) | `false` |
+| `upstream.context_length_exceeded` | Prompt melebihi context window model | Kecilkan input atau aktifkan kompaksi — lihat [Context Window](/context-window) | `false` |
+| `upstream.invalid_request` | Backend model menolak bentuk permintaan | Periksa parameter yang tidak lazim (mis. sampling di luar rentang) | `false` |
+| `upstream.unsupported_feature` | Parameter/fitur tidak didukung backend model tersebut | Hapus parameter itu atau ganti model | `false` |
+
+### 401 — Autentikasi gagal
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `auth.api_key_missing` | Tidak ada `Authorization: Bearer` maupun `x-api-key` | Kirim API key — lihat [Autentikasi](/autentikasi) | `false` |
+| `auth.api_key_invalid` | Key tidak dikenali | Pakai key yang benar; buat baru di dashboard | `false` |
+| `auth.api_key_revoked` | Key pernah ada tapi sudah dicabut | Buat key baru | `false` |
+| `auth.unauthorized` | Token sesi dashboard hilang/tidak valid (endpoint dashboard, bukan jalur API key) | Login ulang di dashboard | `false` |
+
+<Callout type="warning">
+Tiga kode `auth.*` di atas **tidak akan pernah** berhasil bila diulang dengan
+kredensial yang sama. Klien yang mengulangnya otomatis hanya membakar kuota RPM
+dan memperlambat pemulihannya sendiri.
+</Callout>
+
+### 402 — Saldo
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `billing.insufficient_balance` | Saldo tidak cukup untuk menutup estimasi input plus jawaban minimal | Top-up saldo, lalu kirim ulang | `false` |
+
+Pemeriksaan ini terjadi **sebelum** permintaan diteruskan ke model, jadi
+permintaan yang ditolak 402 tidak menagih apa pun.
+
+### 403 — Ditolak
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `auth.account_deleted` | Akun pemilik key berstatus terhapus | Hubungi dukungan | `false` |
+| `auth.forbidden` | Akses ditolak pada endpoint dashboard | Hubungi dukungan | `false` |
+
+### 404 / 405 — Rute
+
+| `code` | Status | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- | --- |
+| `route.not_found` | 404 | Path tidak ada. Termasuk `/v1/images/generations` dan `/v1/audio/transcriptions`, yang **tidak dilayani** | Cek daftar endpoint di [API Reference](/api-reference) | `false` |
+| `resource.not_found` | 404 | Id model pada `GET /v1/models/{id}` tidak ada | Cek id model | `false` |
+| `usage.not_found` | 404 | `request_id` tidak dikenal pada `GET /usage/{request_id}` — endpoint **sesi dashboard**, bukan jalur API key | Pastikan id-nya benar dan milik akun yang sama | `false` |
+| `request.method_not_allowed` | 405 | Path benar, method salah (mis. `GET` ke `/v1/messages`) | Pakai `POST` | `false` |
+
+### 413 — Body terlalu besar
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `request.too_large` | Body permintaan melewati batas ukuran | Jalankan `/compact` atau mulai sesi baru; pada integrasi agent ini biasanya berarti riwayat percakapan sudah terlalu panjang | `false` |
+
+### 429 — Rate limit dan kuota
+
+| `code` | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- |
+| `rate_limit.rpm_exceeded` | Batas permintaan per menit untuk key terlampaui | Backoff, lalu ulangi | `true` |
+| `rate_limit.tpm_exceeded` | Batas token per menit untuk key terlampaui | Backoff, atau kecilkan prompt/`max_tokens` | `true` |
+| `gateway.capacity` | Gerbang konkurensi Nexotao sedang penuh. Membawa `Retry-After` singkat | Ulangi setelah `Retry-After` | `true` |
+| `upstream.rate_limited` | Backend model melempar throttle. `Retry-After` diteruskan bila backend mengirimnya | Ulangi setelah `Retry-After`; lihat `hint` bila ada | `true` |
+| `quota.key_limit_exceeded` | **Batas belanja per key** terlampaui — ini pagu anggaran, bukan jendela laju | Naikkan/atur limit key di dashboard, atau tunggu periode berikutnya | `false` |
+
+<Callout type="warning">
+`quota.key_limit_exceeded` berstatus 429 tapi `retryable` **`false`**. Ini
+satu-satunya 429 yang tidak boleh di-retry otomatis: menunggu beberapa detik
+tidak mengembalikan anggaran. Untuk limit harian/bulanan, `Retry-After`
+menunjukkan sisa detik sampai periode berganti; limit total (sepanjang masa)
+tidak pernah reset dan tidak membawa `Retry-After`.
+</Callout>
+
+Pada jalur API key, respons juga membawa header observabilitas laju bila fitur
+terkait aktif untuk key tersebut:
+
+| Header | Arti |
+| --- | --- |
+| `X-RateLimit-Limit` / `-Remaining` / `-Reset` | Kuota permintaan per menit |
+| `X-RateLimit-Limit-Tokens` / `-Remaining-Tokens` / `-Reset-Tokens` | Kuota token per menit |
+| `X-Key-Limit-Micro` / `X-Key-Usage-Micro` / `X-Key-Remaining-Micro` / `X-Key-Limit-Period` | Batas belanja per key, dalam micro-rupiah |
+
+### 5xx — Gangguan sisi server
+
+| `code` | Status | Kapan terjadi | Tindakan | Retry |
+| --- | --- | --- | --- | --- |
+| `internal.error` | 500 | Kegagalan tak terduga | Ulangi dengan backoff | `true` |
+| `internal.panic` | 500 | Kegagalan tak tertangani; sudah tercatat lengkap di sisi server | Ulangi; laporkan dengan `request_id` bila berulang | `true` |
+| `dependency.upstream_unavailable` | 502 | Backend model gagal, kehabisan percobaan, atau koneksi putus. Ini juga kelas penampung untuk kegagalan backend yang tidak dikenali | Ulangi dengan backoff; pertimbangkan model lain | `true` |
+| `dependency.database_unavailable` | 503 | Basis data sementara tidak bisa dihubungi (autentikasi, katalog model, saldo, atau pembacaan usage) | Ulangi dengan backoff | `true` |
+| `dependency.upstream_unconfigured` | 503 | Tidak ada backend terkonfigurasi untuk model tersebut | Pakai model lain; laporkan bila menetap | `true` |
+| `billing.reconcile_failed` | 503 | Pencatatan tagihan gagal setelah panggilan model | Ulangi; saldo tidak terpotong pada kasus ini | `true` |
+
+<Callout type="info">
+Isi respons dari backend model tidak pernah diteruskan apa adanya. Status, body,
+dan identitas backend diklasifikasikan dulu menjadi salah satu kode di atas
+dengan pesan tetap, lalu detail aslinya hanya disimpan di log server. Jadi jangan
+membangun logika di atas asumsi bahwa Anda akan melihat pesan asli dari penyedia
+model.
+</Callout>
+
+## Error in-band pada streaming
+
+Ini bagian paling mudah terlewat di seluruh API.
+
+<Callout type="warning">
+Untuk permintaan streaming, **`status === 200` bukan tanda sukses.** Begitu
+gerbang mulai mengirim heartbeat, status HTTP 200 sudah terkirim dan tidak bisa
+ditarik kembali. Kegagalan setelah titik itu dikirim **di dalam stream** sebagai
+event error. Klien yang hanya memeriksa `response.ok` akan menganggap permintaan
+gagal sebagai jawaban kosong.
+</Callout>
+
+Bentuk event error berbeda menurut endpoint:
+
+<Tabs items={["/v1/chat/completions", "/v1/messages", "/v1/responses"]}>
+  <Tabs.Tab>
+
+Satu chunk `data:` berisi objek `error`, lalu ditutup `data: [DONE]`.
+
+```text
+data: {"error":{"message":"upstream service unavailable after retries; please retry","type":"server_error","code":"upstream_unavailable","request_id":"8997bda3-65c4-45c3-ab38-c909f905fc4d"}}
+
+data: [DONE]
+```
+
+Deteksi: chunk `data:` yang punya kunci `error` di level teratas (bukan
+`choices`).
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Event bernama `error` dengan payload bergaya Anthropic, lalu `data: [DONE]`.
+
+```text
+event: error
+data: {"type":"error","error":{"type":"overloaded_error","message":"upstream service unavailable after retries; please retry","request_id":"8997bda3-65c4-45c3-ab38-c909f905fc4d"}}
+
+data: [DONE]
+```
+
+Tipe `overloaded_error` dipilih agar SDK Anthropic dan Claude Code
+mengklasifikasikannya sebagai kondisi sementara yang layak di-backoff, bukan
+sebagai koneksi putus mentah.
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Event `response.failed`. Perhatikan: bentuk ini **tidak** diikuti `data: [DONE]`.
+
+```text
+event: response.failed
+data: {"type":"response.failed","response":{"id":"resp_8997bda3-65c4-45c3-ab38-c909f905fc4d","object":"response","status":"failed","output":[],"error":{"message":"upstream service unavailable after retries; please retry","type":"server_error","code":"upstream_unavailable"}}}
+```
+
+`id` dibentuk sebagai `resp_` + `request_id`, jadi Anda bisa mengambil
+`request_id` langsung dari situ.
+
+  </Tabs.Tab>
+</Tabs>
+
+Pesannya adalah teks tetap yang dipilih dari klasifikasi kegagalan — mis.
+"upstream capacity exhausted after waiting; please retry" untuk throttle,
+"upstream timed out before starting the stream; please retry" untuk timeout, atau
+pesan spesifik untuk context window yang terlampaui. Kalau ada saran yang relevan
+(mis. arahan pemilihan model), saran itu ditempelkan ke akhir pesan, karena stream
+tidak punya tempat untuk field `hint` terpisah.
+
+<Callout type="warning">
+Jebakan yang sama berlaku pada **`/v1/responses` non-streaming**. Endpoint itu
+mengirim keepalive agar koneksi panjang tidak diputus perantara, sehingga HTTP
+200 bisa sudah terkirim sebelum hasilnya diketahui. Bila kemudian gagal, Anda
+menerima **HTTP 200** dengan body JSON `{"status":"failed","error":{...}}`.
+Selalu periksa `status` pada body `/v1/responses`, bukan hanya kode HTTP.
+</Callout>
+
+### Contoh deteksi
+
+<Tabs items={["Python", "Node.js"]}>
+  <Tabs.Tab>
+
+```python
+import json, httpx
+
+payload = {
+    "model": "claude-sonnet-4-6",
+    "messages": [{"role": "user", "content": "halo"}],
+    "stream": True,
+}
+
+with httpx.stream(
+    "POST", "https://api.nexotao.com/v1/chat/completions",
+    headers={"Authorization": "Bearer sk-nexo-CONTOH-PALSU"},
+    json=payload, timeout=None,
+) as r:
+    request_id = r.headers.get("x-request-id")
+    r.raise_for_status()  # perlu, TAPI tidak cukup
+
+    for line in r.iter_lines():
+        if not line.startswith("data: "):
+            continue
+        data = line[6:]
+        if data == "[DONE]":
+            break
+        chunk = json.loads(data)
+        if "error" in chunk:                     # kegagalan in-band
+            err = chunk["error"]
+            raise RuntimeError(
+                f"{err.get('code')}: {err.get('message')} (request_id={request_id})"
+            )
+        # ... proses chunk normal
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```js
+const res = await fetch("https://api.nexotao.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer sk-nexo-CONTOH-PALSU",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    messages: [{ role: "user", content: "halo" }],
+    stream: true,
+  }),
+})
+
+const requestId = res.headers.get("x-request-id")
+if (!res.ok) throw new Error(`HTTP ${res.status} (request_id=${requestId})`)
+
+const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
+let buffer = ""
+
+for (;;) {
+  const { value, done } = await reader.read()
+  if (done) break
+  buffer += value
+
+  let idx
+  while ((idx = buffer.indexOf("\n\n")) !== -1) {
+    const event = buffer.slice(0, idx)
+    buffer = buffer.slice(idx + 2)
+
+    const dataLine = event.split("\n").find((l) => l.startsWith("data: "))
+    if (!dataLine) continue
+    const data = dataLine.slice(6)
+    if (data === "[DONE]") continue
+
+    const chunk = JSON.parse(data)
+    if (chunk.error) {
+      throw new Error(
+        `${chunk.error.code}: ${chunk.error.message} (request_id=${requestId})`,
+      )
+    }
+    // ... proses chunk normal
+  }
+}
+```
+
+Untuk `/v1/messages`, periksa juga baris `event: error`; untuk `/v1/responses`,
+periksa `event: response.failed`.
+
+  </Tabs.Tab>
+</Tabs>
+
+## Panduan retry
+
+<Steps>
+
+### Cek `retryable` lebih dulu
+
+Ulangi hanya bila body error menyatakan `"retryable": true`. Kode dengan
+`retryable: false` — seluruh keluarga `auth.*`, `billing.insufficient_balance`,
+`model.unknown`, `route.not_found`, `request.*`, `quota.key_limit_exceeded` —
+**tidak akan pernah** berhasil dengan permintaan yang identik.
+
+### Hormati `Retry-After` bila ada
+
+Bila responsnya membawa header `Retry-After`, pakai angkanya sebagai jeda minimum
+alih-alih jadwal backoff Anda sendiri. Nilai dari backend divalidasi dan
+dibatasi maksimum **3600 detik**; nilai yang tidak masuk akal dibuang sehingga
+headernya tidak dikirim sama sekali.
+
+### Backoff eksponensial dengan jitter
+
+Tanpa `Retry-After`, gandakan jeda tiap percobaan dan tambahkan keacakan supaya
+banyak klien tidak menyerbu bersamaan setelah satu insiden.
+
+### Batasi jumlah percobaan
+
+Empat sampai lima percobaan sudah cukup. Setelah itu, kembalikan error ke
+pemanggil beserta `request_id`-nya.
+
+</Steps>
+
+```python
+import json, random, time, httpx
+
+NON_RETRYABLE_HTTP = {400, 401, 402, 403, 404, 405, 413}
+
+def call_with_retry(client, url, headers, payload, max_attempts=5):
+    delay = 1.0
+    for attempt in range(max_attempts):
+        r = client.post(url, headers=headers, json=payload)
+        if r.status_code < 400:
+            return r
+
+        body = {}
+        try:
+            body = r.json()
+        except json.JSONDecodeError:
+            pass
+
+        # Kontraknya adalah `retryable`, bukan status HTTP.
+        if not body.get("retryable", r.status_code not in NON_RETRYABLE_HTTP):
+            raise RuntimeError(
+                f"{body.get('code')}: {body.get('error')} "
+                f"(request_id={r.headers.get('x-request-id')})"
+            )
+
+        wait = delay
+        if ra := r.headers.get("retry-after"):
+            try:
+                wait = max(wait, min(int(ra), 3600))
+            except ValueError:
+                pass
+        time.sleep(wait + random.uniform(0, 0.5 * wait))   # jitter
+        delay *= 2
+
+    raise RuntimeError("kehabisan percobaan")
+```
+
+<Callout type="warning">
+Jangan pernah membungkus `auth.api_key_invalid` (atau `auth.api_key_missing` /
+`auth.api_key_revoked`) dalam loop retry. Key yang salah tetap salah pada
+percobaan ke-100, dan setiap percobaan tetap dihitung terhadap kuota RPM key
+tersebut.
+</Callout>
+
+## Biaya dan penelusuran setelah kejadian
+
+Respons **non-streaming** membawa biaya aktual di header:
+
+| Header | Arti |
+| --- | --- |
+| `X-Cost-Rp` | Biaya permintaan ini dalam Rupiah |
+| `X-Request-Id` | Id permintaan |
+
+Pada respons **SSE (streaming)**, `X-Cost-Rp` sengaja **tidak** dikirim: header
+harus ditulis sebelum byte pertama, sementara biaya baru diketahui setelah stream
+selesai.
+
+Jadi untuk permintaan streaming, cara mengetahui biayanya adalah:
+
+<Steps>
+
+### Simpan `X-Request-Id` dari header respons
+
+Header ini dikirim sebelum byte pertama stream, jadi tetap tersedia bahkan ketika
+stream kemudian gagal. Catat bersama panggilannya.
+
+### Cari permintaan itu di halaman Usage pada dashboard
+
+Temukan id permintaan yang cocok untuk melihat angka final — model, jumlah token,
+dan tagihan persis yang memotong saldo Anda.
+
+</Steps>
+
+<Callout type="warning">
+Ada endpoint `GET /usage/{request_id}`, tetapi ia **bukan bagian dari permukaan
+API key**. Endpoint itu diautentikasi dengan token sesi dashboard, sehingga
+mengirim `Authorization: Bearer sk-nexo-...` ke sana gagal autentikasi dengan 401
+`auth.unauthorized`, bukan mengembalikan data pemakaian. Kalau Anda hanya
+memegang API key, pakai halaman Usage di dashboard.
+</Callout>
+
+Lewat jalur mana pun, catatan finalnya memuat field berikut. Dua di antaranya
+perlu dipahami:
+
+| Field | Arti |
+| --- | --- |
+| `charge_micro` | Total tagihan dalam **micro-rupiah** (Rp 1 = 1.000.000 micro) |
+| `turns` | Jumlah giliran upstream yang ditagih. Normalnya `1`; **lebih dari 1** ketika gerbang menjalankan tool loop sisi server — inilah penjelasan tagihan yang terlihat lebih besar daripada perkiraan dari satu giliran saja |
+
+Field `status` memberi tahu hasil akhirnya, khususnya apakah permintaan yang
+gagal itu ditagih atau tidak:
+
+| `status` | Arti |
+| --- | --- |
+| `ok` | Berhasil dan ditagih |
+| `upstream_error` | Backend model gagal; tidak ada tagihan |
+| `aborted_stream` | Stream terbuka lalu putus sebelum event penutup tanpa keluaran berguna; **tidak ditagih** |
+| `usage_missing` | Backend membalas 2xx tapi jumlah token tidak terbaca; ditandai dan **tidak ditagih** |
+| `billing_error` | Jawaban sudah terkirim tapi pencatatan tagihan gagal; tercatat sebagai 0 |
+| `fallback_429` / `fallback_oversize` | Penanda nol-biaya saat permintaan dialihkan ke model berikutnya dalam rantai |
+
+## Troubleshooting
+
+**401 `auth.api_key_missing`** — header autentikasi tidak terkirim. Pada `curl`,
+periksa tanda kutip dan baris lanjutan (`\`). Pada SDK, pastikan
+`base_url`/`baseURL` menunjuk ke `https://api.nexotao.com/v1` dan key benar-benar
+ter-set (bukan variabel lingkungan kosong).
+
+**401 `auth.api_key_invalid`** — key tidak dikenali. Penyebab paling sering:
+spasi atau baris baru ikut tersalin, key milik lingkungan lain, atau key sudah
+dihapus. Buat key baru di dashboard. Lihat [Autentikasi](/autentikasi).
+
+**402 `billing.insufficient_balance`** — saldo tidak cukup untuk menutup estimasi
+input plus jawaban minimal. Nexotao memeriksa ini sebelum memanggil model, jadi
+permintaan yang ditolak tidak menagih apa pun. Top-up lewat dashboard; lihat
+[Penagihan & Harga](/penagihan).
+
+**429 `rate_limit.rpm_exceeded` / `rate_limit.tpm_exceeded`** — batas per menit
+key terlampaui. Turunkan konkurensi, terapkan backoff, atau kecilkan
+prompt/`max_tokens`. Header `X-RateLimit-*` menunjukkan sisa kuota dan detik
+sampai jendela berganti.
+
+**429 `quota.key_limit_exceeded`** — batas belanja key tercapai. Ini pagu
+anggaran yang Anda sendiri pasang di dashboard, bukan throttle laju. Naikkan atau
+matikan limitnya di sana.
+
+**400 `model.unknown`** — id model salah ketik atau model sudah tidak aktif.
+Ambil daftar yang sah:
+
+```bash
+curl -sS https://api.nexotao.com/v1/models \
+  -H "Authorization: Bearer sk-nexo-CONTOH-PALSU"
+```
+
+**404 `route.not_found`** — path tidak dilayani. Yang paling sering: klien
+OpenAI-generik memanggil `/v1/images/generations` atau
+`/v1/audio/transcriptions`. Kedua endpoint itu **tidak tersedia** di Nexotao —
+lihat daftar endpoint yang dilayani di [API Reference](/api-reference).
+
+**Stream berakhir tanpa teks, tanpa error** — hampir selalu error in-band yang
+tidak diparse klien Anda. Kembali ke bagian
+[Error in-band pada streaming](#error-in-band-pada-streaming) di atas, lalu cari
+id permintaan itu di halaman Usage pada dashboard: status `aborted_stream` atau
+`upstream_error` menegaskan permintaan itu gagal dan tidak ditagih.
+
+Masih buntu? Kumpulkan `request_id`, `code`, dan waktu kejadian, lalu hubungi
+dukungan lewat dashboard. Tanpa `request_id`, satu permintaan hampir tidak
+mungkin ditemukan di log.

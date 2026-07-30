@@ -3,6 +3,7 @@ title: Integrasi — Semua Tool AI
 description: Cara menghubungkan Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, dan OpenCode ke Nexotao. Bayar pakai Rupiah, tanpa kartu kredit luar negeri.
 ---
 
+import { Callout, Steps } from "nextra/components"
 import { ToolGrid, ToolLogo } from "../../components/tool-logo"
 
 # Integrasi
@@ -38,10 +39,13 @@ menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
   <ToolLogo src="/logos/cursor.svg" alt="Cursor" size={26} />
 </div>
 
-> **Aturan cepat base URL:** tool OpenAI-compat butuh akhiran `/v1`
-> (`https://api.nexotao.com/v1`) dan menambahkan `/chat/completions` sendiri. Tool
-> Anthropic-compat pakai host polos (`https://api.nexotao.com`) dan menambahkan
-> `/v1/messages` sendiri. Field API key selalu diisi apa adanya: `sk-nexo-...`.
+<Callout type="warning">
+  **Aturan cepat base URL** — ini penyebab kegagalan integrasi paling sering. Tool
+  OpenAI-compat butuh akhiran `/v1` (`https://api.nexotao.com/v1`) dan menambahkan
+  `/chat/completions` sendiri. Tool Anthropic-compat pakai host polos
+  (`https://api.nexotao.com`) dan menambahkan `/v1/messages` sendiri. Field API key
+  selalu diisi apa adanya: `sk-nexo-...`.
+</Callout>
 
 ## Pilih tool kamu
 
@@ -55,9 +59,21 @@ menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
 
 ## Belum punya API key?
 
-1. Daftar di [nexotao.com](https://nexotao.com) — cukup email.
-2. Top-up saldo QRIS mulai Rp 10.000.
-3. Buat API key `sk-nexo-...` di menu **API Keys**.
+<Steps>
+
+### Daftar
+
+Buat akun di [nexotao.com](https://nexotao.com) — cukup email.
+
+### Top-up saldo
+
+Isi saldo lewat QRIS mulai Rp 10.000.
+
+### Buat API key
+
+Buat key `sk-nexo-...` di menu **API Keys**.
+
+</Steps>
 
 Detail ada di [Quickstart](/quickstart) dan [Autentikasi](/autentikasi).
 

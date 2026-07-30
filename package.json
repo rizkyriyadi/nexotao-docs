@@ -5,10 +5,12 @@
   "description": "Dokumentasi publik Nexotao",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/gen-llms.mjs",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run build"
+    "check:links": "node scripts/check-links.mjs",
+    "check": "npm run typecheck && npm run check:links && npm run build"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

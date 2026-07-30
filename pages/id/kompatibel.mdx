@@ -3,6 +3,7 @@ title: Tool Lain (Universal)
 description: Pola universal untuk menyambungkan tool AI apa pun ke Nexotao — Cursor, SDK OpenAI/Anthropic, LangChain, atau tool baru yang menerima base URL kustom.
 ---
 
+import { Callout, Tabs } from "nextra/components"
 import { ToolLogo } from "../../components/tool-logo"
 
 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
@@ -29,9 +30,11 @@ sama: ganti base URL + key, lalu pilih model.
 | Header | `Authorization: Bearer sk-nexo-...` |
 | Model | `gpt-5.6-terra`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`, `claude-opus-4-8` |
 
-> **Tip:** endpoint OpenAI-compat menerima **semua model, termasuk Claude** — jadi kalau
-> tool-mu berformat OpenAI, cukup pakai pola ini untuk semuanya. Detail:
-> [Endpoint & Format](/endpoint).
+<Callout type="info">
+  Endpoint OpenAI-compat menerima **semua model, termasuk Claude** — jadi kalau
+  tool-mu berformat OpenAI, cukup pakai pola ini untuk semuanya. Detail:
+  [Endpoint & Format](/endpoint).
+</Callout>
 
 **Anthropic-compat** (opsional — hanya untuk body format Anthropic native):
 
@@ -42,7 +45,10 @@ sama: ganti base URL + key, lalu pilih model.
 | Header | `x-api-key: sk-nexo-...` |
 | Model | `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6` |
 
-## Contoh: SDK OpenAI (Python/Node)
+## Contoh
+
+<Tabs items={["SDK OpenAI", "SDK Anthropic", "Variabel lingkungan"]}>
+  <Tabs.Tab>
 
 ```python
 from openai import OpenAI
@@ -55,7 +61,8 @@ resp = client.chat.completions.create(
 print(resp.choices[0].message.content)
 ```
 
-## Contoh: SDK Anthropic
+  </Tabs.Tab>
+  <Tabs.Tab>
 
 ```python
 from anthropic import Anthropic
@@ -69,7 +76,10 @@ msg = client.messages.create(
 print(msg.content[0].text)
 ```
 
-## Contoh: variabel lingkungan (untuk tool yang membacanya)
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Untuk tool yang membaca variabel lingkungan:
 
 ```bash
 # Gaya OpenAI
@@ -81,6 +91,9 @@ export ANTHROPIC_BASE_URL=https://api.nexotao.com
 export ANTHROPIC_AUTH_TOKEN=sk-nexo-...
 ```
 
+  </Tabs.Tab>
+</Tabs>
+
 ## Cursor & tool berbasis cloud
 
 Sebagian tool (mis. Cursor) merutekan request lewat server mereka sendiri, sehingga
@@ -90,7 +103,11 @@ di atas. Jika tidak, tool tersebut belum bisa dipakai dengan Nexotao.
 
 ## Checklist kalau gagal
 
-- Salah `/v1`? OpenAI-compat **butuh** `/v1`; Anthropic-compat **tanpa** `/v1`.
+<Callout type="warning">
+  Penyebab paling sering: salah `/v1`. OpenAI-compat **butuh** `/v1`;
+  Anthropic-compat **tanpa** `/v1`.
+</Callout>
+
 - Model tidak dikenal? Cocokkan persis dengan ID di [Model & Harga](/model-harga).
 - `401`? Key salah/dicabut — buat baru di dashboard. Lihat [Autentikasi](/autentikasi).
 - Butuh daftar error lengkap? Lihat [API Reference](/api-reference).

@@ -13,10 +13,13 @@ kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplis
 `claude-opus-5` masuk katalog lewat endpoint Anthropic yang sama. Cukup ganti nilai
 `model`; API key, base URL, dan saldo Rupiah tetap sama.
 
-- **Harga perkenalan: Rp 7.000 input / Rp 7.000 output** per 1 juta token — di bawah
-  tier Opus yang berlaku (Rp 10.000). Promo berlaku sampai **Selasa, 28 Juli 2026
-  pukul 23.59 WIB**, setelah itu harga Opus 5 menjadi **Rp 12.000 / Rp 12.000** per
-  1 juta token.
+- **Harga perkenalan** di bawah tier Opus yang berlaku, sampai **Selasa, 28 Juli 2026
+  pukul 23.59 WIB**.
+
+  > **Update (2026-07-30):** periode perkenalan sudah berakhir. Kenaikan harga yang
+  > diumumkan di entri ini **tidak jadi diberlakukan** — tarif Opus 5 saat ini tetap
+  > sama dengan tarif perkenalannya. Tarif yang berlaku selalu ada di `GET /models`
+  > dan [Model & Harga](/model-harga).
 - **Context window 1.000.000 token** — jauh di atas 350k milik Opus 4.x. Baca
   `context_window` dari `/v1/models`, jangan menyamakan window antar model. Lihat
   [Context Window & Kompaksi](/context-window).
@@ -53,18 +56,19 @@ volume tinggi & hemat** (klasifikasi, ekstraksi, chat pendek); **Claude
 `429 server at capacity, retry shortly`. Lihat [FAQ](/faq). Tidak ada perubahan
 API atau harga — hanya penyelarasan panduan.
 
-## 2026-06-26 — Pembaruan tarif Opus 4.8 (+30%) kini berlaku, tetap ~61% di bawah harga resmi
+## 2026-06-26 — Pembaruan tarif Opus 4.8 (+30%)
 
-Claude Opus 4.8 (`claude-opus-4-8`) punya harga publikasi baru yang **kini
-berlaku**. Perubahan ini diumumkan sebelumnya dan sekarang sudah aktif.
+Claude Opus 4.8 (`claude-opus-4-8`) mendapat tarif publikasi baru pada tanggal
+ini, naik **+30%** dari tarif sebelumnya.
 
-### Apa yang baru
+> **Update (2026-07-30):** angka pada entri ini adalah catatan sejarah per
+> 2026-06-26 dan **bukan tarif yang berlaku sekarang** — Opus 4.8 sudah beberapa
+> kali dihargai ulang sejak saat itu. Tarif yang berlaku selalu ada di
+> `GET /models` dan [Model & Harga](/model-harga).
 
-- **Tarif Opus 4.8 baru (kini berlaku):** **Rp 35.100 input / Rp 175.500
-  output per 1 juta token** (sebelumnya Rp 27.000 / Rp 135.000) — perubahan
-  **+30%**.
-- Bahkan setelah pembaruan, ini tetap **~61% di bawah** harga resmi Anthropic
-  ($5 input / $25 output per 1 juta @ FX 18.000).
+### Apa yang berubah saat itu
+
+- **Tarif Opus 4.8 naik +30%** dari tarif sebelumnya.
 - **`DeepSeek-V4-Pro` tidak berubah.**
 - **Saldo kamu tetap penuh** — tidak ada kredit yang hilang atau dinilai ulang,
   dan pemakaian lampau **tidak** ditagih ulang; tarif baru berlaku untuk
@@ -72,11 +76,10 @@ berlaku**. Perubahan ini diumumkan sebelumnya dan sekarang sudah aktif.
 
 ### Kenapa ini penting
 
-Kamu ditagih dalam Rupiah pada tarif yang dipublikasikan. Tarif Opus 4.8 baru
-kini **menjadi tarif yang dipublikasikan** dan berlaku untuk pemakaian ke depan
-— pemakaian yang sudah selesai pada tarif lama tidak ditagih ulang. Kalau beban
-kerja hemat-dulu kamu jalan di `DeepSeek-V4-Pro`, tidak ada yang berubah
-untuknya.
+Kamu ditagih dalam Rupiah pada tarif yang dipublikasikan saat request berjalan.
+Perubahan tarif berlaku untuk pemakaian ke depan — pemakaian yang sudah selesai
+pada tarif lama tidak ditagih ulang. Kalau beban kerja hemat-dulu kamu jalan di
+`DeepSeek-V4-Pro`, tidak ada yang berubah untuknya.
 
 ## 2026-06-25 — Context window dipublikasikan: baca angka aslinya, tanpa truncation diam-diam
 
@@ -92,7 +95,11 @@ tidak pernah membuang token diam-diam di belakangmu.
 - **Window yang dipublikasikan saat ini:**
   - `claude-opus-4-8` → **350.000 token** — lebih besar dari **200k** lama yang
     masih diasumsikan banyak klien secara default.
-  - `DeepSeek-V4-Pro` → **128.000 token**.
+  - `DeepSeek-V4-Pro` → **131.072 token**.
+
+> **Catatan (2026-07-30):** `context_window` hanya dipublikasikan untuk model yang
+> batas kerasnya sudah terverifikasi; untuk model lain field-nya `null`. Daftar
+> terkini ada di [Context Window & Kompaksi](/context-window).
 
 ### Kenapa ini penting
 
@@ -114,7 +121,7 @@ curl https://api.nexotao.com/models   # tiap model membawa context_window
 1. **Baca `context_window` dari API** alih-alih menanam 200k (atau mengasumsikan
    1M — window Opus yang dipublikasikan adalah 350k, tidak lebih).
 2. **Biarkan klienmu melakukan kompaksi.** Lihat panduan
-   [Context Window & Kompaksi](/id/context-window) untuk mengkalibrasi Claude Code
+   [Context Window & Kompaksi](/context-window) untuk mengkalibrasi Claude Code
    dan menjaga sesi panjang tetap jalan.
 
 ## 2026-06-24 — Penyederhanaan katalog: dua model, id lama dalam masa tenggang 30 hari
@@ -134,8 +141,12 @@ Anda bayar berubah selama masa tenggang.
   - `claude-opus-4-8` (Claude Opus 4.8)
   - `DeepSeek-V4-Pro` (DeepSeek V4 Pro)
 - **Generate gambar dan transcribe audio tidak lagi tersedia.**
-  `POST /v1/images/generations` dan `POST /v1/audio/transcriptions` mengembalikan
-  `400` — tidak ada model gambar atau transcribe yang aktif di katalog.
+  `POST /v1/images/generations` dan `POST /v1/audio/transcriptions` sudah tidak
+  dilayani — tidak ada model gambar atau transcribe yang aktif di katalog.
+
+  > **Koreksi (2026-07-30):** entri ini semula menulis kedua endpoint membalas
+  > `400`. Yang benar, route-nya memang tidak terdaftar, jadi keduanya membalas
+  > **`404`** dengan `code` `route.not_found`.
 - **Id lama masih berfungsi selama masa tenggang, lalu berhenti.** Permintaan
   dengan id lama dialihkan secara transparan ke model live selama masa tenggang.
   Id lama direncanakan untuk dihapus **sekitar 2026-07-24**, setelah itu
@@ -176,4 +187,4 @@ Model media yang dipensiunkan (tanpa pengganti): `FLUX.2-pro`, `gpt-4o-transcrib
    2026-07-24, setelah itu mengembalikan `400`.
 
 Tarif live selalu tersedia dari `GET /models` dan di halaman
-[Model & Harga](/id/model-harga). Ada pertanyaan? Lihat [FAQ](/id/faq).
+[Model & Harga](/model-harga). Ada pertanyaan? Lihat [FAQ](/faq).

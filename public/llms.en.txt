@@ -1,0 +1,29 @@
+# Nexotao Docs
+
+> Nexotao resells AI model API access (Claude, GPT, Grok, DeepSeek) against a single Rupiah balance, compatible with the Anthropic and OpenAI SDKs. This is the English documentation; the Indonesian version is at https://docs.nexotao.com/llms.txt.
+
+## Pages
+
+- [Introduction](https://docs.nexotao.com/en): Nexotao gives you API access to AI models (GPT-5.6, Claude, DeepSeek) with a single Rupiah balance. Anthropic & OpenAI compatible.
+- [Core Concepts](https://docs.nexotao.com/en/konsep): Plain-language explanations of Nexotao terms for beginners — AI models, tokens, API keys, endpoints, and balance. No jargon, no IT background needed.
+- [Quickstart](https://docs.nexotao.com/en/quickstart): From sign-up, QRIS/crypto top-up, creating an API key, to your first request to Nexotao. Ready-to-paste curl, Python, and Node examples.
+- [Playground](https://docs.nexotao.com/en/playground): Try the Nexotao API right from your browser — paste your API key, pick a model, type a message, see the reply and its cost. No code required.
+- [Endpoints & Formats](https://docs.nexotao.com/en/endpoint): Which Nexotao endpoint to use — /v1/chat/completions (OpenAI format, every model including Claude) or /v1/messages (native Anthropic format). A quick decision guide with examples.
+- [Authentication](https://docs.nexotao.com/en/autentikasi): Nexotao API keys (sk-nexo-...), how to send them via the Authorization or x-api-key header, and key security practices.
+- [Text & Chat](https://docs.nexotao.com/en/teks): Nexotao text endpoints — /v1/messages (Anthropic) and /v1/chat/completions (OpenAI), including SSE streaming. curl, Python, and Node examples.
+- [Context Window & Compaction](https://docs.nexotao.com/en/context-window): How Nexotao's context window works, how to calibrate your client (Claude Code) to it, and what to do when a prompt is too long. Use compaction to keep long sessions going.
+- [Integrations — Every AI Tool](https://docs.nexotao.com/en/integrasi): How to connect Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, and OpenCode to Nexotao. Pay in Rupiah, no foreign credit card.
+- [Claude Code](https://docs.nexotao.com/en/claude-code): Use the Claude Code coding agent through Nexotao and pay in Rupiah. Per-OS steps plus an interactive settings.json config generator.
+- [Run Claude Code in Rupiah (no foreign card)](https://docs.nexotao.com/en/claude-code-rupiah): Step-by-step guide to run the Claude Code coding agent from Indonesia and pay in Rupiah — no foreign credit card. Sign up, top up via QRIS, point Claude Code at an Anthropic-compatible base URL, and verify the cost per request.
+- [Codex CLI](https://docs.nexotao.com/en/codex): Use OpenAI Codex CLI with Nexotao models (GPT-5.6, gpt-5-mini, Grok, DeepSeek) and pay in Rupiah. Step-by-step ~/.codex/config.toml setup.
+- [VS Code (Cline, Roo Code, Continue, Kilo Code)](https://docs.nexotao.com/en/vscode): Connect VS Code AI extensions — Cline, Roo Code, Continue.dev, Kilo Code — to Nexotao via an OpenAI-compatible or Anthropic custom provider. Step by step.
+- [Aider & OpenCode](https://docs.nexotao.com/en/terminal-agents): Use the Aider and OpenCode terminal coding agents with Nexotao. Env-var and config-file setup for both OpenAI-compat and Claude models.
+- [Any Other Tool (Universal)](https://docs.nexotao.com/en/kompatibel): The universal pattern for connecting any AI tool to Nexotao — Cursor, the OpenAI/Anthropic SDKs, LangChain, or any new tool that accepts a custom base URL.
+- [Models & Pricing](https://docs.nexotao.com/en/model-harga): The same models as Anthropic and OpenAI, billed per token over QRIS. The full Model ID list, model-selection guidance, and live per-million-token rates from GET /models.
+- [Billing & Pricing](https://docs.nexotao.com/en/penagihan): Token-based Rupiah balance system. Text is billed per token (input and output). Live pricing table from GET /models.
+- [API Reference](https://docs.nexotao.com/en/api-reference): List of Nexotao endpoints, response headers (X-Cost-Rp, X-Request-Id, X-Error-Code), and the error body shape (error, code, type, request_id, retryable).
+- [Errors & Debugging](https://docs.nexotao.com/en/errors): Complete Nexotao error reference — the error envelope, stable codes, request_id, catalogue by HTTP status, in-band streaming errors, and retry guidance.
+- [FAQ](https://docs.nexotao.com/en/faq): Common questions about Nexotao — security, balance, QRIS payments, Claude Code, and refunds.
+- [Changelog](https://docs.nexotao.com/en/changelog): Notable changes to the Nexotao API and model catalog, with migration notes.
+
+Full text of every page in one file: https://docs.nexotao.com/llms-full.en.txt

@@ -24,14 +24,45 @@ rejected.
 
 Sending an **OpenAI-format body** to the **`/v1/messages`** endpoint.
 
-`/v1/messages` only accepts **native Anthropic** format. If your body has OpenAI
-markers — e.g. `role: "system"` inside `messages`, `max_completion_tokens`,
-`frequency_penalty`, or `top_p` on Claude — the request is rejected with
-`400 invalid request`.
+`/v1/messages` is the native Anthropic path: the body is forwarded upstream without
+translation. Leftover OpenAI markers are handled in two different ways — some are
+**silently stripped**, others **make the request fail**.
+
+### Fields that are silently stripped (not rejected)
+
+These OpenAI-only fields have **no Messages API equivalent**. The gateway removes
+them from the body before forwarding, so the request still succeeds — but **the
+values you send have no effect at all**, and nothing in the response warns you:
+
+`frequency_penalty`, `presence_penalty`, `n`, `seed`, `user`, `logit_bias`,
+`logprobs`, `top_logprobs`, `stream_options`, `parallel_tool_calls`,
+`response_format`, `output_format`
+
+In addition:
+
+- `stop` is **renamed** to `stop_sequences` (its Anthropic equivalent), so your
+  intent survives. If `stop_sequences` is already set, `stop` is simply dropped.
+- `context_management` is stripped — Anthropic's context-editing beta isn't
+  available on our upstream, and forwarding the field would fail the request.
+- `temperature`, `top_p`, and `top_k` are stripped **only for `claude-opus-5`,
+  `claude-opus-4-8`, and `claude-opus-4-7`**, which no longer accept sampling
+  parameters. On `claude-opus-4-6` and `claude-sonnet-4-6` all three are
+  **forwarded and work normally**.
+
+### What actually fails the request
+
+- **`role: "system"` inside `messages`.** The Messages API only knows the `user` and
+  `assistant` roles; system instructions go in a **separate** top-level `system` field.
+- **A missing `max_tokens`.** In Anthropic format this field is **required**.
+- **OpenAI fields outside the strip list above**, such as `max_completion_tokens`.
+  Those are forwarded as-is and rejected upstream as unknown input.
+
+These failures surface as a `400` with the `code` `upstream.invalid_request`.
 
 **Fix:** just send it to `/v1/chat/completions` (base URL ending in `/v1`). That
 endpoint accepts OpenAI format as-is, including for Claude models, and translates it
-for you.
+for you — `role: "system"` is moved into the `system` field, and `max_tokens` gets a
+default when you omit it.
 
 ```diff
 - POST https://api.nexotao.com/v1/messages         (Anthropic format only)

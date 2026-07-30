@@ -3,6 +3,8 @@ title: Autentikasi
 description: API key Nexotao (sk-nexo-...), cara mengirim lewat header Authorization atau x-api-key, dan praktik keamanan key.
 ---
 
+import { Callout, Tabs } from "nextra/components"
+
 # Autentikasi
 
 Semua permintaan ke API Nexotao butuh **API key** berbentuk `sk-nexo-...`. Buat dan
@@ -12,22 +14,36 @@ kelola key di dashboard pada menu **API Keys**.
 
 Dua cara, tergantung format yang kamu pakai:
 
-- **Format OpenAI** (`/v1/chat/completions`): pakai header `Authorization: Bearer`.
+<Tabs items={["Format OpenAI", "Format Anthropic"]}>
+  <Tabs.Tab>
 
-  ```bash
-  -H "Authorization: Bearer sk-nexo-..."
-  ```
+Untuk `/v1/chat/completions`, pakai header `Authorization: Bearer`.
 
-- **Format Anthropic** (`/v1/messages`): pakai header `x-api-key`.
+```bash
+-H "Authorization: Bearer sk-nexo-..."
+```
 
-  ```bash
-  -H "x-api-key: sk-nexo-..."
-  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+Untuk `/v1/messages`, pakai header `x-api-key`.
+
+```bash
+-H "x-api-key: sk-nexo-..."
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Keamanan key
 
-- Perlakukan key seperti kata sandi. Jangan tempel di kode klien (browser, aplikasi
-  mobile) atau repo publik.
+<Callout type="error">
+  Jangan pernah menempel key di kode klien (browser, aplikasi mobile) atau repo
+  publik. Key yang bocor bisa dipakai siapa saja untuk menghabiskan saldomu, dan
+  saldo yang sudah terpakai tidak bisa dikembalikan.
+</Callout>
+
+- Perlakukan key seperti kata sandi.
 - Simpan di environment variable atau secret manager di sisi server.
 - Kalau key bocor, **revoke** di dashboard dan buat yang baru. Key yang dicabut
   langsung berhenti berlaku.

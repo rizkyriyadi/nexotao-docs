@@ -3,7 +3,7 @@ import { useRouter } from "nextra/hooks"
 import { useConfig, type DocsThemeConfig } from "nextra-theme-docs"
 
 const SITE_URL = "https://docs.nexotao.com"
-const OG_IMAGE = "https://www.nexotao.com/opengraph-image"
+const OG_IMAGE = "https://docs.nexotao.com/og.png"
 
 const Logo = () => (
   <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 600 }}>
@@ -27,11 +27,30 @@ const config: DocsThemeConfig = {
     { locale: "en", name: "English" },
   ],
   search: {
-    placeholder: () => (globalThis.location?.pathname?.startsWith("/en") ? "Search documentation…" : "Cari dokumentasi…"),
+    // Nextra renders this inside the Search component, so hooks are legal here.
+    // Reading globalThis.location instead would differ between SSR and client
+    // and break hydration.
+    placeholder: function SearchPlaceholder() {
+      const { locale } = useRouter()
+      return locale === "en" ? "Search documentation…" : "Cari dokumentasi…"
+    },
   },
+  // Both link to GitHub issues / file paths on a private repo — a dead link is
+  // worse than no link, so they stay off until the repo is public.
   feedback: { content: null },
   editLink: { content: null },
-  gitTimestamp: null,
+  gitTimestamp: function GitTimestamp({ timestamp }) {
+    const { locale } = useRouter()
+    const isEn = locale === "en"
+    return (
+      <>
+        {isEn ? "Last updated on" : "Terakhir diperbarui"}{" "}
+        <time dateTime={timestamp.toISOString()}>
+          {timestamp.toLocaleDateString(isEn ? "en" : "id", { day: "numeric", month: "long", year: "numeric" })}
+        </time>
+      </>
+    )
+  },
   sidebar: {
     defaultMenuCollapseLevel: 1,
     toggleButton: true,
@@ -86,17 +105,24 @@ const config: DocsThemeConfig = {
         : "Dokumentasi Nexotao: akses API model AI (Claude, DeepSeek) dengan saldo Rupiah.")
     const raw = asPath.split("#")[0].split("?")[0]
     // With Nextra folder-based i18n the path is prefixed with /id or /en; strip it
-    // to get the bare slug. ID is served at the root, EN under /en.
+    // to get the bare slug, then re-attach the locale below.
     const bare = raw.replace(/^\/(id|en)(?=\/|$)/, "")
     const path = bare === "/" || bare === "" ? "" : bare
-    const idUrl = `${SITE_URL}${path}`
+    // Always locale-prefixed. The bare URL 307-redirects and resolves by cookie
+    // or Accept-Language, so it can serve EN content under an ID canonical.
+    const idUrl = `${SITE_URL}/id${path}`
     const enUrl = `${SITE_URL}/en${path}`
     const url = isEn ? enUrl : idUrl
+    // Retired pages stay reachable so old inbound links land on the migration
+    // notice rather than a 404, but they are out of the sidebar and out of the
+    // sitemap — keeping them out of the index too avoids advertising a product
+    // we no longer sell.
+    const retired = /^\/(gambar|transcribe)$/.test(path)
     return (
       <>
         <title>{pageTitle}</title>
-        <meta httpEquiv="Content-Language" content={isEn ? "en" : "id"} />
         <meta name="description" content={description} />
+        {retired && <meta name="robots" content="noindex, follow" />}
         <link rel="canonical" href={url} />
         <link rel="alternate" hrefLang="id" href={idUrl} />
         <link rel="alternate" hrefLang="en" href={enUrl} />
@@ -108,6 +134,9 @@ const config: DocsThemeConfig = {
         <meta property="og:description" content={description} />
         <meta property="og:url" content={url} />
         <meta property="og:image" content={OG_IMAGE} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Nexotao Docs" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={description} />

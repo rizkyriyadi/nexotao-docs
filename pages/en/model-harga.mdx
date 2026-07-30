@@ -1,6 +1,6 @@
 ---
 title: Models & Pricing
-description: The same models as Anthropic and OpenAI, billed per token over QRIS. Headline per 100M tokens plus live per-million-token rates.
+description: The same models as Anthropic and OpenAI, billed per token over QRIS. The full Model ID list, model-selection guidance, and live per-million-token rates from GET /models.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
@@ -23,35 +23,47 @@ List every Model ID directly from the live catalog:
 curl -s https://api.nexotao.com/models | jq -r '.models[].model'
 ```
 
-Example mappings:
+All 12 live models and their Model IDs:
 
 | Display name | API Model ID |
 | --- | --- |
+| DeepSeek V4 Flash | `DeepSeek-V4-Flash` |
+| DeepSeek V4 Pro | `DeepSeek-V4-Pro` |
+| GPT-5 Mini | `gpt-5-mini` |
 | GPT-5.6 Luna | `gpt-5.6-luna` |
-| GPT-5.6 Terra | `gpt-5.6-terra` |
 | GPT-5.6 Sol | `gpt-5.6-sol` |
+| GPT-5.6 Terra | `gpt-5.6-terra` |
+| Grok 4.3 | `grok-4.3` |
+| Claude Opus 4.6 | `claude-opus-4-6` |
+| Claude Opus 4.7 | `claude-opus-4-7` |
+| Claude Opus 4.8 | `claude-opus-4-8` |
+| Claude Opus 5 | `claude-opus-5` |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
 
-## Headline per 100M tokens
+The live catalog is what counts — if this table and `GET /models` disagree,
+trust `GET /models`.
 
-Round marketing figures for order-of-magnitude planning. Computed from a
-blended 30% input / 70% output mix — close to what a real product workload
-looks like. The actual bill is still counted per token; see the live table
-below.
+## Choosing a model
 
-| Model              | Headline per 100M tokens | Positioning                                                  |
-| ------------------ | ------------------------ | ------------------------------------------------------------ |
-| GPT-5.6 Sol        | **Rp 700 thousand**      | Top GPT-5.6 tier; the same rate for input and output. |
-| GPT-5.6 Terra      | **Rp 765 thousand**      | Balanced for coding, analysis, and agent workflows. |
-| GPT-5.6 Luna       | **Rp 399 thousand**      | Efficient for everyday work and high-volume tasks. |
-| Claude Opus 5      | **Rp 700k**              | The newest Opus, 1M-token context. **Introductory price until 28 July 2026, 23:59 WIB** — Rp 1.2M after that. |
-| Claude Opus 4.8    | **Rp 1 million**         | Anthropic's strongest reasoning model. **Far cheaper** than Anthropic list. |
-| Claude Sonnet 4.6  | **Rp 700 thousand**      | Fast + smart for high-volume product chat. |
-| gpt-5-mini         | **Rp 399 thousand**      | OpenAI's cheapest tier — great for classifiers, extract, batch. |
-| Claude Haiku 4.5   | *coming*                 | Anthropic's fastest and cheapest. Pending catalog activation. |
+What each model is for. For its rates, see the live table below.
 
-"vs Anthropic list" is deliberately shown as a multiplier, not an absolute
-figure, so the copy stays accurate when Anthropic changes their own list
-price.
+| Model | Best for |
+| --- | --- |
+| `DeepSeek-V4-Flash` | High-volume, cheap work: classification, extraction, short chat. |
+| `DeepSeek-V4-Pro` | Higher-quality DeepSeek; 131,072-token context. |
+| `gpt-5-mini` | OpenAI's cheapest tier — classifiers, extraction, batch. Supports vision. |
+| `gpt-5.6-luna` | Efficient for everyday work and high-volume tasks. |
+| `gpt-5.6-terra` | Balanced for coding, analysis, and agent workflows. |
+| `gpt-5.6-sol` | Top GPT-5.6 tier; the same rate for input and output. |
+| `grok-4.3` | An alternative outside the GPT and Claude families. |
+| `claude-opus-4-6` | The Opus that **still accepts** `temperature` / `top_p` / `top_k`. |
+| `claude-opus-4-7` | Previous-generation Opus; sampling parameters no longer accepted. |
+| `claude-opus-4-8` | The strongest reasoning model for coding and agentic work. |
+| `claude-opus-5` | The newest Opus; 1,000,000-token context. |
+| `claude-sonnet-4-6` | Fast + smart for high-volume product chat; sampling still works. |
+
+The Claude models and `gpt-5-mini` support **vision** (image input); the rest are
+text-only. Check `supports_vision` in `GET /models` to confirm.
 
 > **Match the model to the job.** `DeepSeek` is great for **high-volume, cheap**
 > workloads — classification, extraction, short chat — but **not for
@@ -62,10 +74,10 @@ price.
 
 ## Live per-million-token rates
 
-Beyond the headline above, every model has per-million-token rates for
-**input**, **output**, and (for Claude/GPT) **cache-read + cache-write**. The
-values here come straight from `GET /models` — always in sync with the live
-catalog, with no hardcoded prices on the page.
+Every model has per-million-token rates for **input**, **output**, and (for
+Claude/GPT) **cache-read + cache-write**. The values here come straight from
+`GET /models` — always in sync with the live catalog, with no hardcoded prices on
+the page.
 
 <LivePricing />
 
@@ -73,16 +85,14 @@ catalog, with no hardcoded prices on the page.
 
 - **Text** — rate per 1 million tokens, separately for input and output.
 - **Cache (Claude/GPT)** — cache reads are much cheaper than the standard input
-  rate; cache writes are slightly more. Full breakdown in [Billing & Pricing](/penagihan).
-- **Headline per 100M tokens** — a planning figure, not the billed amount.
-  The bill is always `token_count × model_rate_at_the_time`.
+  rate; cache writes are slightly more. Full breakdown in [Billing & Pricing](/en/penagihan).
+- **What you're billed** — always `token_count × model_rate_at_the_time`, rounded
+  up. There is no per-request fee and no minimum charge.
 
-## Why "per 100M tokens"?
-
-Modern text models measure real project usage in millions of tokens. A
-`per 100M tokens` figure is the right order of magnitude for comparing
-costs across models quickly, without getting distracted by decimal points
-on the per-million-token rate.
+Need a cost estimate before you call the API? Take the rate from `GET /models` and
+multiply it by your expected token count — or see
+[nexotao.com/harga](https://nexotao.com/harga) for a calculator and price
+comparisons.
 
 Billing details, cache mechanics, and per-request accounting live in
-[Billing & Pricing](/penagihan).
+[Billing & Pricing](/en/penagihan).

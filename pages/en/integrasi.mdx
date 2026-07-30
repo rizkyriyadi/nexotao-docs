@@ -3,6 +3,7 @@ title: Integrations — Every AI Tool
 description: How to connect Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, and OpenCode to Nexotao. Pay in Rupiah, no foreign credit card.
 ---
 
+import { Callout, Steps } from "nextra/components"
 import { ToolGrid, ToolLogo } from "../../components/tool-logo"
 
 # Integrations
@@ -37,11 +38,14 @@ up any tool, even ones not listed below.
   <ToolLogo src="/logos/cursor.svg" alt="Cursor" size={26} />
 </div>
 
-> **Base-URL rule of thumb:** OpenAI-compat tools want the `/v1` suffix
-> (`https://api.nexotao.com/v1`) and append `/chat/completions` themselves.
-> Anthropic-compat tools want the bare host (`https://api.nexotao.com`) and append
-> `/v1/messages` themselves. The API key field always takes the raw `sk-nexo-...`
-> string.
+<Callout type="warning">
+  **Base-URL rule of thumb** — this is the single most common cause of a failed
+  integration. OpenAI-compat tools want the `/v1` suffix
+  (`https://api.nexotao.com/v1`) and append `/chat/completions` themselves.
+  Anthropic-compat tools want the bare host (`https://api.nexotao.com`) and append
+  `/v1/messages` themselves. The API key field always takes the raw `sk-nexo-...`
+  string.
+</Callout>
 
 ## Pick your tool
 
@@ -55,15 +59,27 @@ up any tool, even ones not listed below.
 
 ## No API key yet?
 
-1. Sign up at [nexotao.com](https://nexotao.com) — email only.
-2. Top up your QRIS balance from Rp 10,000.
-3. Create an `sk-nexo-...` API key under **API Keys**.
+<Steps>
 
-Full details in [Quickstart](/quickstart) and [Authentication](/autentikasi).
+### Sign up
+
+Create an account at [nexotao.com](https://nexotao.com) — email only.
+
+### Top up your balance
+
+Top up via QRIS from Rp 10,000.
+
+### Create an API key
+
+Create an `sk-nexo-...` key under **API Keys**.
+
+</Steps>
+
+Full details in [Quickstart](/en/quickstart) and [Authentication](/en/autentikasi).
 
 ## Available models
 
-See the live list & rates on [Models & Pricing](/model-harga). In short:
+See the live list & rates on [Models & Pricing](/en/model-harga). In short:
 
 - **Anthropic-compat:** `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`
 - **OpenAI-compat:** `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`

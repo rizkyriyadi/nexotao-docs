@@ -1,6 +1,6 @@
 ---
 title: API Reference
-description: Daftar endpoint Nexotao, header respons (X-Cost-Rp, X-Request-Id), dan kode error (400, 401, 402, 429).
+description: Daftar endpoint Nexotao, header respons (X-Cost-Rp, X-Request-Id, X-Error-Code), dan bentuk body error (error, code, type, request_id, retryable).
 ---
 
 # API Reference
@@ -21,12 +21,15 @@ Base URL: `https://api.nexotao.com`. Autentikasi lewat API key — lihat
 
 ## Header respons
 
-Setiap permintaan berbayar mengembalikan:
-
 | Header | Arti |
 | --- | --- |
-| `X-Cost-Rp` | Biaya aktual permintaan dalam Rupiah |
-| `X-Request-Id` | Id permintaan untuk pelacakan |
+| `X-Request-Id` | Id permintaan untuk pelacakan. Ada di semua respons, termasuk streaming |
+| `X-Cost-Rp` | Biaya aktual permintaan dalam Rupiah. **Hanya pada respons non-streaming** |
+| `X-Error-Code` | Nilai `code` dari body error. Hanya pada respons error |
+
+Pada respons streaming (SSE), `X-Cost-Rp` **tidak dikirim** — biayanya belum
+diketahui saat header di-flush. Ambil angka final dari `GET /usage/{request_id}`;
+lihat [Penagihan & Harga](/penagihan).
 
 ## Kode error
 
@@ -35,13 +38,35 @@ Setiap permintaan berbayar mengembalikan:
 | `400` | Permintaan tidak valid | Periksa body/parameter |
 | `401` | API key salah atau dicabut | Buat / pakai key yang aktif |
 | `402` | Saldo kurang | Top-up saldo Rupiah |
+| `413` | Body permintaan terlalu besar | Kompaksi riwayat atau mulai sesi baru |
 | `429` | Terlalu banyak permintaan | Coba lagi dengan backoff |
+| `502` | Upstream tidak tersedia | Coba lagi dengan backoff |
 
-Body error berformat JSON, mis.:
+### Bentuk body error
+
+Semua error mengembalikan JSON dengan bentuk yang sama:
 
 ```json
-{ "error": "insufficient balance" }
+{
+  "error": "invalid api key",
+  "code": "auth.api_key_invalid",
+  "type": "api_key_invalid",
+  "request_id": "8997bda3-65c4-45c3-ab38-c909f905fc4d",
+  "retryable": false
+}
 ```
+
+| Field | Tipe | Arti |
+| --- | --- | --- |
+| `error` | string | Pesan yang bisa dibaca manusia. Teksnya bisa berubah — jangan dipakai untuk logika |
+| `code` | string | Identifier stabil bertitik, mis. `auth.api_key_invalid`. **Ini yang dipakai program** |
+| `type` | string | Segmen setelah titik terakhir pada `code` (mis. `api_key_invalid`). Kompatibilitas klien lama |
+| `request_id` | string | Id permintaan, sama dengan header `X-Request-Id`. Sertakan saat melapor |
+| `retryable` | bool | `true` bila mengulang permintaan yang sama masuk akal (mis. rate limit, error upstream) |
+| `hint` | string | Opsional. Muncul hanya pada sebagian error, berisi saran tindakan |
+
+Cabangkan program pada `code` (atau header `X-Error-Code`), bukan pada `error`.
+Daftar lengkap kode ada di [Kode Error](/errors).
 
 ## GET /models
 

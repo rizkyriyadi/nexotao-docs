@@ -37,6 +37,7 @@ export default {
   "model-harga": "Model & Harga",
   penagihan: "Penagihan & Harga",
   "api-reference": "API Reference",
+  errors: "Error & Debugging",
   "-- bantuan": {
     type: "separator",
     title: "Akun & Bantuan",

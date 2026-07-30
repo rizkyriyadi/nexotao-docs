@@ -3,6 +3,7 @@ title: VS Code (Cline, Roo Code, Continue, Kilo Code)
 description: Connect VS Code AI extensions — Cline, Roo Code, Continue.dev, Kilo Code — to Nexotao via an OpenAI-compatible or Anthropic custom provider. Step by step.
 ---
 
+import { Callout } from "nextra/components"
 import { ToolLogo } from "../../components/tool-logo"
 
 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
@@ -43,8 +44,10 @@ Remember the two modes:
    - **API Key** → `sk-nexo-...`
    - **Model** → e.g. `claude-opus-4-8`
 
-> Do not set the OpenAI Compatible Base URL to `https://api.openai.com/v1` — that's the
-> separate "OpenAI" provider.
+<Callout type="warning">
+  Do not set the OpenAI Compatible Base URL to `https://api.openai.com/v1` — that's
+  the separate "OpenAI" provider, and your requests will never reach Nexotao.
+</Callout>
 
 ---
 
@@ -59,8 +62,11 @@ Roo Code is a Cline fork; the steps are similar.
 4. **Anthropic**: enable **Use custom base URL** → `https://api.nexotao.com`, API Key
    `sk-nexo-...`, Model `claude-opus-4-8`.
 
-> Roo Code uses **native tool calling** on the OpenAI Compatible path. The chosen model
-> must support function/tool calling — `gpt-5-mini` and the other Nexotao models do.
+<Callout type="info">
+  Roo Code uses **native tool calling** on the OpenAI Compatible path. The chosen
+  model must support function/tool calling — `gpt-5-mini` and the other Nexotao
+  models do.
+</Callout>
 
 ---
 
@@ -105,15 +111,17 @@ models:
    - **API key** → `sk-nexo-...`
    - **Models** → Kilo can auto-fetch from `/v1/models`, or enter IDs manually.
 
-> To use Claude **and** gpt/deepseek at once, create two custom providers — one
-> `OpenAI Compatible`, one `Anthropic Messages`.
+<Callout type="info">
+  To use Claude **and** gpt/deepseek at once, create two custom providers — one
+  `OpenAI Compatible`, one `Anthropic Messages`.
+</Callout>
 
 ---
 
 ## GitHub Copilot / others
 
 Tools without a custom-provider field (e.g. stock GitHub Copilot) can't be pointed at
-Nexotao yet. For those, see [Any other tool (universal)](/kompatibel) — the general
+Nexotao yet. For those, see [Any other tool (universal)](/en/kompatibel) — the general
 pattern for anything that accepts a base URL.
 
-All tool usage is billed from your Rupiah balance per token. See [Billing & Pricing](/penagihan).
+All tool usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).

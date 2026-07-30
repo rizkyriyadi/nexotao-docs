@@ -3,33 +3,47 @@ title: Quickstart
 description: From sign-up, QRIS/crypto top-up, creating an API key, to your first request to Nexotao. Ready-to-paste curl, Python, and Node examples.
 ---
 
+import { Callout, Steps, Tabs } from "nextra/components"
+
 # Quickstart
 
 From zero to running in a few minutes.
 
-## 1. Sign up
+<Steps>
+
+### Sign up
 
 Create a free account at [nexotao.com](https://nexotao.com). Just an email and a
 password.
 
-## 2. Top up your balance
+### Top up your balance
 
 Top up your Rupiah balance from Rp 10,000 via **QRIS** or **crypto (USDT / USDC)**.
 The balance never expires and is billed per token as you use it — no subscription.
 Top up Rp 150,000+ for a **+6%** balance bonus, Rp 500,000+ for **+15%**.
 
-## 3. Create an API key
+### Create an API key
 
 In the dashboard, open **API Keys** and create a new key. It looks like
-`sk-nexo-...`. Keep it safe; the key is only shown in full once.
+`sk-nexo-...`.
 
-## 4. First request
+<Callout type="warning">
+  The key is shown in full **only once**. Save it right then — if you lose it, you
+  have to revoke it and create a new one.
+</Callout>
 
-> **Prefer no code first?** Open the [Playground](/en/playground) — paste your key,
-> pick a model, send. New to the terms? Read [Core Concepts](/en/konsep).
+### First request
+
+<Callout type="info">
+  **Prefer no code first?** Open the [Playground](/en/playground) — paste your key,
+  pick a model, send. New to the terms? Read [Core Concepts](/en/konsep).
+</Callout>
 
 Easiest path: the **OpenAI** endpoint (`/v1/chat/completions`) — it works for **every
 model, including Claude**. Not sure which to pick? See [Endpoints & Formats](/en/endpoint).
+
+<Tabs items={["Python (OpenAI)", "curl (Anthropic)", "Node.js (OpenAI)"]}>
+  <Tabs.Tab>
 
 OpenAI format (`/v1/chat/completions`) — every model:
 
@@ -45,6 +59,9 @@ resp = client.chat.completions.create(
 print(resp.choices[0].message.content)
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
 Native Anthropic format (`/v1/messages`) — Claude only:
 
 ```bash
@@ -58,6 +75,9 @@ curl https://api.nexotao.com/v1/messages \
     "messages": [{"role": "user", "content": "Hello"}]
   }'
 ```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
 
 Node.js (OpenAI format):
 
@@ -73,10 +93,13 @@ const resp = await client.chat.completions.create({
 console.log(resp.choices[0].message.content)
 ```
 
-Every response includes an `X-Cost-Rp` header (the actual cost in Rupiah) and
-`X-Request-Id`. See [Billing & Pricing](/penagihan) for details.
+  </Tabs.Tab>
+</Tabs>
 
-## 5. Switch models by changing one string
+Every response includes an `X-Cost-Rp` header (the actual cost in Rupiah) and
+`X-Request-Id`. See [Billing & Pricing](/en/penagihan) for details.
+
+### Switch models by changing one string
 
 Same call, cheaper or stronger — just change the `model`:
 
@@ -85,15 +108,22 @@ Same call, cheaper or stronger — just change the `model`:
   context (~20k TPM capacity — heavy requests can hit `429 server at capacity`).
 - `claude-opus-4-8` — frontier reasoning for **coding/agentic & large context**.
 - `claude-opus-5` — the newest Opus, a **1M-token context**, with the same rate for
-  input and output (see [Models & Pricing](/model-harga)). Capacity is still limited,
+  input and output (see [Models & Pricing](/en/model-harga)). Capacity is still limited,
   so heavy agentic workloads are safer on Opus 4.8.
 - `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol` — the GPT-5.6 family from
   efficient to balanced to the top tier, with Sol at Rp 7,000 input/output.
 
-Model ids are case-sensitive — use them exactly as listed. Browse every model and
-today's price at [nexotao.com/harga](https://www.nexotao.com/harga).
+<Callout type="warning">
+  Model ids are **case-sensitive** — use them exactly as listed. `deepseek-v4-pro` is
+  not the same model as `DeepSeek-V4-Pro`, and the request will be rejected.
+</Callout>
+
+Browse every model and today's price at
+[nexotao.com/harga](https://www.nexotao.com/harga).
+
+</Steps>
 
 ## Next
 
-- [Text & Chat](/teks)
-- [Claude Code](/claude-code) — ready-to-use config generator.
+- [Text & Chat](/en/teks)
+- [Claude Code](/en/claude-code) — ready-to-use config generator.

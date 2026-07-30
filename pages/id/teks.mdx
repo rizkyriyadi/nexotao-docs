@@ -3,6 +3,8 @@ title: Teks & Chat
 description: Endpoint teks Nexotao — /v1/messages (Anthropic) dan /v1/chat/completions (OpenAI), termasuk streaming SSE. Contoh curl, Python, dan Node.
 ---
 
+import { Tabs } from "nextra/components"
+
 # Teks & Chat
 
 Dua format didukung untuk percakapan teks. Pilih yang cocok dengan tool-mu.
@@ -23,6 +25,9 @@ curl https://api.nexotao.com/v1/messages \
 
 ## OpenAI — `POST /v1/chat/completions`
 
+<Tabs items={["Python", "Node.js"]}>
+  <Tabs.Tab>
+
 ```python
 from openai import OpenAI
 
@@ -35,6 +40,9 @@ resp = client.chat.completions.create(
 print(resp.choices[0].message.content)
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
 ```javascript
 import OpenAI from "openai"
 
@@ -46,6 +54,9 @@ const resp = await client.chat.completions.create({
 })
 console.log(resp.choices[0].message.content)
 ```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Streaming (SSE)
 

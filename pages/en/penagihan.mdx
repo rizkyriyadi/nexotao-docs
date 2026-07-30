@@ -20,15 +20,53 @@ Everything is rounded up so small usage never becomes zero.
 
 ## Cost headers
 
-Every response includes:
+Every response includes `X-Request-Id` — the request id for tracking.
 
-- `X-Cost-Rp` — the actual cost of the request in Rupiah.
-- `X-Request-Id` — the request id for tracking.
+The cost header **differs between non-streaming and streaming**:
 
-## Promo
+| | Non-streaming | Streaming (SSE) |
+| --- | --- | --- |
+| `X-Request-Id` | present | present |
+| `X-Cost-Rp` | present — the actual cost in Rupiah | **absent** |
 
-Nexotao's current rates are **well below official pricing**. Treat this as a promo
-price — top up while it lasts.
+On a streaming response the headers are sent before the first token flows, so the
+final cost cannot be known yet. `X-Cost-Rp` is therefore deliberately omitted
+rather than sent as zero.
+
+### Getting the cost after a stream
+
+Keep the `X-Request-Id` from the headers, then read the final figure from
+`GET /usage/{request_id}` once the stream has finished.
+
+> **This endpoint uses a dashboard session, not an API key.** It authenticates with
+> your dashboard login token, so an `sk-nexo-...` key returns
+> `401 auth.unauthorized`. If you are calling from code that only holds an API key,
+> read the breakdown on the **Usage** page in the dashboard instead.
+
+The response carries the final, reconciled numbers:
+
+```json
+{
+  "model": "claude-opus-4-8",
+  "input_tokens": 1240,
+  "output_tokens": 380,
+  "cache_read_tokens": 0,
+  "cache_write_tokens": 0,
+  "charge_micro": 16200000,
+  "status": "ok",
+  "turns": 1
+}
+```
+
+- `charge_micro` — the cost in **micro-rupiah** (Rp 1 = 1,000,000 micro).
+- `turns` — the number of charged upstream turns. Normally `1`; it can be higher
+  when the gateway ran a server-side tool loop, which is what explains a charge
+  larger than a single turn's tokens would suggest.
+
+The usage record is written after the stream completes and is reconciled. Calling
+too early returns `404` with the code `usage.not_found` — wait a moment and retry.
+A `503` with `dependency.database_unavailable` is a transient failure; retry with
+backoff.
 
 ## Live pricing
 
@@ -37,5 +75,5 @@ only):
 
 <LivePricing />
 
-See also [Models & Pricing](/model-harga) for the full list, or
+See also [Models & Pricing](/en/model-harga) for the full list, or
 [nexotao.com/harga](https://nexotao.com/harga).

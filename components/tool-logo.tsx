@@ -1,4 +1,5 @@
 import React from "react"
+import { useRouter } from "nextra/hooks"
 
 /**
  * ToolLogo — brand mark on a white rounded "chip" so monochrome logos stay
@@ -54,8 +55,18 @@ const MODE_COLOR: Record<ToolItem["mode"], string> = {
   both: "#38BDF8",
 }
 
+const LOCALES = ["id", "en"] as const
+const DEFAULT_LOCALE = "id"
+
 /** ToolGrid — responsive card grid used on the Integrations hub page. */
 export function ToolGrid({ items }: { items: ToolItem[] }) {
+  // `href` values are authored bare ("/codex"). Without a locale prefix the
+  // bare URL 307-redirects and resolves by cookie or Accept-Language, so the
+  // EN hub could send readers to the Indonesian tool page. Prefix them here so
+  // the grid always stays inside the locale the reader is already in.
+  const { locale } = useRouter()
+  const prefix = LOCALES.includes(locale as (typeof LOCALES)[number]) ? locale : DEFAULT_LOCALE
+
   return (
     <div
       style={{
@@ -68,7 +79,7 @@ export function ToolGrid({ items }: { items: ToolItem[] }) {
       {items.map((it) => (
         <a
           key={it.href + it.name}
-          href={it.href}
+          href={it.href.startsWith("/") ? `/${prefix}${it.href}` : it.href}
           style={{
             display: "flex",
             flexDirection: "column",

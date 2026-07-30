@@ -3,6 +3,8 @@ title: Authentication
 description: Nexotao API keys (sk-nexo-...), how to send them via the Authorization or x-api-key header, and key security practices.
 ---
 
+import { Callout, Tabs } from "nextra/components"
+
 # Authentication
 
 Every request to the Nexotao API requires an **API key** in the form `sk-nexo-...`.
@@ -12,22 +14,35 @@ Create and manage keys in the dashboard under the **API Keys** menu.
 
 Two ways, depending on the format you use:
 
-- **OpenAI format** (`/v1/chat/completions`): use the `Authorization: Bearer` header.
+<Tabs items={["OpenAI format", "Anthropic format"]}>
+  <Tabs.Tab>
 
-  ```bash
-  -H "Authorization: Bearer sk-nexo-..."
-  ```
+For `/v1/chat/completions`, use the `Authorization: Bearer` header.
 
-- **Anthropic format** (`/v1/messages`): use the `x-api-key` header.
+```bash
+-H "Authorization: Bearer sk-nexo-..."
+```
 
-  ```bash
-  -H "x-api-key: sk-nexo-..."
-  ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+For `/v1/messages`, use the `x-api-key` header.
+
+```bash
+-H "x-api-key: sk-nexo-..."
+```
+
+  </Tabs.Tab>
+</Tabs>
 
 ## Key security
 
-- Treat your key like a password. Do not embed it in client code (browser, mobile
-  apps) or public repos.
+<Callout type="error">
+  Never embed a key in client code (browser, mobile apps) or a public repo. A leaked
+  key lets anyone drain your balance, and spent balance cannot be recovered.
+</Callout>
+
+- Treat your key like a password.
 - Store it in an environment variable or a secret manager on the server side.
 - If a key leaks, **revoke** it in the dashboard and create a new one. A revoked
   key stops working immediately.
@@ -35,4 +50,4 @@ Two ways, depending on the format you use:
   revoke them individually.
 
 An invalid or revoked key returns `401 Unauthorized`. See
-[API Reference](/api-reference) for the list of error codes.
+[API Reference](/en/api-reference) for the list of error codes.

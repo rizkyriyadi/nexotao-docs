@@ -3,11 +3,17 @@ title: Transcribe (retired)
 description: Audio transcription has been retired from the Nexotao catalog. Nexotao is now text-only (Claude, GPT, DeepSeek, Grok).
 ---
 
+import { Callout } from "nextra/components"
+
 # Transcribe — retired
 
-Audio transcription has been **retired** from Nexotao. The catalog is now text-only —
-[Claude, GPT, DeepSeek, and Grok](/model-harga) — and the
-`/v1/audio/transcriptions` endpoint is no longer served.
+<Callout type="error">
+  The `/v1/audio/transcriptions` endpoint is **no longer served**. Any code still
+  calling it will fail — remove it or move to another provider.
+</Callout>
 
-See the [Changelog](/changelog) for the full catalog change, or go to
-[Text & Chat](/teks) to make a request against the current catalog.
+Audio transcription has been **retired** from Nexotao. The catalog is now text-only —
+[Claude, GPT, DeepSeek, and Grok](/en/model-harga).
+
+See the [Changelog](/en/changelog) for the full catalog change, or go to
+[Text & Chat](/en/teks) to make a request against the current catalog.

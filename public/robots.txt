@@ -3,3 +3,7 @@ Allow: /
 
 Sitemap: https://docs.nexotao.com/sitemap.xml
 Host: https://docs.nexotao.com
+
+# Plain-text documentation for AI agents (llmstxt.org).
+# Index: /llms.txt (id) and /llms.en.txt (en)
+# Full text: /llms-full.txt (id) and /llms-full.en.txt (en)

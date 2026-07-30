@@ -31,17 +31,38 @@ curl https://api.nexotao.com/v1/models \
   -H "Authorization: Bearer sk-nexo-..."
 ```
 
-Each model object carries a `context_window` field (token count). Treat that number
-as the source of truth — it is always in sync with what the gateway actually serves.
+Each model object carries a `context_window` field (token count).
 
-> **Honest note.** Our published window is **larger than the legacy 200k** that many
-> clients still assume by default — currently **350k tokens for `claude-opus-4-8`**
-> and **1M tokens for `claude-opus-5`**. The figure is **per model**: don't hard-guess
-> 200k, and don't carry one model's window over to another. Read the exact,
-> authoritative figure from `context_window` in `/v1/models`. Because the real window
-> is bigger than the old 200k default, a client that hasn't been calibrated will
-> compact *earlier* than it needs to — you simply lose some usable context, nothing
-> breaks.
+> **This field can be `null`.** When present, the number is authoritative — in sync
+> with what the gateway actually serves. But `context_window` is only published for
+> models whose hard limit we have verified. Right now **6 of the 12 live models**
+> carry a number; the rest are `null` because the provider has not published a firm
+> limit. Don't read `null` as "unlimited", and don't substitute a 200k guess — treat
+> it as *unknown*, then rely on client-side compaction plus the explicit `400` you get
+> when a prompt is genuinely too long.
+
+The currently published values:
+
+| Model | `context_window` |
+| --- | --- |
+| `claude-opus-5` | 1,000,000 |
+| `claude-opus-4-8` | 350,000 |
+| `claude-opus-4-7` | 350,000 |
+| `claude-opus-4-6` | 350,000 |
+| `claude-sonnet-4-6` | 350,000 |
+| `DeepSeek-V4-Pro` | 131,072 |
+
+The remaining models (`DeepSeek-V4-Flash`, `gpt-5-mini`, `gpt-5.6-luna`,
+`gpt-5.6-sol`, `gpt-5.6-terra`, `grok-4.3`) return `null`. This table can change —
+read it from the API rather than copying it.
+
+> **Honest note.** For the Claude models, our published window is **larger than the
+> legacy 200k** that many clients still assume by default — 350k tokens across the
+> Opus 4.x line and Sonnet 4.6, and 1M tokens for `claude-opus-5`. The figure is **per
+> model**: don't hard-guess 200k, and don't carry one model's window over to another.
+> Because the real window is bigger than the old 200k default, a client that hasn't
+> been calibrated will compact *earlier* than it needs to — you simply lose some usable
+> context, nothing breaks.
 
 ## Client-side compaction
 
@@ -70,26 +91,34 @@ model ids:
 | `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` |
 | `ANTHROPIC_AUTH_TOKEN` | your `sk-nexo-...` API key |
 | `ANTHROPIC_MODEL` | `claude-opus-4-8` (main model) |
-| `ANTHROPIC_SMALL_FAST_MODEL` | `claude-opus-4-8` (background tasks) |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-8` |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-4-6` |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-sonnet-4-6` (background slot) |
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
 
-The haiku tier isn't available yet; for a simple single-model setup we map the
-small/fast model to `claude-opus-4-8` too. (If you prefer a cheaper background
-model, `claude-sonnet-4-6` is also available.) See [Claude Code](/claude-code) for
-the full config and the interactive generator.
+**The sonnet tier is available** — `claude-sonnet-4-6` is a live model with its own
+rate, so use it directly in the sonnet slot. What is **not** available is the haiku
+tier, so the background slot also points at `claude-sonnet-4-6` (the cheapest Claude
+model we carry). If your client still sends `claude-haiku-4-5`, the gateway routes it
+to `claude-opus-4-8` and bills it at the Opus rate.
+
+Older versions of this guide mentioned `ANTHROPIC_SMALL_FAST_MODEL`. Our generator
+now emits `ANTHROPIC_DEFAULT_SONNET_MODEL` and `ANTHROPIC_DEFAULT_HAIKU_MODEL` — use
+those two. See [Claude Code](/en/claude-code) for the full config and the interactive
+generator.
 
 ## Per-client setup
 
 ### Claude Code (and the Claude Code family)
 
-1. Set the variables above (or use the generator on the [Claude Code](/claude-code)
+1. Set the variables above (or use the generator on the [Claude Code](/en/claude-code)
    page to produce `~/.claude/settings.json`).
 2. **Window:** Claude Code derives the window from the model. Read the exact number
-   from `context_window` in `/v1/models` — it's **larger** than the legacy 200k some
-   clients still assume, so a stale assumption only makes the client compact *early*
-   (you lose usable context, nothing breaks). Where your client lets you set the
-   model's context window, set it to the published value so autocompact and `/compact`
-   trigger at the true threshold.
+   from `context_window` in `/v1/models`. For the Claude models it's **larger** than
+   the legacy 200k some clients still assume, so a stale assumption only makes the
+   client compact *early* (you lose usable context, nothing breaks). Where your client
+   lets you set the model's context window, set it to the published value so
+   autocompact and `/compact` trigger at the true threshold.
 3. Run `claude` and use `/compact` / `/clear` to manage long sessions.
 
 ### Other OpenAI-compatible clients
@@ -101,17 +130,20 @@ For tools that speak the OpenAI format (n8n, scripts, custom apps):
   `gpt-5-mini` (OpenAI-style via `/v1/chat/completions`).
 - These clients usually don't compact automatically — keep your own history short:
   trim or summarize old turns before each call, and read `context_window` from
-  `/v1/models` to know your budget.
+  `/v1/models` to know your budget. If the field is `null` for the model you use, trim
+  against your own history size and treat a `400`
+  `upstream.context_length_exceeded` as the signal to summarize.
 
 ## When a prompt exceeds the window
 
 If a request is too large, our gateway returns an **honest upstream error** (not a
 generic 502), so your client can react:
 
-| Status | Meaning | What to do |
-| --- | --- | --- |
-| `400` | The prompt exceeds the model's context window | Compact, summarize, or start fresh — see below |
-| `429` | Rate limited upstream | Back off and retry; we forward `Retry-After` when present |
+| Status | `code` | Meaning | What to do |
+| --- | --- | --- | --- |
+| `400` | `upstream.context_length_exceeded` | The prompt exceeds the model's context window | Compact, summarize, or start fresh — see below |
+| `413` | `request.too_large` | The request body exceeds the gateway's size limit | Run `/compact` or start a new session |
+| `429` | `upstream.rate_limited` | Rate limited upstream | Back off and retry; we forward `Retry-After` when present |
 
 Recovery options, easiest first:
 
@@ -123,5 +155,5 @@ Recovery options, easiest first:
    chunks rather than one oversized message.
 
 Usage is billed from your Rupiah balance the same way regardless of how you manage
-context — see [Billing & Pricing](/penagihan). More on error codes is in the
-[API Reference](/api-reference); common questions are in the [FAQ](/faq).
+context — see [Billing & Pricing](/en/penagihan). More on error codes is in the
+[Error Codes](/en/errors); common questions are in the [FAQ](/en/faq).

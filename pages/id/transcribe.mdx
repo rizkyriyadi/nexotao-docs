@@ -3,11 +3,17 @@ title: Transcribe (dihentikan)
 description: Transcribe audio telah dihentikan dari katalog Nexotao. Nexotao kini hanya teks (Claude, GPT, DeepSeek, Grok).
 ---
 
+import { Callout } from "nextra/components"
+
 # Transcribe — dihentikan
 
+<Callout type="error">
+  Endpoint `/v1/audio/transcriptions` **sudah tidak dilayani**. Kode yang masih
+  memanggilnya akan gagal — hapus atau alihkan ke penyedia lain.
+</Callout>
+
 Transcribe audio telah **dihentikan** dari Nexotao. Katalog kini hanya teks —
-[Claude, GPT, DeepSeek, dan Grok](/model-harga) — dan endpoint
-`/v1/audio/transcriptions` sudah tidak dilayani.
+[Claude, GPT, DeepSeek, dan Grok](/model-harga).
 
 Lihat [Changelog](/changelog) untuk perubahan katalog selengkapnya, atau buka
 [Teks & Chat](/teks) untuk request ke katalog yang berlaku sekarang.

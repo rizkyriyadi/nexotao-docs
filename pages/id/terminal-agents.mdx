@@ -3,6 +3,7 @@ title: Aider & OpenCode
 description: Pakai coding agent terminal Aider dan OpenCode dengan Nexotao. Konfigurasi env var dan config file untuk model OpenAI-compat maupun Claude.
 ---
 
+import { Callout, Tabs } from "nextra/components"
 import { ToolLogo } from "../../components/tool-logo"
 
 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
@@ -22,7 +23,8 @@ atau config file.
 Aider merutekan model lewat LiteLLM, jadi kamu bisa pakai jalur OpenAI-compat
 (disarankan) atau Anthropic.
 
-### Model OpenAI-compat (disarankan)
+<Tabs items={["Model OpenAI-compat (disarankan)", "Model Claude (via LiteLLM)"]}>
+<Tabs.Tab>
 
 ```bash
 export OPENAI_API_BASE=https://api.nexotao.com/v1
@@ -36,7 +38,8 @@ aider --model openai/gpt-5-mini
 - `OPENAI_API_BASE` harus pakai `/v1`.
 - Model lain: `openai/grok-4.3`, `openai/DeepSeek-V4-Pro`.
 
-### Model Claude (via LiteLLM)
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```bash
 export ANTHROPIC_API_BASE=https://api.nexotao.com
@@ -47,10 +50,15 @@ aider --model anthropic/claude-opus-4-8
 
 - `ANTHROPIC_API_BASE` **tanpa** `/v1`.
 - Kalau versi Aider/LiteLLM-mu tidak mengambil base URL ini, pakai saja jalur
-  OpenAI-compat di atas.
+  OpenAI-compat.
 
-> Aider mungkin memunculkan peringatan "unknown model" untuk ID `sk-nexo` — aman,
-> bisa diabaikan.
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+  Aider mungkin memunculkan peringatan "unknown model" untuk ID `sk-nexo` — aman,
+  bisa diabaikan.
+</Callout>
 
 ---
 
@@ -92,8 +100,11 @@ opencode          # pilih model lewat /models
 
 - Pakai `npm: "@ai-sdk/openai-compatible"` untuk endpoint `/chat/completions`.
 - `baseURL` harus pakai `/v1`.
-- Provider kustom **wajib** mendeklarasikan `models` beserta `limit.context` /
-  `limit.output` — kalau tidak, pelacakan context bisa rusak.
 - `apiKey` mendukung sintaks `{env:VAR}`; simpan key di env var, bukan di file.
+
+<Callout type="warning">
+  Provider kustom **wajib** mendeklarasikan `models` beserta `limit.context` /
+  `limit.output`. Kalau tidak, pelacakan context OpenCode bisa rusak.
+</Callout>
 
 Biaya dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).

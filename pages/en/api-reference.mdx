@@ -1,12 +1,12 @@
 ---
 title: API Reference
-description: List of Nexotao endpoints, response headers (X-Cost-Rp, X-Request-Id), and error codes (400, 401, 402, 429).
+description: List of Nexotao endpoints, response headers (X-Cost-Rp, X-Request-Id, X-Error-Code), and the error body shape (error, code, type, request_id, retryable).
 ---
 
 # API Reference
 
 Base URL: `https://api.nexotao.com`. Authentication via API key — see
-[Authentication](/autentikasi).
+[Authentication](/en/autentikasi).
 
 ## Endpoints
 
@@ -21,12 +21,15 @@ Base URL: `https://api.nexotao.com`. Authentication via API key — see
 
 ## Response headers
 
-Every billable request returns:
-
 | Header | Meaning |
 | --- | --- |
-| `X-Cost-Rp` | The actual cost of the request in Rupiah |
-| `X-Request-Id` | The request id for tracking |
+| `X-Request-Id` | The request id for tracking. Present on every response, including streaming |
+| `X-Cost-Rp` | The actual cost of the request in Rupiah. **Non-streaming responses only** |
+| `X-Error-Code` | The `code` value from the error body. Error responses only |
+
+On streaming (SSE) responses `X-Cost-Rp` is **not sent** — the cost isn't known
+when headers are flushed. Read the final figure from `GET /usage/{request_id}`;
+see [Billing & Pricing](/en/penagihan).
 
 ## Error codes
 
@@ -35,19 +38,41 @@ Every billable request returns:
 | `400` | Invalid request | Check the body/parameters |
 | `401` | Invalid or revoked API key | Create / use an active key |
 | `402` | Insufficient balance | Top up your Rupiah balance |
+| `413` | Request body too large | Compact the history or start a new session |
 | `429` | Too many requests | Retry with backoff |
+| `502` | Upstream unavailable | Retry with backoff |
 
-The error body is JSON, e.g.:
+### Error body shape
+
+Every error returns JSON in the same shape:
 
 ```json
-{ "error": "insufficient balance" }
+{
+  "error": "invalid api key",
+  "code": "auth.api_key_invalid",
+  "type": "api_key_invalid",
+  "request_id": "8997bda3-65c4-45c3-ab38-c909f905fc4d",
+  "retryable": false
+}
 ```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `error` | string | Human-readable message. The wording can change — don't branch on it |
+| `code` | string | Stable dotted identifier, e.g. `auth.api_key_invalid`. **Branch on this** |
+| `type` | string | The segment after the last dot of `code` (e.g. `api_key_invalid`). Legacy client compatibility |
+| `request_id` | string | The request id, identical to the `X-Request-Id` header. Include it when reporting an issue |
+| `retryable` | bool | `true` when retrying the same request is sensible (e.g. rate limits, upstream errors) |
+| `hint` | string | Optional. Present on some errors only, with actionable guidance |
+
+Branch your code on `code` (or the `X-Error-Code` header), never on `error`. The
+full code catalogue is on [Error Codes](/en/errors).
 
 ## GET /models
 
 Returns the list of active models along with sell prices (no internal cost data).
-Used by the live pricing tables on the [Billing](/penagihan) and
-[Models & Pricing](/model-harga) pages.
+Used by the live pricing tables on the [Billing](/en/penagihan) and
+[Models & Pricing](/en/model-harga) pages.
 
 ```bash
 curl https://api.nexotao.com/models

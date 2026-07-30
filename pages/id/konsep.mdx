@@ -3,6 +3,8 @@ title: Konsep Dasar
 description: Penjelasan sederhana istilah Nexotao untuk pemula — model AI, token, API key, endpoint, dan saldo. Tanpa jargon, cocok untuk yang belum punya latar belakang IT.
 ---
 
+import { Callout } from "nextra/components"
+
 # Konsep Dasar
 
 Baru pertama kali? Halaman ini menjelaskan istilah yang sering muncul, dengan bahasa
@@ -36,7 +38,9 @@ Kenapa penting? Karena **biaya dihitung per token**: makin panjang pertanyaan da
 jawaban, makin banyak token, makin besar biayanya. Ini juga kenapa jawaban AI kadangkala
 dibatasi panjangnya.
 
-> Contoh: kalimat "Halo, apa kabar?" kira-kira 5 token.
+<Callout type="info">
+  Contoh: kalimat "Halo, apa kabar?" kira-kira 5 token.
+</Callout>
 
 ## API key
 
@@ -45,9 +49,12 @@ situs lewat browser. **API key** adalah "kunci" pribadimu, berbentuk `sk-nexo-..
 yang membuktikan bahwa request itu berasal dari akunmu (dan biayanya dipotong dari
 saldomu).
 
-Perlakukan seperti **kata sandi**: jangan dibagikan, jangan ditaruh di kode yang bisa
-dilihat publik. Kalau bocor, cabut (revoke) di dashboard dan buat yang baru. Detail di
-[Autentikasi](/autentikasi).
+<Callout type="warning">
+  Perlakukan seperti **kata sandi**: jangan dibagikan, jangan ditaruh di kode yang
+  bisa dilihat publik. Kalau bocor, cabut (revoke) di dashboard dan buat yang baru.
+</Callout>
+
+Detail di [Autentikasi](/autentikasi).
 
 ## Endpoint
 

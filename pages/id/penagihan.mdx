@@ -20,15 +20,53 @@ Semua pembulatan ke atas agar pemakaian kecil tidak pernah menjadi nol.
 
 ## Header biaya
 
-Setiap respons menyertakan:
+Setiap respons menyertakan `X-Request-Id` — id permintaan untuk pelacakan.
 
-- `X-Cost-Rp` — biaya aktual permintaan dalam Rupiah.
-- `X-Request-Id` — id permintaan untuk pelacakan.
+Header biayanya **beda antara non-streaming dan streaming**:
 
-## Promo
+| | Non-streaming | Streaming (SSE) |
+| --- | --- | --- |
+| `X-Request-Id` | ada | ada |
+| `X-Cost-Rp` | ada — biaya aktual dalam Rupiah | **tidak ada** |
 
-Tarif Nexotao saat ini **jauh di bawah harga official**. Anggap ini harga promo —
-isi saldo selagi berlaku.
+Pada respons streaming, header sudah dikirim sebelum token pertama mengalir, jadi
+biaya finalnya belum bisa dihitung saat itu. Karena itu `X-Cost-Rp` sengaja tidak
+dikirim, bukan dikirim bernilai nol.
+
+### Mengambil biaya sesudah streaming
+
+Simpan `X-Request-Id` dari header, lalu ambil angka finalnya lewat
+`GET /usage/{request_id}` setelah stream selesai.
+
+> **Endpoint ini memakai sesi dashboard, bukan API key.** Autentikasinya token
+> login dashboard, jadi `sk-nexo-...` akan dibalas `401 auth.unauthorized`.
+> Kalau kamu memanggil dari kode yang cuma punya API key, lihat rincian
+> pemakaian di halaman **Usage** pada dashboard.
+
+Responsnya berisi angka final yang sudah direkonsiliasi:
+
+```json
+{
+  "model": "claude-opus-4-8",
+  "input_tokens": 1240,
+  "output_tokens": 380,
+  "cache_read_tokens": 0,
+  "cache_write_tokens": 0,
+  "charge_micro": 16200000,
+  "status": "ok",
+  "turns": 1
+}
+```
+
+- `charge_micro` — biaya dalam **micro-rupiah** (Rp 1 = 1.000.000 micro).
+- `turns` — jumlah giliran upstream yang ditagih. Normalnya `1`; bisa lebih dari
+  satu kalau gateway menjalankan loop tool di sisi server, dan itulah yang
+  menjelaskan biaya yang terlihat lebih besar dari satu giliran.
+
+Catatan pemakaian ditulis setelah stream selesai dan direkonsiliasi. Kalau kamu
+memanggilnya terlalu cepat, endpoint membalas `404` dengan kode `usage.not_found` —
+tunggu sebentar lalu ulangi. Kode `503` `dependency.database_unavailable` berarti
+gangguan sementara; ulangi dengan backoff.
 
 ## Harga live
 

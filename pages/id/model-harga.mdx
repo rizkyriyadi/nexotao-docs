@@ -1,6 +1,6 @@
 ---
 title: Model & Harga
-description: Model yang sama dengan Anthropic dan OpenAI, dibayar per token pakai QRIS. Headline per 100 juta token + tarif live per juta token.
+description: Model yang sama dengan Anthropic dan OpenAI, dibayar per token pakai QRIS. Daftar Model ID lengkap, panduan memilih model, dan tarif live per juta token dari GET /models.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
@@ -23,33 +23,47 @@ Lihat semua Model ID langsung dari katalog live:
 curl -s https://api.nexotao.com/models | jq -r '.models[].model'
 ```
 
-Contoh pemetaan:
+Seluruh 12 model live beserta Model ID-nya:
 
 | Nama tampilan | Model ID untuk API |
 | --- | --- |
+| DeepSeek V4 Flash | `DeepSeek-V4-Flash` |
+| DeepSeek V4 Pro | `DeepSeek-V4-Pro` |
+| GPT-5 Mini | `gpt-5-mini` |
 | GPT-5.6 Luna | `gpt-5.6-luna` |
-| GPT-5.6 Terra | `gpt-5.6-terra` |
 | GPT-5.6 Sol | `gpt-5.6-sol` |
+| GPT-5.6 Terra | `gpt-5.6-terra` |
+| Grok 4.3 | `grok-4.3` |
+| Claude Opus 4.6 | `claude-opus-4-6` |
+| Claude Opus 4.7 | `claude-opus-4-7` |
+| Claude Opus 4.8 | `claude-opus-4-8` |
+| Claude Opus 5 | `claude-opus-5` |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
 
-## Headline per 100 juta token
+Katalog live tetap yang menentukan — kalau tabel ini dan `GET /models` berbeda,
+percaya `GET /models`.
 
-Angka bulat marketing untuk memperkirakan skala. Dihitung dari campuran 30%
-token input / 70% token output — mendekati kebiasaan aplikasi produk.
-Tarif sebenarnya per model tetap dihitung per token; lihat tabel live di bawah.
+## Memilih model
 
-| Model              | Headline per 100M token | Positioning                                                    |
-| ------------------ | ----------------------- | -------------------------------------------------------------- |
-| GPT-5.6 Sol        | **Rp 700 ribu**         | Tier GPT-5.6 tertinggi; tarif input dan output sama rata. |
-| GPT-5.6 Terra      | **Rp 765 ribu**         | Seimbang untuk coding, analisis, dan workflow agent. |
-| GPT-5.6 Luna       | **Rp 399 ribu**         | Efisien untuk kerja harian dan volume tinggi. |
-| Claude Opus 5      | **Rp 700 ribu**         | Opus generasi terbaru, konteks 1 juta token. **Harga perkenalan sampai 28 Juli 2026, 23.59 WIB** — setelah itu Rp 1,2 juta. |
-| Claude Opus 4.8    | **Rp 1 juta**           | Model reasoning terkuat Anthropic. **Jauh lebih murah** dari tarif list Anthropic. |
-| Claude Sonnet 4.6  | **Rp 700 ribu**         | Cepat + pintar untuk chat produk volume tinggi. |
-| gpt-5-mini         | **Rp 399 ribu**         | Termurah OpenAI — pas untuk classifier, extract, batch. |
-| Claude Haiku 4.5   | *segera*                | Tercepat + termurah dari Anthropic. Menunggu aktivasi katalog. |
+Positioning tiap model. Untuk tarifnya, lihat tabel live di bawah.
 
-Rasio "vs Anthropic list" sengaja ditampilkan sebagai kelipatan, bukan angka
-absolut, supaya tetap akurat ketika Anthropic mengubah harga list mereka.
+| Model | Cocok untuk |
+| --- | --- |
+| `DeepSeek-V4-Flash` | Volume tinggi & hemat: klasifikasi, ekstraksi, chat pendek. |
+| `DeepSeek-V4-Pro` | DeepSeek dengan kualitas lebih tinggi; konteks 131.072 token. |
+| `gpt-5-mini` | Tier OpenAI paling hemat — classifier, extract, batch. Mendukung vision. |
+| `gpt-5.6-luna` | Efisien untuk kerja harian dan volume tinggi. |
+| `gpt-5.6-terra` | Seimbang untuk coding, analisis, dan workflow agent. |
+| `gpt-5.6-sol` | Tier GPT-5.6 tertinggi; tarif input dan output sama rata. |
+| `grok-4.3` | Alternatif di luar keluarga GPT dan Claude. |
+| `claude-opus-4-6` | Opus yang **masih menerima** `temperature` / `top_p` / `top_k`. |
+| `claude-opus-4-7` | Opus generasi sebelumnya; parameter sampling tidak lagi diterima. |
+| `claude-opus-4-8` | Model reasoning terkuat untuk coding dan agentic. |
+| `claude-opus-5` | Opus generasi terbaru; konteks 1.000.000 token. |
+| `claude-sonnet-4-6` | Cepat + pintar untuk chat produk volume tinggi; sampling tetap berfungsi. |
+
+Model Claude dan `gpt-5-mini` mendukung **vision** (input gambar); model lain
+teks saja. Cek `supports_vision` di `GET /models` untuk memastikan.
 
 > **Pilih model sesuai kerjaannya.** `DeepSeek` cocok untuk beban **volume
 > tinggi & hemat** — klasifikasi, ekstraksi, chat pendek — **bukan untuk
@@ -60,10 +74,10 @@ absolut, supaya tetap akurat ketika Anthropic mengubah harga list mereka.
 
 ## Tarif live per juta token
 
-Selain headline di atas, tiap model punya tarif per juta token untuk **input**,
-**output**, dan (untuk Claude/GPT) **cache-read + cache-write**. Nilai di sini
-diambil langsung dari `GET /models` — selalu sinkron dengan katalog live,
-tanpa harga yang di-hardcode di halaman.
+Tiap model punya tarif per juta token untuk **input**, **output**, dan (untuk
+Claude/GPT) **cache-read + cache-write**. Nilai di sini diambil langsung dari
+`GET /models` — selalu sinkron dengan katalog live, tanpa harga yang di-hardcode
+di halaman.
 
 <LivePricing />
 
@@ -72,14 +86,12 @@ tanpa harga yang di-hardcode di halaman.
 - **Teks** — tarif per 1 juta token, terpisah untuk input dan output.
 - **Cache (Claude/GPT)** — cache-read jauh lebih murah dari input biasa; cache-write
   sedikit lebih mahal dari input biasa. Detail di [Penagihan & Harga](/penagihan).
-- **Headline per 100M token** — perkiraan cepat, bukan tarif tagihan. Yang
-  ditagih adalah `jumlah_token × tarif_model_saat_itu`.
+- **Yang ditagih** — selalu `jumlah_token × tarif_model_saat_itu`, dibulatkan ke
+  atas. Tidak ada biaya per request atau biaya minimum.
 
-## Kenapa "per 100 juta token"?
-
-Model teks modern mengukur pemakaian dalam jutaan token per proyek. Angka
-`per 100 juta token` = urutan skala yang tepat untuk membandingkan biaya
-antar-model dengan cepat, tanpa terganggu oleh titik desimal pada tarif
-per-juta-token.
+Butuh perkiraan biaya sebelum memanggil API? Ambil tarifnya dari
+`GET /models` lalu kalikan dengan perkiraan jumlah token-mu — atau lihat
+[nexotao.com/harga](https://nexotao.com/harga) untuk kalkulator dan
+perbandingan harga.
 
 Detail penagihan, cache, dan billing per request ada di [Penagihan & Harga](/penagihan).

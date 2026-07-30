@@ -3,6 +3,8 @@ title: FAQ
 description: Common questions about Nexotao — security, balance, QRIS payments, Claude Code, and refunds.
 ---
 
+import { Callout } from "nextra/components"
+
 # FAQ
 
 ## What is Nexotao?
@@ -29,17 +31,19 @@ deducted based on usage.
 ## Can I use it for Claude Code?
 
 Yes. Nexotao is compatible with the Anthropic endpoint, so Claude Code can be
-pointed at Nexotao and paid for in Rupiah. See [Claude Code](/claude-code).
+pointed at Nexotao and paid for in Rupiah. See [Claude Code](/en/claude-code).
 
 ## Are there refunds?
 
-Top-ups are final and the balance is generally non-refundable. For cases such as
-double charges or system failures, see the refund policy at
-[nexotao.com](https://nexotao.com).
+<Callout type="warning">
+  Top-ups are **final** and the balance is generally non-refundable. For cases such
+  as double charges or system failures, see the refund policy at
+  [nexotao.com](https://nexotao.com).
+</Callout>
 
 ## How much does it cost?
 
-Live rates are on [Models & Pricing](/model-harga). They are currently well below
+Live rates are on [Models & Pricing](/en/model-harga). They are currently well below
 official pricing — treat it as a promo price.
 
 ## Why does DeepSeek sometimes return 429 / "server at capacity"?
@@ -52,7 +56,8 @@ overrunning one backend's entire per-minute budget, so it returns
 `429 server at capacity, retry shortly` — no number of parallel backends helps,
 because a single request cannot be split across backends.
 
-The fix isn't to keep retrying, it's to **use the right model**: for
-coding/agentic and large context, select a **Claude (Opus/Sonnet)** model id
-directly (for example `claude-opus-4-8`). DeepSeek stays the best pick for
-volume/cheap workloads.
+<Callout type="warning">
+  The fix isn't to keep retrying, it's to **use the right model**: for coding/agentic
+  and large context, select a **Claude (Opus/Sonnet)** model id directly (for example
+  `claude-opus-4-8`). DeepSeek stays the best pick for volume/cheap workloads.
+</Callout>

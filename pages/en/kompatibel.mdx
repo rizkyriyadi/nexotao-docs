@@ -3,6 +3,7 @@ title: Any Other Tool (Universal)
 description: The universal pattern for connecting any AI tool to Nexotao — Cursor, the OpenAI/Anthropic SDKs, LangChain, or any new tool that accepts a custom base URL.
 ---
 
+import { Callout, Tabs } from "nextra/components"
 import { ToolLogo } from "../../components/tool-logo"
 
 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
@@ -29,9 +30,11 @@ the base URL + key, then pick a model.
 | Header | `Authorization: Bearer sk-nexo-...` |
 | Model | `gpt-5.6-terra`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`, `claude-opus-4-8` |
 
-> **Tip:** the OpenAI-compatible endpoint accepts **every model, including Claude** — so
-> if your tool speaks OpenAI, just use this pattern for all of them. See
-> [Endpoints & Formats](/en/endpoint).
+<Callout type="info">
+  The OpenAI-compatible endpoint accepts **every model, including Claude** — so if
+  your tool speaks OpenAI, just use this pattern for all of them. See
+  [Endpoints & Formats](/en/endpoint).
+</Callout>
 
 **Anthropic-compatible** (optional — native Anthropic bodies only):
 
@@ -42,7 +45,10 @@ the base URL + key, then pick a model.
 | Header | `x-api-key: sk-nexo-...` |
 | Model | `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6` |
 
-## Example: OpenAI SDK (Python/Node)
+## Examples
+
+<Tabs items={["OpenAI SDK", "Anthropic SDK", "Environment variables"]}>
+  <Tabs.Tab>
 
 ```python
 from openai import OpenAI
@@ -55,7 +61,8 @@ resp = client.chat.completions.create(
 print(resp.choices[0].message.content)
 ```
 
-## Example: Anthropic SDK
+  </Tabs.Tab>
+  <Tabs.Tab>
 
 ```python
 from anthropic import Anthropic
@@ -69,7 +76,10 @@ msg = client.messages.create(
 print(msg.content[0].text)
 ```
 
-## Example: environment variables (for tools that read them)
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+For tools that read environment variables:
 
 ```bash
 # OpenAI style
@@ -81,6 +91,9 @@ export ANTHROPIC_BASE_URL=https://api.nexotao.com
 export ANTHROPIC_AUTH_TOKEN=sk-nexo-...
 ```
 
+  </Tabs.Tab>
+</Tabs>
+
 ## Cursor & cloud-based tools
 
 Some tools (e.g. Cursor) route requests through their own servers, so a custom base
@@ -90,9 +103,13 @@ above. If not, that tool can't be used with Nexotao yet.
 
 ## Troubleshooting checklist
 
-- Wrong `/v1`? OpenAI-compat **needs** `/v1`; Anthropic-compat is **without** `/v1`.
-- Unknown model? Match the ID exactly from [Models & Pricing](/model-harga).
-- `401`? Bad/revoked key — create a new one in the dashboard. See [Authentication](/autentikasi).
-- Need the full error list? See the [API Reference](/api-reference).
+<Callout type="warning">
+  The most common cause is the `/v1` suffix. OpenAI-compat **needs** `/v1`;
+  Anthropic-compat is **without** `/v1`.
+</Callout>
 
-Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/penagihan).
+- Unknown model? Match the ID exactly from [Models & Pricing](/en/model-harga).
+- `401`? Bad/revoked key — create a new one in the dashboard. See [Authentication](/en/autentikasi).
+- Need the full error list? See the [API Reference](/en/api-reference).
+
+Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).
