@@ -2442,6 +2442,9 @@ kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplis
 Tarif seluruh model teks dijadwalkan berubah pada **Rabu, 5 Agustus 2026 pukul
 00.00 WIB (UTC+7)**. [Lihat tabel tarif baru dan hitung mundurnya](https://www.nexotao.com/harga#tarif-baru).
 
+Tarif baru ditetapkan **25% di bawah harga resmi provider**. Daftar Rupiah
+terkini tetap tersedia di halaman harga dan `GET /models`.
+
 - Tarif lama tetap berlaku sampai 4 Agustus pukul 23.59 WIB.
 - Tarif baru hanya berlaku untuk request setelah waktu efektif. Pemakaian yang
   sudah selesai tidak dihitung ulang.
