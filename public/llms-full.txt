@@ -2437,6 +2437,23 @@ Source: https://docs.nexotao.com/id/changelog
 Perubahan penting pada API dan katalog model Nexotao. Perubahan yang memutus
 kompatibilitas (breaking) dan yang memengaruhi penagihan ditandai secara eksplisit.
 
+## Dijadwalkan 2026-08-05 00.00 WIB — penyesuaian tarif model
+
+Tarif seluruh model teks dijadwalkan berubah pada **Rabu, 5 Agustus 2026 pukul
+00.00 WIB (UTC+7)**. [Lihat tabel tarif baru dan hitung mundurnya](https://www.nexotao.com/harga#tarif-baru).
+
+- Tarif lama tetap berlaku sampai 4 Agustus pukul 23.59 WIB.
+- Tarif baru hanya berlaku untuk request setelah waktu efektif. Pemakaian yang
+  sudah selesai tidak dihitung ulang.
+- Nominal saldo Rupiah tidak berubah. Setelah cutover, saldo dipotong memakai
+  tarif baru yang dipublikasikan oleh `GET /models` pada saat request berjalan.
+- Token cache Claude dan GPT tetap mengikuti kebijakan katalog: cache-read 10%
+  dan cache-write 125% dari tarif input yang sedang berlaku.
+
+Secara terpisah, sebagian model sedang terdampak gangguan penyedia infrastruktur
+upstream. Request dapat gagal atau merespons lebih lambat dari biasanya. Gangguan
+ini bukan akibat perubahan harga; layanan lain tetap beroperasi normal.
+
 ## 2026-07-26 — Claude Opus 5 live, konteks 1 juta token
 
 `claude-opus-5` masuk katalog lewat endpoint Anthropic yang sama. Cukup ganti nilai

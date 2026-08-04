@@ -2428,6 +2428,23 @@ Source: https://docs.nexotao.com/en/changelog
 Notable changes to the Nexotao API and model catalog. Breaking changes and
 billing-affecting changes are called out explicitly.
 
+## Scheduled 2026-08-05 00:00 WIB — model rate adjustment
+
+Rates for all text models are scheduled to change on **Wednesday, 5 August 2026
+at 00:00 WIB (UTC+7)**. [See the new rate table and live countdown](https://www.nexotao.com/harga#tarif-baru).
+
+- Existing rates remain in effect through 4 August at 23:59 WIB.
+- New rates apply only to requests after the effective time. Completed usage is
+  not rebilled.
+- The nominal amount of your Rupiah balance does not change. After cutover, each
+  request is deducted at the rate published by `GET /models` when it runs.
+- Claude and GPT cache tokens keep the catalog policy: cache reads at 10% and
+  cache writes at 125% of the input rate then in effect.
+
+Separately, some models are affected by an incident at an upstream model
+infrastructure provider. Requests may fail or respond more slowly than usual.
+This incident is not caused by the rate change; other services remain operational.
+
 ## 2026-07-26 — Claude Opus 5 is live, with a 1M-token context
 
 `claude-opus-5` joins the catalog through the same Anthropic endpoint. Change only
