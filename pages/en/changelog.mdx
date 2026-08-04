@@ -21,9 +21,9 @@ at 00:00 WIB (UTC+7)**. [See the new rate table and live countdown](https://www.
 - Claude and GPT cache tokens keep the catalog policy: cache reads at 10% and
   cache writes at 125% of the input rate then in effect.
 
-Separately, some models are affected by an incident at an upstream model
-infrastructure provider. Requests may fail or respond more slowly than usual.
-This incident is not caused by the rate change; other services remain operational.
+During cutover, some models may temporarily fail or respond more slowly than
+usual. Watch the dashboard banner and retry with backoff; other services remain
+operational.
 
 ## 2026-07-26 — Claude Opus 5 is live, with a 1M-token context
 
