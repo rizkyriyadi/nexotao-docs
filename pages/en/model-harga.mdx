@@ -1,21 +1,22 @@
 ---
 title: Models & Pricing
-description: The 32 Phase 1 models, exact Model IDs, agentic compatibility, and live Rupiah rates from the Nexotao catalog.
+description: The 34 Phase 1 models, exact Model IDs, agentic compatibility, and live Rupiah rates from the Nexotao catalog.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
 
 # Models & Pricing
 
-Phase 1 has **32 active Amazon Bedrock models** from 12 model providers. All use
-one Nexotao key and one Rupiah balance.
+Phase 1 has **34 active models** from 12 model providers: 32 Amazon Bedrock
+models plus GPT-5.6 Terra and Luna through Azure. All use one Nexotao key and
+one Rupiah balance.
 
 ## Pricing policy
 
-Nexotao retail rates are a **manual snapshot**, calculated as **100% of AWS
-Bedrock US Standard on-demand pricing** and converted at **Rp 18,000/USD**. The
-rates match that official US Standard reference; they do not automatically
-follow a single worldwide or "global" price.
+Nexotao retail rates are a **manual snapshot** at **100% of each live
+upstream's Standard price**, converted at **Rp 18,000/USD**. The reference is
+AWS Bedrock US Standard for the 32 Bedrock models and Azure/OpenAI Standard for
+GPT-5.6 Terra and Luna; prices are not synchronized automatically.
 
 The production catalog is the source of truth. Read it before making cost
 assumptions:
@@ -27,7 +28,7 @@ curl -s https://api.nexotao.com/models | jq '.models[] | {
 }'
 ```
 
-## Agentic models (24)
+## Agentic models (26)
 
 These passed Nexotao's stable tool-call round-trip test and report
 `supports_tools: true`:
@@ -43,13 +44,14 @@ These passed Nexotao's stable tool-call round-trip test and report
 | Z.AI | `glm-5`, `glm-4-7` |
 | MiniMax | `minimax-m2` |
 | Moonshot | `kimi-k2-5` |
-| OpenAI OSS | `gpt-oss-120b` |
+| OpenAI | `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-oss-120b` |
 
 Good defaults:
 
 - Claude Code: `claude-opus-4-6`, `claude-sonnet-4-6`, or `claude-haiku-4-5`.
 - Coding agents: `qwen3-coder-next`, `qwen3-coder-30b`, or Claude.
 - Fast and economical agentic work: `nova-micro`.
+- Codex CLI: `gpt-5.6-terra` or `gpt-5.6-luna` through `/v1/responses`.
 - General-purpose agentic work: `gpt-oss-120b`, `glm-4-7`, or `mistral-large-3`.
 
 ## Chat-only models (8)

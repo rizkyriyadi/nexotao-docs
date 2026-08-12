@@ -1,21 +1,22 @@
 ---
 title: Model & Harga
-description: 32 model Fase 1, Model ID yang tepat, kompatibilitas agentic, dan tarif Rupiah live dari katalog Nexotao.
+description: 34 model Fase 1, Model ID yang tepat, kompatibilitas agentic, dan tarif Rupiah live dari katalog Nexotao.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
 
 # Model & Harga
 
-Fase 1 memiliki **32 model Amazon Bedrock aktif** dari 12 provider model. Semua
-memakai satu key Nexotao dan satu saldo Rupiah.
+Fase 1 memiliki **34 model aktif** dari 12 provider model: 32 model Amazon
+Bedrock serta GPT-5.6 Terra dan Luna melalui Azure. Semua memakai satu key
+Nexotao dan satu saldo Rupiah.
 
 ## Kebijakan harga
 
-Harga retail Nexotao adalah **snapshot manual**, dihitung sebesar **100% dari
-harga on-demand AWS Bedrock US Standard** lalu dikonversi dengan kurs **Rp
-18.000/USD**. Tarifnya sama dengan acuan resmi US Standard tersebut; bukan
-berarti harga otomatis mengikuti satu harga "global" dunia.
+Harga retail Nexotao adalah **snapshot manual** sebesar **100% harga Standard
+upstream masing-masing**, dikonversi dengan kurs **Rp 18.000/USD**. Acuannya
+AWS Bedrock US Standard untuk 32 model Bedrock dan Azure/OpenAI Standard untuk
+GPT-5.6 Terra serta Luna; harga tidak tersinkron otomatis.
 
 Katalog produksi adalah sumber kebenaran. Baca langsung sebelum membuat asumsi
 biaya:
@@ -27,7 +28,7 @@ curl -s https://api.nexotao.com/models | jq '.models[] | {
 }'
 ```
 
-## Model agentic (24)
+## Model agentic (26)
 
 Model berikut lulus uji stabil round-trip tool call Nexotao dan mengembalikan
 `supports_tools: true`:
@@ -43,13 +44,14 @@ Model berikut lulus uji stabil round-trip tool call Nexotao dan mengembalikan
 | Z.AI | `glm-5`, `glm-4-7` |
 | MiniMax | `minimax-m2` |
 | Moonshot | `kimi-k2-5` |
-| OpenAI OSS | `gpt-oss-120b` |
+| OpenAI | `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-oss-120b` |
 
 Pilihan awal yang praktis:
 
 - Claude Code: `claude-opus-4-6`, `claude-sonnet-4-6`, atau `claude-haiku-4-5`.
 - Coding agent: `qwen3-coder-next`, `qwen3-coder-30b`, atau Claude.
 - Tugas agentic cepat dan hemat: `nova-micro`.
+- Codex CLI: `gpt-5.6-terra` atau `gpt-5.6-luna` lewat `/v1/responses`.
 - Agentic general-purpose: `gpt-oss-120b`, `glm-4-7`, atau `mistral-large-3`.
 
 ## Model chat-only (8)

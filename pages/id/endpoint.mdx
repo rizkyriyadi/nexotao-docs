@@ -1,21 +1,22 @@
 ---
 title: Endpoint & Format
-description: Pakai seluruh 32 model Fase 1 Nexotao melalui format OpenAI Chat Completions atau Anthropic Messages.
+description: Pakai 34 model Fase 1 Nexotao melalui Chat Completions, Anthropic Messages, atau Responses API.
 ---
 
 # Endpoint & Format
 
-Seluruh 32 model Fase 1 memakai Bedrock Converse dan bisa dipanggil lewat kedua
-endpoint chat. Pilih format yang sudah didukung client-mu.
+Katalog Fase 1 berisi 32 model Bedrock dan dua model GPT-5.6 melalui Azure.
+Pilih endpoint berdasarkan model dan format client-mu.
 
 | Format client | Endpoint | Base URL SDK | Autentikasi |
 | --- | --- | --- | --- |
 | OpenAI Chat Completions | `/v1/chat/completions` | `https://api.nexotao.com/v1` | `Authorization: Bearer sk-nexo-...` |
 | Anthropic Messages | `/v1/messages` | `https://api.nexotao.com` | `x-api-key: sk-nexo-...` |
+| OpenAI Responses | `/v1/responses` | `https://api.nexotao.com/v1` | `Authorization: Bearer sk-nexo-...` |
 
-> `/v1/responses` **belum tersedia untuk katalog Bedrock Fase 1**. OpenAI Codex
-> CLI membutuhkan endpoint itu, jadi untuk sekarang pakai Claude Code atau agent
-> lain yang kompatibel Chat Completions/Messages.
+`/v1/chat/completions` menerima seluruh 34 model. `/v1/messages` menerima 32
+model Bedrock. `/v1/responses` tersedia khusus untuk `gpt-5.6-terra` dan
+`gpt-5.6-luna`, termasuk untuk OpenAI Codex CLI.
 
 ## Format OpenAI
 

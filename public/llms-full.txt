@@ -32,9 +32,11 @@ https://api.nexotao.com
 Nexotao mengekspos endpoint yang kompatibel dengan kedua format, jadi kamu cukup
 mengganti base URL dan API key pada tool yang sudah ada:
 
-- **OpenAI** — `POST /v1/chat/completions` — untuk **semua model, termasuk Claude**.
+- **OpenAI** — `POST /v1/chat/completions` — untuk **seluruh 34 model**.
   Kalau ragu, pakai ini.
-- **Anthropic** — `POST /v1/messages` — hanya untuk model Claude, format Anthropic native.
+- **Anthropic** — `POST /v1/messages` — untuk 32 model Bedrock, termasuk Claude.
+- **Responses** — `POST /v1/responses` — untuk `gpt-5.6-terra` dan
+  `gpt-5.6-luna`, termasuk Codex CLI.
 
 Panduan memilih ada di **[Endpoint & Format](/endpoint)**. Bingung menyambungkan tool
 coding-mu? Semua panduan step-by-step ada di **[Integrasi](/integrasi)** — Claude Code,
@@ -297,17 +299,18 @@ Source: https://docs.nexotao.com/id/endpoint
 
 # Endpoint & Format
 
-Seluruh 32 model Fase 1 memakai Bedrock Converse dan bisa dipanggil lewat kedua
-endpoint chat. Pilih format yang sudah didukung client-mu.
+Katalog Fase 1 berisi 32 model Bedrock dan dua model GPT-5.6 melalui Azure.
+Pilih endpoint berdasarkan model dan format client-mu.
 
 | Format client | Endpoint | Base URL SDK | Autentikasi |
 | --- | --- | --- | --- |
 | OpenAI Chat Completions | `/v1/chat/completions` | `https://api.nexotao.com/v1` | `Authorization: Bearer sk-nexo-...` |
 | Anthropic Messages | `/v1/messages` | `https://api.nexotao.com` | `x-api-key: sk-nexo-...` |
+| OpenAI Responses | `/v1/responses` | `https://api.nexotao.com/v1` | `Authorization: Bearer sk-nexo-...` |
 
-> `/v1/responses` **belum tersedia untuk katalog Bedrock Fase 1**. OpenAI Codex
-> CLI membutuhkan endpoint itu, jadi untuk sekarang pakai Claude Code atau agent
-> lain yang kompatibel Chat Completions/Messages.
+`/v1/chat/completions` menerima seluruh 34 model. `/v1/messages` menerima 32
+model Bedrock. `/v1/responses` tersedia khusus untuk `gpt-5.6-terra` dan
+`gpt-5.6-luna`, termasuk untuk OpenAI Codex CLI.
 
 ## Format OpenAI
 
@@ -515,7 +518,9 @@ curl -s https://api.nexotao.com/models | jq -r \
 | Context | Model ID |
 | --- | --- |
 | 10.000.000 | `llama-4-scout-17b` |
+| 1.050.000 | `gpt-5.6-terra` |
 | 1.000.000 | `claude-opus-4-6`, `claude-sonnet-4-6`, `nova-2-lite`, `llama-4-maverick-17b`, `minimax-m2` |
+| 400.000 | `gpt-5.6-luna` |
 | 300.000 | `nova-lite`, `nova-pro` |
 | 256.000 | `mistral-large-3`, `devstral-2`, `qwen3-coder-30b`, `qwen3-coder-next`, `nemotron-super-120b`, `nemotron-nano-30b`, `kimi-k2-5` |
 | 203.000 | `glm-4-7` |
@@ -570,19 +575,19 @@ Nexotao bukan model baru yang harus kamu pelajari dari nol. Nexotao adalah **ger
 saja **base URL** dan **API key**-nya diganti ke Nexotao, dan tagihannya dipotong dari
 saldo Rupiah.
 
-Tool yang mendukung OpenAI Chat Completions atau Anthropic Messages bisa terhubung
-ke Nexotao. Tool yang mewajibkan protokol lain, seperti Codex dengan Responses API,
-tidak otomatis kompatibel.
+Tool yang mendukung OpenAI Chat Completions, Anthropic Messages, atau OpenAI
+Responses bisa terhubung ke Nexotao.
 
-## Dua "mode" — cukup ingat ini
+## Tiga mode — cukup ingat ini
 
-Semua integrasi turun ke salah satu dari dua mode. Kalau kamu paham ini, kamu bisa
+Semua integrasi turun ke salah satu dari tiga mode. Kalau kamu paham ini, kamu bisa
 menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
 
 | Mode | Base URL | Header / env | Model | Dipakai untuk |
 | ---- | -------- | ------------ | ----- | ------------- |
-| **Anthropic-compat** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | Semua 32 model Fase 1 | Tool berformat Anthropic Messages, termasuk Claude Code |
-| **OpenAI-compat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | Semua 32 model Fase 1 | Tool berformat OpenAI Chat Completions, termasuk Aider dan Continue |
+| **Anthropic-compat** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | 32 model Bedrock | Tool berformat Anthropic Messages, termasuk Claude Code |
+| **OpenAI Chat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | Semua 34 model | Tool berformat Chat Completions, termasuk Aider dan Continue |
+| **OpenAI Responses** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `NEXOTAO_API_KEY` | `gpt-5.6-terra`, `gpt-5.6-luna` | OpenAI Codex CLI |
 
 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
   <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
@@ -608,7 +613,7 @@ menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
 
 <ToolGrid items={[
   { logo: "/logos/claude.svg", name: "Claude Code", desc: "Coding agent CLI dari Anthropic. Generator config siap-tempel.", href: "/claude-code", mode: "anthropic" },
-  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Belum didukung di Fase 1 karena Codex mewajibkan Responses API.", href: "/codex", mode: "openai" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Didukung lewat Responses API dengan GPT-5.6 Terra atau Luna.", href: "/codex", mode: "openai" },
   { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "Extension AI di VS Code — provider kustom OpenAI/Anthropic.", href: "/vscode", mode: "both" },
   { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Agent coding di terminal. Konfigurasi env / config file.", href: "/terminal-agents", mode: "both" },
   { logo: "/logos/cursor.svg", name: "Tool lain (universal)", desc: "Cursor, Copilot, atau tool apa pun yang menerima base URL kustom.", href: "/kompatibel", mode: "both" },
@@ -852,25 +857,33 @@ Source: https://docs.nexotao.com/id/codex
 
 # OpenAI Codex CLI
 
-OpenAI Codex CLI memakai **Responses API** (`/v1/responses`). Saat ini 32 model
-Bedrock Fase 1 Nexotao mendukung `/v1/messages` dan
-`/v1/chat/completions`, tetapi belum mendukung `/v1/responses`.
+OpenAI Codex CLI memakai **Responses API** (`/v1/responses`). Nexotao mendukung
+Codex melalui `gpt-5.6-terra` dan `gpt-5.6-luna`; 32 model Bedrock tetap memakai
+`/v1/messages` atau `/v1/chat/completions`.
 
-Karena itu Codex CLI **belum didukung di Fase 1**. Mengubah
-`~/.codex/config.toml` saja tidak akan membuatnya jalan; request saat ini
-mengembalikan `model not available on this endpoint`.
+Simpan API key sebagai environment variable:
 
-Untuk pengalaman coding agentic sekarang, pakai:
+```bash
+export NEXOTAO_API_KEY="sk-nexo-..."
+```
 
-- [Claude Code](/claude-code) dengan `claude-opus-4-6`,
-  `claude-sonnet-4-6`, atau `claude-haiku-4-5`.
-- [Agent terminal](/terminal-agents) yang mendukung OpenAI Chat Completions,
-  dengan `qwen3-coder-next`, `qwen3-coder-30b`, atau model lain yang memiliki
-  `supports_tools: true` di katalog.
+Lalu tambahkan provider Nexotao ke `~/.codex/config.toml`:
 
-Dukungan Codex baru bisa diaktifkan setelah adapter Responses Nexotao mendukung
-model Bedrock secara end-to-end. Cek halaman ini lagi sebelum mengubah
-konfigurasi Codex lokalmu.
+```toml
+model = "gpt-5.6-terra"
+model_provider = "nexotao"
+model_reasoning_effort = "none"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"
+env_key = "NEXOTAO_API_KEY"
+wire_api = "responses"
+```
+
+Pakai `gpt-5.6-terra` untuk kualitas coding yang lebih tinggi atau ganti ke
+`gpt-5.6-luna` untuk pekerjaan cepat dan ringan. Jangan tempel API key langsung
+ke file konfigurasi; `env_key` membuat Codex membacanya dari environment.
 
 ---
 
@@ -1240,15 +1253,16 @@ import { LivePricing } from "../../components/live-pricing"
 
 # Model & Harga
 
-Fase 1 memiliki **32 model Amazon Bedrock aktif** dari 12 provider model. Semua
-memakai satu key Nexotao dan satu saldo Rupiah.
+Fase 1 memiliki **34 model aktif** dari 12 provider model: 32 model Amazon
+Bedrock serta GPT-5.6 Terra dan Luna melalui Azure. Semua memakai satu key
+Nexotao dan satu saldo Rupiah.
 
 ## Kebijakan harga
 
-Harga retail Nexotao adalah **snapshot manual**, dihitung sebesar **100% dari
-harga on-demand AWS Bedrock US Standard** lalu dikonversi dengan kurs **Rp
-18.000/USD**. Tarifnya sama dengan acuan resmi US Standard tersebut; bukan
-berarti harga otomatis mengikuti satu harga "global" dunia.
+Harga retail Nexotao adalah **snapshot manual** sebesar **100% harga Standard
+upstream masing-masing**, dikonversi dengan kurs **Rp 18.000/USD**. Acuannya
+AWS Bedrock US Standard untuk 32 model Bedrock dan Azure/OpenAI Standard untuk
+GPT-5.6 Terra serta Luna; harga tidak tersinkron otomatis.
 
 Katalog produksi adalah sumber kebenaran. Baca langsung sebelum membuat asumsi
 biaya:
@@ -1260,7 +1274,7 @@ curl -s https://api.nexotao.com/models | jq '.models[] | {
 }'
 ```
 
-## Model agentic (24)
+## Model agentic (26)
 
 Model berikut lulus uji stabil round-trip tool call Nexotao dan mengembalikan
 `supports_tools: true`:
@@ -1276,13 +1290,14 @@ Model berikut lulus uji stabil round-trip tool call Nexotao dan mengembalikan
 | Z.AI | `glm-5`, `glm-4-7` |
 | MiniMax | `minimax-m2` |
 | Moonshot | `kimi-k2-5` |
-| OpenAI OSS | `gpt-oss-120b` |
+| OpenAI | `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-oss-120b` |
 
 Pilihan awal yang praktis:
 
 - Claude Code: `claude-opus-4-6`, `claude-sonnet-4-6`, atau `claude-haiku-4-5`.
 - Coding agent: `qwen3-coder-next`, `qwen3-coder-30b`, atau Claude.
 - Tugas agentic cepat dan hemat: `nova-micro`.
+- Codex CLI: `gpt-5.6-terra` atau `gpt-5.6-luna` lewat `/v1/responses`.
 - Agentic general-purpose: `gpt-oss-120b`, `glm-4-7`, atau `mistral-large-3`.
 
 ## Model chat-only (8)
@@ -1402,9 +1417,9 @@ Base URL: `https://api.nexotao.com`. Autentikasi lewat API key — lihat
 | `GET` | `/models` | Katalog harga publik untuk situs (tanpa key) |
 | `GET` | `/v1/models` | Daftar model format OpenAI (butuh key) — dipakai n8n dsb. |
 | `GET` | `/v1/models/{id}` | Detail satu model format OpenAI (butuh key) |
-| `POST` | `/v1/chat/completions` | Chat format OpenAI (DeepSeek dan Claude) |
-| `POST` | `/v1/responses` | Format OpenAI Responses — rutenya ada, tetapi belum ada model Bedrock Fase 1 yang tersedia di endpoint ini |
-| `POST` | `/v1/messages` | Chat format Anthropic (model Claude) |
+| `POST` | `/v1/chat/completions` | Chat format OpenAI — seluruh 34 model |
+| `POST` | `/v1/responses` | Format OpenAI Responses — `gpt-5.6-terra` dan `gpt-5.6-luna` |
+| `POST` | `/v1/messages` | Chat format Anthropic — 32 model Bedrock |
 
 ## Header respons
 
@@ -2103,13 +2118,13 @@ ke Nexotao dan dibayar pakai Rupiah. Lihat [Claude Code](/claude-code).
 ## Berapa harganya?
 
 Tarif live ada di [Model & Harga](/model-harga). Retail Fase 1 setara 100% harga
-on-demand AWS Bedrock US Standard pada kurs Rp 18.000/USD. Ini snapshot katalog
-manual, bukan harga global yang tersinkron otomatis.
+Standard upstream masing-masing pada kurs Rp 18.000/USD: AWS Bedrock untuk 32
+model dan Azure/OpenAI untuk GPT-5.6 Terra serta Luna. Ini snapshot manual.
 
 ## Model mana yang bisa dipakai coding agent?
 
 Pakai model yang mengembalikan `supports_tools: true` di `GET /models`. Katalog
-memiliki 24 model yang sudah divalidasi untuk round-trip tool call stabil dan 8
+memiliki 26 model yang sudah divalidasi untuk round-trip tool call stabil dan 8
 model chat-only.
 
 <Callout type="warning">

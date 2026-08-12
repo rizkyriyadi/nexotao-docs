@@ -1,6 +1,6 @@
 ---
 title: Pengantar
-description: Nexotao memberi akses API ke 32 model Bedrock dengan satu saldo Rupiah. Kompatibel Anthropic Messages dan OpenAI Chat Completions.
+description: Nexotao memberi akses API ke 34 model Bedrock dan Azure dengan satu saldo Rupiah. Kompatibel Messages, Chat Completions, dan Responses.
 ---
 
 # Pengantar Nexotao
@@ -27,9 +27,11 @@ https://api.nexotao.com
 Nexotao mengekspos endpoint yang kompatibel dengan kedua format, jadi kamu cukup
 mengganti base URL dan API key pada tool yang sudah ada:
 
-- **OpenAI** — `POST /v1/chat/completions` — untuk **semua model, termasuk Claude**.
+- **OpenAI** — `POST /v1/chat/completions` — untuk **seluruh 34 model**.
   Kalau ragu, pakai ini.
-- **Anthropic** — `POST /v1/messages` — hanya untuk model Claude, format Anthropic native.
+- **Anthropic** — `POST /v1/messages` — untuk 32 model Bedrock, termasuk Claude.
+- **Responses** — `POST /v1/responses` — untuk `gpt-5.6-terra` dan
+  `gpt-5.6-luna`, termasuk Codex CLI.
 
 Panduan memilih ada di **[Endpoint & Format](/endpoint)**. Bingung menyambungkan tool
 coding-mu? Semua panduan step-by-step ada di **[Integrasi](/integrasi)** — Claude Code,

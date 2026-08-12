@@ -44,13 +44,13 @@ pointed at Nexotao and paid for in Rupiah. See [Claude Code](/en/claude-code).
 ## How much does it cost?
 
 Live rates are on [Models & Pricing](/en/model-harga). Phase 1 retail equals 100%
-of AWS Bedrock US Standard on-demand pricing at Rp 18,000/USD. It is a manual
-catalog snapshot, not an automatically synchronized global price.
+of each live upstream's Standard price at Rp 18,000/USD: AWS Bedrock for 32
+models and Azure/OpenAI for GPT-5.6 Terra and Luna. It is a manual snapshot.
 
 ## Which models work in coding agents?
 
 Use a model that reports `supports_tools: true` in `GET /models`. The catalog has
-24 models validated for stable tool-call round trips and 8 chat-only models.
+26 models validated for stable tool-call round trips and 8 chat-only models.
 
 <Callout type="warning">
   Chat-only models such as `deepseek-r1`, `deepseek-v3-2`, and `gpt-oss-20b`

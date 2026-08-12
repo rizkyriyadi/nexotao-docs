@@ -32,9 +32,11 @@ https://api.nexotao.com
 Nexotao exposes endpoints compatible with both formats, so you only need to change
 the base URL and API key in your existing tools:
 
-- **OpenAI** — `POST /v1/chat/completions` — for **every model, including Claude**.
+- **OpenAI** — `POST /v1/chat/completions` — for **all 34 models**.
   When in doubt, use this.
-- **Anthropic** — `POST /v1/messages` — Claude models only, native Anthropic format.
+- **Anthropic** — `POST /v1/messages` — for the 32 Bedrock models, including Claude.
+- **Responses** — `POST /v1/responses` — for `gpt-5.6-terra` and
+  `gpt-5.6-luna`, including Codex CLI.
 
 Which one to pick: **[Endpoints & Formats](/en/endpoint)**. Not sure how to connect your
 coding tool? Every step-by-step guide lives under **[Integrations](/en/integrasi)** —
@@ -296,17 +298,18 @@ Source: https://docs.nexotao.com/en/endpoint
 
 # Endpoints & Formats
 
-All 32 Phase 1 models are backed by Bedrock Converse and can be called through
-either chat endpoint. Choose the wire format your client already supports.
+The Phase 1 catalog contains 32 Bedrock models and two GPT-5.6 models through
+Azure. Choose the endpoint based on the model and your client's wire format.
 
 | Client format | Endpoint | SDK base URL | Authentication |
 | --- | --- | --- | --- |
 | OpenAI Chat Completions | `/v1/chat/completions` | `https://api.nexotao.com/v1` | `Authorization: Bearer sk-nexo-...` |
 | Anthropic Messages | `/v1/messages` | `https://api.nexotao.com` | `x-api-key: sk-nexo-...` |
+| OpenAI Responses | `/v1/responses` | `https://api.nexotao.com/v1` | `Authorization: Bearer sk-nexo-...` |
 
-> `/v1/responses` is **not available for the Bedrock Phase 1 catalog**. OpenAI
-> Codex CLI requires that endpoint, so use Claude Code or another Chat
-> Completions/Messages-compatible agent for now.
+`/v1/chat/completions` accepts all 34 models. `/v1/messages` accepts the 32
+Bedrock models. `/v1/responses` is available specifically for
+`gpt-5.6-terra` and `gpt-5.6-luna`, including OpenAI Codex CLI.
 
 ## OpenAI format
 
@@ -516,7 +519,9 @@ curl -s https://api.nexotao.com/models | jq -r \
 | Context | Model IDs |
 | --- | --- |
 | 10,000,000 | `llama-4-scout-17b` |
+| 1,050,000 | `gpt-5.6-terra` |
 | 1,000,000 | `claude-opus-4-6`, `claude-sonnet-4-6`, `nova-2-lite`, `llama-4-maverick-17b`, `minimax-m2` |
+| 400,000 | `gpt-5.6-luna` |
 | 300,000 | `nova-lite`, `nova-pro` |
 | 256,000 | `mistral-large-3`, `devstral-2`, `qwen3-coder-30b`, `qwen3-coder-next`, `nemotron-super-120b`, `nemotron-nano-30b`, `kimi-k2-5` |
 | 203,000 | `glm-4-7` |
@@ -569,19 +574,19 @@ Nexotao is not a new model you have to learn from scratch. It's a **gateway** to
 AI models you already use — Claude, Qwen, Nova, DeepSeek, and more — except the **base URL** and
 **API key** point to Nexotao, and usage is billed from a Rupiah balance.
 
-Tools that support OpenAI Chat Completions or Anthropic Messages can connect to
-Nexotao. Tools that require another protocol, such as Codex with the Responses
-API, are not automatically compatible.
+Tools that support OpenAI Chat Completions, Anthropic Messages, or OpenAI
+Responses can connect to Nexotao.
 
-## Two "modes" — this is all you need to remember
+## Three modes — this is all you need to remember
 
-Every integration reduces to one of two modes. Once you understand this, you can wire
+Every integration reduces to one of three modes. Once you understand this, you can wire
 up any tool, even ones not listed below.
 
 | Mode | Base URL | Header / env | Model | Used for |
 | ---- | -------- | ------------ | ----- | -------- |
-| **Anthropic-compatible** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | All 32 Phase 1 models | Tools that speak Anthropic Messages, including Claude Code |
-| **OpenAI-compatible** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | All 32 Phase 1 models | Tools that speak OpenAI Chat Completions, including Aider and Continue |
+| **Anthropic-compatible** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | 32 Bedrock models | Tools that speak Anthropic Messages, including Claude Code |
+| **OpenAI Chat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | All 34 models | Chat Completions tools, including Aider and Continue |
+| **OpenAI Responses** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `NEXOTAO_API_KEY` | `gpt-5.6-terra`, `gpt-5.6-luna` | OpenAI Codex CLI |
 
 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
   <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
@@ -608,7 +613,7 @@ up any tool, even ones not listed below.
 
 <ToolGrid items={[
   { logo: "/logos/claude.svg", name: "Claude Code", desc: "Anthropic's CLI coding agent. Copy-paste config generator.", href: "/claude-code", mode: "anthropic" },
-  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Not supported in Phase 1 because Codex requires the Responses API.", href: "/codex", mode: "openai" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Supported through the Responses API with GPT-5.6 Terra or Luna.", href: "/codex", mode: "openai" },
   { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "AI extensions in VS Code — custom OpenAI/Anthropic providers.", href: "/vscode", mode: "both" },
   { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Terminal coding agents. Env / config-file setup.", href: "/terminal-agents", mode: "both" },
   { logo: "/logos/cursor.svg", name: "Any other tool (universal)", desc: "Cursor, Copilot, or anything that accepts a custom base URL.", href: "/kompatibel", mode: "both" },
@@ -851,25 +856,33 @@ Source: https://docs.nexotao.com/en/codex
 
 # OpenAI Codex CLI
 
-OpenAI Codex CLI uses the **Responses API** (`/v1/responses`). Nexotao's 32
-Bedrock Phase 1 models currently support `/v1/messages` and
-`/v1/chat/completions`, but not `/v1/responses`.
+OpenAI Codex CLI uses the **Responses API** (`/v1/responses`). Nexotao supports
+Codex through `gpt-5.6-terra` and `gpt-5.6-luna`; the 32 Bedrock models continue
+to use `/v1/messages` or `/v1/chat/completions`.
 
-Therefore Codex CLI is **not supported in Phase 1**. Changing only
-`~/.codex/config.toml` will not make it work; requests currently return `model
-not available on this endpoint`.
+Store your API key in an environment variable:
 
-For an agentic coding experience today, use:
+```bash
+export NEXOTAO_API_KEY="sk-nexo-..."
+```
 
-- [Claude Code](/en/claude-code) with `claude-opus-4-6`,
-  `claude-sonnet-4-6`, or `claude-haiku-4-5`.
-- [Terminal agents](/en/terminal-agents) that support OpenAI Chat Completions,
-  with `qwen3-coder-next`, `qwen3-coder-30b`, or another model whose catalog
-  entry has `supports_tools: true`.
+Then add the Nexotao provider to `~/.codex/config.toml`:
 
-Codex support can be enabled only after the Nexotao Responses adapter supports
-Bedrock models end to end. Check this page again before changing your local
-Codex configuration.
+```toml
+model = "gpt-5.6-terra"
+model_provider = "nexotao"
+model_reasoning_effort = "none"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"
+env_key = "NEXOTAO_API_KEY"
+wire_api = "responses"
+```
+
+Use `gpt-5.6-terra` for stronger coding quality, or switch to `gpt-5.6-luna`
+for fast, lightweight work. Do not paste the API key directly into the config;
+`env_key` makes Codex read it from the environment.
 
 ---
 
@@ -1238,15 +1251,16 @@ import { LivePricing } from "../../components/live-pricing"
 
 # Models & Pricing
 
-Phase 1 has **32 active Amazon Bedrock models** from 12 model providers. All use
-one Nexotao key and one Rupiah balance.
+Phase 1 has **34 active models** from 12 model providers: 32 Amazon Bedrock
+models plus GPT-5.6 Terra and Luna through Azure. All use one Nexotao key and
+one Rupiah balance.
 
 ## Pricing policy
 
-Nexotao retail rates are a **manual snapshot**, calculated as **100% of AWS
-Bedrock US Standard on-demand pricing** and converted at **Rp 18,000/USD**. The
-rates match that official US Standard reference; they do not automatically
-follow a single worldwide or "global" price.
+Nexotao retail rates are a **manual snapshot** at **100% of each live
+upstream's Standard price**, converted at **Rp 18,000/USD**. The reference is
+AWS Bedrock US Standard for the 32 Bedrock models and Azure/OpenAI Standard for
+GPT-5.6 Terra and Luna; prices are not synchronized automatically.
 
 The production catalog is the source of truth. Read it before making cost
 assumptions:
@@ -1258,7 +1272,7 @@ curl -s https://api.nexotao.com/models | jq '.models[] | {
 }'
 ```
 
-## Agentic models (24)
+## Agentic models (26)
 
 These passed Nexotao's stable tool-call round-trip test and report
 `supports_tools: true`:
@@ -1274,13 +1288,14 @@ These passed Nexotao's stable tool-call round-trip test and report
 | Z.AI | `glm-5`, `glm-4-7` |
 | MiniMax | `minimax-m2` |
 | Moonshot | `kimi-k2-5` |
-| OpenAI OSS | `gpt-oss-120b` |
+| OpenAI | `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-oss-120b` |
 
 Good defaults:
 
 - Claude Code: `claude-opus-4-6`, `claude-sonnet-4-6`, or `claude-haiku-4-5`.
 - Coding agents: `qwen3-coder-next`, `qwen3-coder-30b`, or Claude.
 - Fast and economical agentic work: `nova-micro`.
+- Codex CLI: `gpt-5.6-terra` or `gpt-5.6-luna` through `/v1/responses`.
 - General-purpose agentic work: `gpt-oss-120b`, `glm-4-7`, or `mistral-large-3`.
 
 ## Chat-only models (8)
@@ -1402,9 +1417,9 @@ Base URL: `https://api.nexotao.com`. Authentication via API key — see
 | `GET` | `/models` | Public pricing catalog for the site (no key) |
 | `GET` | `/v1/models` | OpenAI-format model list (requires key) — used by n8n etc. |
 | `GET` | `/v1/models/{id}` | Single model detail, OpenAI format (requires key) |
-| `POST` | `/v1/chat/completions` | Chat, OpenAI format (DeepSeek and Claude) |
-| `POST` | `/v1/responses` | OpenAI Responses format — route exists, but no Bedrock Phase 1 model is available on it yet |
-| `POST` | `/v1/messages` | Chat, Anthropic format (Claude models) |
+| `POST` | `/v1/chat/completions` | OpenAI Chat Completions — all 34 models |
+| `POST` | `/v1/responses` | OpenAI Responses — `gpt-5.6-terra` and `gpt-5.6-luna` |
+| `POST` | `/v1/messages` | Anthropic Messages — the 32 Bedrock models |
 
 ## Response headers
 
@@ -2101,13 +2116,13 @@ pointed at Nexotao and paid for in Rupiah. See [Claude Code](/en/claude-code).
 ## How much does it cost?
 
 Live rates are on [Models & Pricing](/en/model-harga). Phase 1 retail equals 100%
-of AWS Bedrock US Standard on-demand pricing at Rp 18,000/USD. It is a manual
-catalog snapshot, not an automatically synchronized global price.
+of each live upstream's Standard price at Rp 18,000/USD: AWS Bedrock for 32
+models and Azure/OpenAI for GPT-5.6 Terra and Luna. It is a manual snapshot.
 
 ## Which models work in coding agents?
 
 Use a model that reports `supports_tools: true` in `GET /models`. The catalog has
-24 models validated for stable tool-call round trips and 8 chat-only models.
+26 models validated for stable tool-call round trips and 8 chat-only models.
 
 <Callout type="warning">
   Chat-only models such as `deepseek-r1`, `deepseek-v3-2`, and `gpt-oss-20b`

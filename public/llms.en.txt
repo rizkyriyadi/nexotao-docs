@@ -4,22 +4,22 @@
 
 ## Pages
 
-- [Introduction](https://docs.nexotao.com/en): Nexotao gives you API access to 32 Bedrock models with one Rupiah balance. Anthropic Messages and OpenAI Chat Completions compatible.
+- [Introduction](https://docs.nexotao.com/en): Nexotao gives you API access to 34 Bedrock and Azure models with one Rupiah balance. Messages, Chat Completions, and Responses compatible.
 - [Core Concepts](https://docs.nexotao.com/en/konsep): Plain-language explanations of Nexotao terms for beginners — AI models, tokens, API keys, endpoints, and balance. No jargon, no IT background needed.
 - [Quickstart](https://docs.nexotao.com/en/quickstart): From sign-up, QRIS/crypto top-up, creating an API key, to your first request to Nexotao. Ready-to-paste curl, Python, and Node examples.
 - [Playground](https://docs.nexotao.com/en/playground): Try the Nexotao API right from your browser — paste your API key, pick a model, type a message, see the reply and its cost. No code required.
-- [Endpoints & Formats](https://docs.nexotao.com/en/endpoint): Use all 32 Nexotao Phase 1 models through OpenAI Chat Completions or Anthropic Messages format.
+- [Endpoints & Formats](https://docs.nexotao.com/en/endpoint): Use 34 Nexotao Phase 1 models through Chat Completions, Anthropic Messages, or the Responses API.
 - [Authentication](https://docs.nexotao.com/en/autentikasi): Nexotao API keys (sk-nexo-...), how to send them via the Authorization or x-api-key header, and key security practices.
 - [Text & Chat](https://docs.nexotao.com/en/teks): Nexotao text endpoints — /v1/messages (Anthropic) and /v1/chat/completions (OpenAI), including SSE streaming. curl, Python, and Node examples.
 - [Context Window & Compaction](https://docs.nexotao.com/en/context-window): Read each Nexotao model's context window and keep long agent sessions healthy with compaction.
 - [Integrations — Every AI Tool](https://docs.nexotao.com/en/integrasi): How to connect Claude Code, VS Code extensions, Aider, and OpenCode to Nexotao, plus the current Codex compatibility status.
 - [Claude Code](https://docs.nexotao.com/en/claude-code): Use the Claude Code coding agent through Nexotao and pay in Rupiah. Per-OS steps plus an interactive settings.json config generator.
 - [Run Claude Code in Rupiah (no foreign card)](https://docs.nexotao.com/en/claude-code-rupiah): Step-by-step guide to run the Claude Code coding agent from Indonesia and pay in Rupiah — no foreign credit card. Sign up, top up via QRIS, point Claude Code at an Anthropic-compatible base URL, and verify the cost per request.
-- [OpenAI Codex CLI](https://docs.nexotao.com/en/codex): Codex CLI status on Nexotao Phase 1 and supported agent alternatives.
+- [OpenAI Codex CLI](https://docs.nexotao.com/en/codex): Connect Codex CLI to GPT-5.6 Terra or Luna through the Nexotao Responses API.
 - [VS Code (Cline, Roo Code, Continue, Kilo Code)](https://docs.nexotao.com/en/vscode): Connect VS Code AI extensions — Cline, Roo Code, Continue.dev, Kilo Code — to Nexotao via an OpenAI-compatible or Anthropic custom provider. Step by step.
 - [Aider & OpenCode](https://docs.nexotao.com/en/terminal-agents): Use the Aider and OpenCode terminal coding agents with Nexotao. Env-var and config-file setup for both OpenAI-compat and Claude models.
 - [Any Other Tool (Universal)](https://docs.nexotao.com/en/kompatibel): The universal pattern for connecting any AI tool to Nexotao — Cursor, the OpenAI/Anthropic SDKs, LangChain, or any new tool that accepts a custom base URL.
-- [Models & Pricing](https://docs.nexotao.com/en/model-harga): The 32 Phase 1 models, exact Model IDs, agentic compatibility, and live Rupiah rates from the Nexotao catalog.
+- [Models & Pricing](https://docs.nexotao.com/en/model-harga): The 34 Phase 1 models, exact Model IDs, agentic compatibility, and live Rupiah rates from the Nexotao catalog.
 - [Billing & Pricing](https://docs.nexotao.com/en/penagihan): Token-based Rupiah balance system. Text is billed per token (input and output). Live pricing table from GET /models.
 - [API Reference](https://docs.nexotao.com/en/api-reference): List of Nexotao endpoints, response headers (X-Cost-Rp, X-Request-Id, X-Error-Code), and the error body shape (error, code, type, request_id, retryable).
 - [Errors & Debugging](https://docs.nexotao.com/en/errors): Complete Nexotao error reference — the error envelope, stable codes, request_id, catalogue by HTTP status, in-band streaming errors, and retry guidance.

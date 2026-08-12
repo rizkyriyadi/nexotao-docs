@@ -1,26 +1,34 @@
 ---
 title: OpenAI Codex CLI
-description: Status Codex CLI di Nexotao Fase 1 dan alternatif agent yang sudah didukung.
+description: Hubungkan Codex CLI ke GPT-5.6 Terra atau Luna melalui Responses API Nexotao.
 ---
 
 # OpenAI Codex CLI
 
-OpenAI Codex CLI memakai **Responses API** (`/v1/responses`). Saat ini 32 model
-Bedrock Fase 1 Nexotao mendukung `/v1/messages` dan
-`/v1/chat/completions`, tetapi belum mendukung `/v1/responses`.
+OpenAI Codex CLI memakai **Responses API** (`/v1/responses`). Nexotao mendukung
+Codex melalui `gpt-5.6-terra` dan `gpt-5.6-luna`; 32 model Bedrock tetap memakai
+`/v1/messages` atau `/v1/chat/completions`.
 
-Karena itu Codex CLI **belum didukung di Fase 1**. Mengubah
-`~/.codex/config.toml` saja tidak akan membuatnya jalan; request saat ini
-mengembalikan `model not available on this endpoint`.
+Simpan API key sebagai environment variable:
 
-Untuk pengalaman coding agentic sekarang, pakai:
+```bash
+export NEXOTAO_API_KEY="sk-nexo-..."
+```
 
-- [Claude Code](/claude-code) dengan `claude-opus-4-6`,
-  `claude-sonnet-4-6`, atau `claude-haiku-4-5`.
-- [Agent terminal](/terminal-agents) yang mendukung OpenAI Chat Completions,
-  dengan `qwen3-coder-next`, `qwen3-coder-30b`, atau model lain yang memiliki
-  `supports_tools: true` di katalog.
+Lalu tambahkan provider Nexotao ke `~/.codex/config.toml`:
 
-Dukungan Codex baru bisa diaktifkan setelah adapter Responses Nexotao mendukung
-model Bedrock secara end-to-end. Cek halaman ini lagi sebelum mengubah
-konfigurasi Codex lokalmu.
+```toml
+model = "gpt-5.6-terra"
+model_provider = "nexotao"
+model_reasoning_effort = "none"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"
+env_key = "NEXOTAO_API_KEY"
+wire_api = "responses"
+```
+
+Pakai `gpt-5.6-terra` untuk kualitas coding yang lebih tinggi atau ganti ke
+`gpt-5.6-luna` untuk pekerjaan cepat dan ringan. Jangan tempel API key langsung
+ke file konfigurasi; `env_key` membuat Codex membacanya dari environment.

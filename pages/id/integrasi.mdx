@@ -13,19 +13,19 @@ Nexotao bukan model baru yang harus kamu pelajari dari nol. Nexotao adalah **ger
 saja **base URL** dan **API key**-nya diganti ke Nexotao, dan tagihannya dipotong dari
 saldo Rupiah.
 
-Tool yang mendukung OpenAI Chat Completions atau Anthropic Messages bisa terhubung
-ke Nexotao. Tool yang mewajibkan protokol lain, seperti Codex dengan Responses API,
-tidak otomatis kompatibel.
+Tool yang mendukung OpenAI Chat Completions, Anthropic Messages, atau OpenAI
+Responses bisa terhubung ke Nexotao.
 
-## Dua "mode" — cukup ingat ini
+## Tiga mode — cukup ingat ini
 
-Semua integrasi turun ke salah satu dari dua mode. Kalau kamu paham ini, kamu bisa
+Semua integrasi turun ke salah satu dari tiga mode. Kalau kamu paham ini, kamu bisa
 menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
 
 | Mode | Base URL | Header / env | Model | Dipakai untuk |
 | ---- | -------- | ------------ | ----- | ------------- |
-| **Anthropic-compat** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | Semua 32 model Fase 1 | Tool berformat Anthropic Messages, termasuk Claude Code |
-| **OpenAI-compat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | Semua 32 model Fase 1 | Tool berformat OpenAI Chat Completions, termasuk Aider dan Continue |
+| **Anthropic-compat** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | 32 model Bedrock | Tool berformat Anthropic Messages, termasuk Claude Code |
+| **OpenAI Chat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | Semua 34 model | Tool berformat Chat Completions, termasuk Aider dan Continue |
+| **OpenAI Responses** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `NEXOTAO_API_KEY` | `gpt-5.6-terra`, `gpt-5.6-luna` | OpenAI Codex CLI |
 
 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
   <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
@@ -51,7 +51,7 @@ menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
 
 <ToolGrid items={[
   { logo: "/logos/claude.svg", name: "Claude Code", desc: "Coding agent CLI dari Anthropic. Generator config siap-tempel.", href: "/claude-code", mode: "anthropic" },
-  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Belum didukung di Fase 1 karena Codex mewajibkan Responses API.", href: "/codex", mode: "openai" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Didukung lewat Responses API dengan GPT-5.6 Terra atau Luna.", href: "/codex", mode: "openai" },
   { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "Extension AI di VS Code — provider kustom OpenAI/Anthropic.", href: "/vscode", mode: "both" },
   { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Agent coding di terminal. Konfigurasi env / config file.", href: "/terminal-agents", mode: "both" },
   { logo: "/logos/cursor.svg", name: "Tool lain (universal)", desc: "Cursor, Copilot, atau tool apa pun yang menerima base URL kustom.", href: "/kompatibel", mode: "both" },

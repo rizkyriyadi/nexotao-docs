@@ -44,13 +44,13 @@ ke Nexotao dan dibayar pakai Rupiah. Lihat [Claude Code](/claude-code).
 ## Berapa harganya?
 
 Tarif live ada di [Model & Harga](/model-harga). Retail Fase 1 setara 100% harga
-on-demand AWS Bedrock US Standard pada kurs Rp 18.000/USD. Ini snapshot katalog
-manual, bukan harga global yang tersinkron otomatis.
+Standard upstream masing-masing pada kurs Rp 18.000/USD: AWS Bedrock untuk 32
+model dan Azure/OpenAI untuk GPT-5.6 Terra serta Luna. Ini snapshot manual.
 
 ## Model mana yang bisa dipakai coding agent?
 
 Pakai model yang mengembalikan `supports_tools: true` di `GET /models`. Katalog
-memiliki 24 model yang sudah divalidasi untuk round-trip tool call stabil dan 8
+memiliki 26 model yang sudah divalidasi untuk round-trip tool call stabil dan 8
 model chat-only.
 
 <Callout type="warning">

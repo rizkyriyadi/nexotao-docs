@@ -12,19 +12,19 @@ Nexotao is not a new model you have to learn from scratch. It's a **gateway** to
 AI models you already use — Claude, Qwen, Nova, DeepSeek, and more — except the **base URL** and
 **API key** point to Nexotao, and usage is billed from a Rupiah balance.
 
-Tools that support OpenAI Chat Completions or Anthropic Messages can connect to
-Nexotao. Tools that require another protocol, such as Codex with the Responses
-API, are not automatically compatible.
+Tools that support OpenAI Chat Completions, Anthropic Messages, or OpenAI
+Responses can connect to Nexotao.
 
-## Two "modes" — this is all you need to remember
+## Three modes — this is all you need to remember
 
-Every integration reduces to one of two modes. Once you understand this, you can wire
+Every integration reduces to one of three modes. Once you understand this, you can wire
 up any tool, even ones not listed below.
 
 | Mode | Base URL | Header / env | Model | Used for |
 | ---- | -------- | ------------ | ----- | -------- |
-| **Anthropic-compatible** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | All 32 Phase 1 models | Tools that speak Anthropic Messages, including Claude Code |
-| **OpenAI-compatible** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | All 32 Phase 1 models | Tools that speak OpenAI Chat Completions, including Aider and Continue |
+| **Anthropic-compatible** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | 32 Bedrock models | Tools that speak Anthropic Messages, including Claude Code |
+| **OpenAI Chat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | All 34 models | Chat Completions tools, including Aider and Continue |
+| **OpenAI Responses** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `NEXOTAO_API_KEY` | `gpt-5.6-terra`, `gpt-5.6-luna` | OpenAI Codex CLI |
 
 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
   <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
@@ -51,7 +51,7 @@ up any tool, even ones not listed below.
 
 <ToolGrid items={[
   { logo: "/logos/claude.svg", name: "Claude Code", desc: "Anthropic's CLI coding agent. Copy-paste config generator.", href: "/claude-code", mode: "anthropic" },
-  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Not supported in Phase 1 because Codex requires the Responses API.", href: "/codex", mode: "openai" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Supported through the Responses API with GPT-5.6 Terra or Luna.", href: "/codex", mode: "openai" },
   { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "AI extensions in VS Code — custom OpenAI/Anthropic providers.", href: "/vscode", mode: "both" },
   { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Terminal coding agents. Env / config-file setup.", href: "/terminal-agents", mode: "both" },
   { logo: "/logos/cursor.svg", name: "Any other tool (universal)", desc: "Cursor, Copilot, or anything that accepts a custom base URL.", href: "/kompatibel", mode: "both" },
