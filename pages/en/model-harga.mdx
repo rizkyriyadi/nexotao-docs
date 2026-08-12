@@ -1,98 +1,73 @@
 ---
 title: Models & Pricing
-description: The same models as Anthropic and OpenAI, billed per token over QRIS. The full Model ID list, model-selection guidance, and live per-million-token rates from GET /models.
+description: The 32 Phase 1 models, exact Model IDs, agentic compatibility, and live Rupiah rates from the Nexotao catalog.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
 
 # Models & Pricing
 
-**The same models as Anthropic and OpenAI direct.** The difference: pay per
-token with QRIS. No USD card, no monthly subscription, no FX card fee.
+Phase 1 has **32 active Amazon Bedrock models** from 12 model providers. All use
+one Nexotao key and one Rupiah balance.
 
-## Display name vs Model ID
+## Pricing policy
 
-Names such as **GPT-5.6 Sol** are human-readable **display names**. When calling
-the API, use the exact **Model ID**, such as `gpt-5.6-sol`. Model IDs are
-**case-sensitive**: do not change capitalization or pass the display name as
-the `model` value.
+Nexotao retail rates are a **manual snapshot**, calculated as **75% of AWS
+Bedrock US Standard on-demand pricing** and converted at **Rp 18,000/USD**. That
+means 25% below that AWS reference at the time the catalog was set; it does not
+mean rates automatically follow a single worldwide or "global" price.
 
-List every Model ID directly from the live catalog:
+The production catalog is the source of truth. Read it before making cost
+assumptions:
 
 ```bash
-curl -s https://api.nexotao.com/models | jq -r '.models[].model'
+curl -s https://api.nexotao.com/models | jq '.models[] | {
+  model, display_name, provider, supports_tools, supports_vision,
+  context_window, input_per_million_micro, output_per_million_micro
+}'
 ```
 
-All 12 live models and their Model IDs:
+## Agentic models (24)
 
-| Display name | API Model ID |
+These passed Nexotao's stable tool-call round-trip test and report
+`supports_tools: true`:
+
+| Provider | API Model IDs |
 | --- | --- |
-| DeepSeek V4 Flash | `DeepSeek-V4-Flash` |
-| DeepSeek V4 Pro | `DeepSeek-V4-Pro` |
-| GPT-5 Mini | `gpt-5-mini` |
-| GPT-5.6 Luna | `gpt-5.6-luna` |
-| GPT-5.6 Sol | `gpt-5.6-sol` |
-| GPT-5.6 Terra | `gpt-5.6-terra` |
-| Grok 4.3 | `grok-4.3` |
-| Claude Opus 4.6 | `claude-opus-4-6` |
-| Claude Opus 4.7 | `claude-opus-4-7` |
-| Claude Opus 4.8 | `claude-opus-4-8` |
-| Claude Opus 5 | `claude-opus-5` |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
+| Anthropic | `claude-opus-4-6`, `claude-opus-4-5`, `claude-sonnet-4-6`, `claude-sonnet-4-5`, `claude-haiku-4-5` |
+| Mistral | `mistral-large-3`, `devstral-2`, `magistral-small`, `ministral-14b`, `ministral-8b` |
+| Amazon | `nova-micro`, `nova-lite`, `nova-pro`, `nova-2-lite` |
+| Meta | `llama-4-maverick-17b` |
+| Qwen | `qwen3-32b`, `qwen3-coder-30b`, `qwen3-coder-next` |
+| NVIDIA | `nemotron-super-120b` |
+| Z.AI | `glm-5`, `glm-4-7` |
+| MiniMax | `minimax-m2` |
+| Moonshot | `kimi-k2-5` |
+| OpenAI OSS | `gpt-oss-120b` |
 
-The live catalog is what counts — if this table and `GET /models` disagree,
-trust `GET /models`.
+Good defaults:
 
-## Choosing a model
+- Claude Code: `claude-opus-4-6`, `claude-sonnet-4-6`, or `claude-haiku-4-5`.
+- Coding agents: `qwen3-coder-next`, `qwen3-coder-30b`, or Claude.
+- Fast and economical agentic work: `nova-micro`.
+- General-purpose agentic work: `gpt-oss-120b`, `glm-4-7`, or `mistral-large-3`.
 
-What each model is for. For its rates, see the live table below.
+## Chat-only models (8)
 
-| Model | Best for |
-| --- | --- |
-| `DeepSeek-V4-Flash` | High-volume, cheap work: classification, extraction, short chat. |
-| `DeepSeek-V4-Pro` | Higher-quality DeepSeek; 131,072-token context. |
-| `gpt-5-mini` | OpenAI's cheapest tier — classifiers, extraction, batch. Supports vision. |
-| `gpt-5.6-luna` | Efficient for everyday work and high-volume tasks. |
-| `gpt-5.6-terra` | Balanced for coding, analysis, and agent workflows. |
-| `gpt-5.6-sol` | Top GPT-5.6 tier; the same rate for input and output. |
-| `grok-4.3` | An alternative outside the GPT and Claude families. |
-| `claude-opus-4-6` | The Opus that **still accepts** `temperature` / `top_p` / `top_k`. |
-| `claude-opus-4-7` | Previous-generation Opus; sampling parameters no longer accepted. |
-| `claude-opus-4-8` | The strongest reasoning model for coding and agentic work. |
-| `claude-opus-5` | The newest Opus; 1,000,000-token context. |
-| `claude-sonnet-4-6` | Fast + smart for high-volume product chat; sampling still works. |
+These are available for chat and text generation but report
+`supports_tools: false`; do not select them for a client that requires tool
+calling:
 
-The Claude models and `gpt-5-mini` support **vision** (image input); the rest are
-text-only. Check `supports_vision` in `GET /models` to confirm.
+`deepseek-r1`, `deepseek-v3-2`, `ministral-3b`, `llama-4-scout-17b`,
+`llama-3-3-70b`, `nemotron-nano-30b`, `gemma-3-27b`, `gpt-oss-20b`.
 
-> **Match the model to the job.** `DeepSeek` is great for **high-volume, cheap**
-> workloads — classification, extraction, short chat — but **not for
-> agentic/coding or large context**. Its capacity is small (~20k tokens/min), so
-> a single agentic or large-context request can hit `429 server at capacity`.
-> For **coding/agentic & large context**, use **Claude (Opus/Sonnet)** or
-> **GPT-5.6**.
+## Live rates
 
-## Live per-million-token rates
-
-Every model has per-million-token rates for **input**, **output**, and (for
-Claude/GPT) **cache-read + cache-write**. The values here come straight from
-`GET /models` — always in sync with the live catalog, with no hardcoded prices on
-the page.
+Rates below are fetched in the browser from `GET /models`. Model IDs are
+case-sensitive. If this page and the API ever disagree, trust the API.
 
 <LivePricing />
 
-## How to read the rates
-
-- **Text** — rate per 1 million tokens, separately for input and output.
-- **Cache (Claude/GPT)** — cache reads are much cheaper than the standard input
-  rate; cache writes are slightly more. Full breakdown in [Billing & Pricing](/en/penagihan).
-- **What you're billed** — always `token_count × model_rate_at_the_time`, rounded
-  up. There is no per-request fee and no minimum charge.
-
-Need a cost estimate before you call the API? Take the rate from `GET /models` and
-multiply it by your expected token count — or see
-[nexotao.com/harga](https://nexotao.com/harga) for a calculator and price
-comparisons.
-
-Billing details, cache mechanics, and per-request accounting live in
-[Billing & Pricing](/en/penagihan).
+Every text rate is per 1 million tokens, separately for input and output. The
+amount billed is based on the production catalog rate at request time. See
+[Billing & Pricing](/en/penagihan) for accounting details.

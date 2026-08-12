@@ -4,22 +4,22 @@
 
 ## Halaman
 
-- [Pengantar](https://docs.nexotao.com/id): Nexotao memberi akses API model AI (GPT-5.6, Claude, DeepSeek) dengan satu saldo Rupiah. Kompatibel Anthropic & OpenAI.
+- [Pengantar](https://docs.nexotao.com/id): Nexotao memberi akses API ke 32 model Bedrock dengan satu saldo Rupiah. Kompatibel Anthropic Messages dan OpenAI Chat Completions.
 - [Konsep Dasar](https://docs.nexotao.com/id/konsep): Penjelasan sederhana istilah Nexotao untuk pemula — model AI, token, API key, endpoint, dan saldo. Tanpa jargon, cocok untuk yang belum punya latar belakang IT.
 - [Quickstart](https://docs.nexotao.com/id/quickstart): Dari daftar, top-up QRIS/crypto, buat API key, sampai request pertama ke Nexotao. Contoh siap-tempel curl, Python, dan Node.
 - [Playground](https://docs.nexotao.com/id/playground): Coba API Nexotao langsung dari browser — tempel API key, pilih model, tulis pesan, lihat jawaban dan biayanya. Tanpa menulis kode.
-- [Endpoint & Format](https://docs.nexotao.com/id/endpoint): Endpoint mana yang harus dipakai di Nexotao — /v1/chat/completions (format OpenAI, semua model termasuk Claude) atau /v1/messages (format Anthropic native). Panduan memilih plus contoh.
+- [Endpoint & Format](https://docs.nexotao.com/id/endpoint): Pakai seluruh 32 model Fase 1 Nexotao melalui format OpenAI Chat Completions atau Anthropic Messages.
 - [Autentikasi](https://docs.nexotao.com/id/autentikasi): API key Nexotao (sk-nexo-...), cara mengirim lewat header Authorization atau x-api-key, dan praktik keamanan key.
 - [Teks & Chat](https://docs.nexotao.com/id/teks): Endpoint teks Nexotao — /v1/messages (Anthropic) dan /v1/chat/completions (OpenAI), termasuk streaming SSE. Contoh curl, Python, dan Node.
-- [Context Window & Kompaksi](https://docs.nexotao.com/id/context-window): Cara kerja context window Nexotao, cara mengkalibrasi klien (Claude Code) ke window itu, dan apa yang harus dilakukan saat prompt terlalu panjang. Pakai kompaksi agar sesi panjang tetap jalan.
-- [Integrasi — Semua Tool AI](https://docs.nexotao.com/id/integrasi): Cara menghubungkan Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, dan OpenCode ke Nexotao. Bayar pakai Rupiah, tanpa kartu kredit luar negeri.
+- [Context Window & Kompaksi](https://docs.nexotao.com/id/context-window): Baca context window tiap model Nexotao dan jaga sesi agent panjang tetap sehat dengan kompaksi.
+- [Integrasi — Semua Tool AI](https://docs.nexotao.com/id/integrasi): Cara menghubungkan Claude Code, extension VS Code, Aider, dan OpenCode ke Nexotao, plus status kompatibilitas Codex saat ini.
 - [Claude Code](https://docs.nexotao.com/id/claude-code): Pakai coding agent Claude Code lewat Nexotao dan bayar pakai Rupiah. Langkah per sistem operasi plus generator config settings.json interaktif.
 - [Cara Pakai Claude Code Bayar Rupiah (tanpa kartu kredit)](https://docs.nexotao.com/id/claude-code-rupiah): Panduan lengkap menjalankan coding agent Claude Code dari Indonesia dan bayar pakai Rupiah — tanpa kartu kredit luar negeri. Daftar, top up via QRIS, arahkan Claude Code ke base URL yang kompatibel dengan Anthropic, dan cek biaya tiap request.
-- [Codex CLI](https://docs.nexotao.com/id/codex): Pakai OpenAI Codex CLI dengan model Nexotao (GPT-5.6, gpt-5-mini, Grok, DeepSeek) dan bayar pakai Rupiah. Konfigurasi ~/.codex/config.toml langkah demi langkah.
+- [OpenAI Codex CLI](https://docs.nexotao.com/id/codex): Status Codex CLI di Nexotao Fase 1 dan alternatif agent yang sudah didukung.
 - [VS Code (Cline, Roo Code, Continue, Kilo Code)](https://docs.nexotao.com/id/vscode): Sambungkan extension AI di VS Code — Cline, Roo Code, Continue.dev, Kilo Code — ke Nexotao lewat provider OpenAI-compat atau Anthropic. Langkah demi langkah.
 - [Aider & OpenCode](https://docs.nexotao.com/id/terminal-agents): Pakai coding agent terminal Aider dan OpenCode dengan Nexotao. Konfigurasi env var dan config file untuk model OpenAI-compat maupun Claude.
 - [Tool Lain (Universal)](https://docs.nexotao.com/id/kompatibel): Pola universal untuk menyambungkan tool AI apa pun ke Nexotao — Cursor, SDK OpenAI/Anthropic, LangChain, atau tool baru yang menerima base URL kustom.
-- [Model & Harga](https://docs.nexotao.com/id/model-harga): Model yang sama dengan Anthropic dan OpenAI, dibayar per token pakai QRIS. Daftar Model ID lengkap, panduan memilih model, dan tarif live per juta token dari GET /models.
+- [Model & Harga](https://docs.nexotao.com/id/model-harga): 32 model Fase 1, Model ID yang tepat, kompatibilitas agentic, dan tarif Rupiah live dari katalog Nexotao.
 - [Penagihan & Harga](https://docs.nexotao.com/id/penagihan): Sistem token-based saldo Rupiah. Teks ditagih per token (input dan output). Tabel harga live dari GET /models.
 - [API Reference](https://docs.nexotao.com/id/api-reference): Daftar endpoint Nexotao, header respons (X-Cost-Rp, X-Request-Id, X-Error-Code), dan bentuk body error (error, code, type, request_id, retryable).
 - [Error & Debugging](https://docs.nexotao.com/id/errors): Referensi lengkap error Nexotao — amplop error, kode stabil (code), request_id, katalog per status HTTP, error in-band pada streaming, dan panduan retry.

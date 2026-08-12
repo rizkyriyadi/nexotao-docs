@@ -1,161 +1,58 @@
 ---
 title: Context Window & Kompaksi
-description: Cara kerja context window Nexotao, cara mengkalibrasi klien (Claude Code) ke window itu, dan apa yang harus dilakukan saat prompt terlalu panjang. Pakai kompaksi agar sesi panjang tetap jalan.
+description: Baca context window tiap model Nexotao dan jaga sesi agent panjang tetap sehat dengan kompaksi.
 ---
 
 # Context Window & Kompaksi
 
-Sesi panjang — apalagi dengan coding agent seperti **Claude Code** — terus
-menumpuk percakapan sampai tidak lagi muat di **context window** model. Halaman ini
-menjelaskan window yang kami publikasikan, cara mengkalibrasi klienmu ke window itu,
-dan cara menjaga sesi tetap jalan dengan **kompaksi** alih-alih kena error.
-
-## Kenapa context window ada
-
-Setiap model hanya bisa membaca sejumlah token terbatas sekaligus — itu **context
-window**-nya. Seluruh percakapan (pesanmu, balasan model, output tool, dan file yang
-sudah dibaca agent) dihitung ke dalamnya. Saat totalnya mendekati window, request
-berikutnya bisa ditolak dengan pesan *prompt too long*.
-
-### Nilai yang kami publikasikan: baca dari API
-
-Kami mempublikasikan window asli yang terverifikasi untuk tiap model aktif —
-**jangan menebak 200k**. Baca dari daftar model agar klienmu kalibrasi ke angka yang
-benar:
+Context window mencakup percakapan, balasan model, output tool, dan file yang
+dibaca agent. Baca nilai produksi; jangan berasumsi semua model punya 200K token:
 
 ```bash
-# Katalog publik (tanpa key) — termasuk context_window per model
-curl https://api.nexotao.com/models
-
-# Daftar format OpenAI (butuh key) — dipakai klien seperti Claude Code, n8n
-curl https://api.nexotao.com/v1/models \
-  -H "Authorization: Bearer sk-nexo-..."
+curl -s https://api.nexotao.com/models | jq -r \
+  '.models[] | [.model, .context_window] | @tsv'
 ```
 
-Tiap objek model membawa field `context_window` (jumlah token).
+## Window Fase 1 saat ini
 
-> **Field ini bisa `null`.** Saat ada, angkanya otoritatif — sinkron dengan apa yang
-> benar-benar dilayani gateway. Tapi `context_window` hanya dipublikasikan untuk model
-> yang batas kerasnya sudah kami verifikasi. Saat ini **6 dari 12 model live**
-> membawa angka; sisanya `null` karena penyedianya belum mempublikasikan batas yang
-> pasti. Jangan perlakukan `null` sebagai "tak terbatas", dan jangan menggantinya
-> dengan tebakan 200k — tangani sebagai *tidak diketahui*, lalu andalkan kompaksi
-> sisi klien plus error `400` yang eksplisit saat prompt kepanjangan.
-
-Nilai yang saat ini dipublikasikan:
-
-| Model | `context_window` |
+| Context | Model ID |
 | --- | --- |
-| `claude-opus-5` | 1.000.000 |
-| `claude-opus-4-8` | 350.000 |
-| `claude-opus-4-7` | 350.000 |
-| `claude-opus-4-6` | 350.000 |
-| `claude-sonnet-4-6` | 350.000 |
-| `DeepSeek-V4-Pro` | 131.072 |
+| 10.000.000 | `llama-4-scout-17b` |
+| 1.000.000 | `claude-opus-4-6`, `claude-sonnet-4-6`, `nova-2-lite`, `llama-4-maverick-17b`, `minimax-m2` |
+| 300.000 | `nova-lite`, `nova-pro` |
+| 256.000 | `mistral-large-3`, `devstral-2`, `qwen3-coder-30b`, `qwen3-coder-next`, `nemotron-super-120b`, `nemotron-nano-30b`, `kimi-k2-5` |
+| 203.000 | `glm-4-7` |
+| 200.000 | `claude-opus-4-5`, `claude-sonnet-4-5`, `claude-haiku-4-5`, `glm-5` |
+| 164.000 | `deepseek-v3-2` |
+| 128.000 | `deepseek-r1`, `magistral-small`, `ministral-14b`, `ministral-8b`, `ministral-3b`, `nova-micro`, `llama-3-3-70b`, `gemma-3-27b`, `gpt-oss-120b`, `gpt-oss-20b` |
+| 32.000 | `qwen3-32b` |
 
-Model lain (`DeepSeek-V4-Flash`, `gpt-5-mini`, `gpt-5.6-luna`, `gpt-5.6-sol`,
-`gpt-5.6-terra`, `grok-4.3`) mengembalikan `null`. Tabel ini bisa berubah — baca
-langsung dari API alih-alih menyalinnya.
+API adalah sumber kebenaran kalau nilainya berubah.
 
-> **Catatan jujur.** Untuk model Claude, window yang kami publikasikan **lebih besar
-> dari 200k lama** yang masih diasumsikan banyak klien secara default — 350k token
-> untuk seluruh lini Opus 4.x dan Sonnet 4.6, serta 1 juta token untuk
-> `claude-opus-5`. Angkanya **beda per model**: jangan menebak 200k, dan jangan
-> menyamakan window satu model ke model lain. Karena window asli lebih besar dari
-> default 200k lama, klien yang belum dikalibrasi akan kompaksi *lebih awal* dari yang
-> diperlukan — kamu cuma kehilangan sebagian context yang bisa dipakai, tidak ada yang
-> rusak.
+## Setup Claude Code
 
-## Kompaksi sisi klien
-
-**Kompaksi** mengganti riwayat panjang dengan ringkasan yang lebih pendek supaya sesi
-bisa lanjut. Klien keluarga Claude Code melakukannya untukmu:
-
-- **Autocompact** — saat percakapan mendekati context window, klien otomatis
-  meringkas giliran lama lalu lanjut. Ambangnya disetel dari window yang *diyakini*
-  klien dimiliki model. Banyak klien masih mengasumsikan default 200k lama, yang
-  **lebih kecil** dari window asli kami, jadi mereka autocompact lebih awal dari yang
-  perlu. Kalibrasi klien ke `context_window` yang kami publikasikan supaya autocompact
-  terpicu di ambang yang benar dan kamu bisa pakai seluruh window.
-- **`/compact`** — jalankan perintah ini kapan saja untuk kompaksi **manual**. Berguna
-  sebelum tugas besar, atau tepat setelah agent membaca banyak file. Bisa diberi
-  petunjuk, mis. `/compact simpan keputusan desain API dan test yang gagal`.
-- **`/clear`** — mulai context baru saat tugas sekarang selesai dan riwayatnya tak lagi
-  dibutuhkan. Cara termurah merebut kembali seluruh window.
-
-### Arahkan klien ke Nexotao dan model yang tepat
-
-Agar kompaksi kalibrasi dengan benar, arahkan klien ke base URL kami dan id model
-yang aktif:
+Pakai ID Claude aktif agar Claude Code bisa mengkalibrasi dan melakukan
+kompaksi dengan benar:
 
 | Setting | Nilai |
 | --- | --- |
 | `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` |
-| `ANTHROPIC_AUTH_TOKEN` | API key `sk-nexo-...` milikmu |
-| `ANTHROPIC_MODEL` | `claude-opus-4-8` (model utama) |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-8` |
+| `ANTHROPIC_AUTH_TOKEN` | key `sk-nexo-...` milikmu |
+| `ANTHROPIC_MODEL` | `claude-opus-4-6` |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-6` |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-4-6` |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-sonnet-4-6` (slot background) |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-haiku-4-5` |
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
 
-**Tier sonnet tersedia** — `claude-sonnet-4-6` adalah model live dengan tarifnya
-sendiri, jadi pakai langsung di slot sonnet. Yang **tidak** tersedia adalah tier
-haiku, sehingga slot background juga diarahkan ke `claude-sonnet-4-6` (model Claude
-termurah yang ada). Kalau klienmu tetap mengirim `claude-haiku-4-5`, gateway
-mengalihkannya ke `claude-opus-4-8` dan menagihnya dengan tarif Opus.
+Lihat [Claude Code](/claude-code) untuk generator config.
 
-Versi lama panduan ini menyebut `ANTHROPIC_SMALL_FAST_MODEL`. Yang dipakai
-generator kami sekarang adalah `ANTHROPIC_DEFAULT_SONNET_MODEL` dan
-`ANTHROPIC_DEFAULT_HAIKU_MODEL` — pakai dua variabel itu. Lihat
-[Claude Code](/claude-code) untuk config lengkap dan generator interaktifnya.
+## Menjaga sesi panjang
 
-## Setup per klien
+- Biarkan client autocompact saat mendekati window yang dipublikasikan.
+- Jalankan `/compact` sebelum tugas besar atau setelah membaca banyak file.
+- Jalankan `/clear` saat tugas selesai dan riwayat tidak lagi diperlukan.
+- Untuk client tanpa kompaksi, pangkas atau ringkas giliran lama sendiri.
 
-### Claude Code (dan keluarga Claude Code)
-
-1. Set variabel di atas (atau pakai generator di halaman [Claude Code](/claude-code)
-   untuk menghasilkan `~/.claude/settings.json`).
-2. **Window:** Claude Code menurunkan window dari model. Baca angka pastinya dari
-   `context_window` di `/v1/models`. Untuk model Claude angkanya **lebih besar** dari
-   200k lama yang masih diasumsikan sebagian klien, jadi asumsi usang cuma membuat
-   klien kompaksi *lebih awal* (kehilangan context yang bisa dipakai, tidak ada yang
-   rusak). Kalau klienmu memungkinkan set context window model, set ke nilai yang
-   dipublikasikan supaya autocompact dan `/compact` terpicu di ambang yang benar.
-3. Jalankan `claude` dan pakai `/compact` / `/clear` untuk mengelola sesi panjang.
-
-### Klien OpenAI-compatible lain
-
-Untuk tool yang bicara format OpenAI (n8n, skrip, app sendiri):
-
-- Base URL: `https://api.nexotao.com/v1`
-- Model: `claude-opus-4-8` (gaya Anthropic via `/v1/messages`) atau
-  `gpt-5-mini` (gaya OpenAI via `/v1/chat/completions`).
-- Klien begini biasanya tidak kompaksi otomatis — jaga riwayatmu sendiri tetap pendek:
-  pangkas atau ringkas giliran lama sebelum tiap panggilan, dan baca `context_window`
-  dari `/v1/models` untuk tahu budget-mu. Kalau field-nya `null` untuk model yang kamu
-  pakai, pangkas berdasarkan ukuran riwayatmu sendiri dan perlakukan `400`
-  `upstream.context_length_exceeded` sebagai sinyal untuk meringkas.
-
-## Saat prompt melebihi window
-
-Kalau request kebesaran, gateway kami mengembalikan **error upstream yang jujur**
-(bukan 502 generic), supaya klienmu bisa bereaksi:
-
-| Status | `code` | Arti | Yang harus dilakukan |
-| --- | --- | --- | --- |
-| `400` | `upstream.context_length_exceeded` | Prompt melebihi context window model | Kompaksi, ringkas, atau mulai baru — lihat di bawah |
-| `413` | `request.too_large` | Body permintaan melebihi batas ukuran gateway | Jalankan `/compact` atau mulai sesi baru |
-| `429` | `upstream.rate_limited` | Kena rate limit upstream | Mundur lalu coba lagi; kami teruskan `Retry-After` bila ada |
-
-Opsi pemulihan, dari yang termudah:
-
-1. **Kompaksi** — jalankan `/compact` (Claude Code) untuk meringkas riwayat lalu
-   lanjut tugas yang sama.
-2. **Mulai sesi baru** — `/clear`, atau buka chat baru, saat tugas sekarang selesai.
-   Tempel hanya ringkasan yang masih kamu butuhkan.
-3. **Pecah input** — kalau satu file atau paste yang jadi masalah, kirim per potongan
-   kecil alih-alih satu pesan raksasa.
-
-Pemakaian dipotong dari saldo Rupiah dengan cara yang sama apa pun cara kamu mengelola
-context — lihat [Penagihan & Harga](/penagihan). Detail kode error ada di
-[Kode Error](/errors); pertanyaan umum ada di [FAQ](/faq).
+Kalau prompt terlalu besar, gateway mengembalikan `400
+upstream.context_length_exceeded`; lakukan kompaksi, ringkas, atau pecah input.
+`413 request.too_large` berarti body HTTP melewati batas gateway.

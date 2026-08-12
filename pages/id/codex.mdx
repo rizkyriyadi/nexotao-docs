@@ -1,107 +1,26 @@
 ---
-title: Codex CLI
-description: Pakai OpenAI Codex CLI dengan model Nexotao (GPT-5.6, gpt-5-mini, Grok, DeepSeek) dan bayar pakai Rupiah. Konfigurasi ~/.codex/config.toml langkah demi langkah.
+title: OpenAI Codex CLI
+description: Status Codex CLI di Nexotao Fase 1 dan alternatif agent yang sudah didukung.
 ---
 
-import { Callout, Steps, Tabs } from "nextra/components"
-import { ToolLogo } from "../../components/tool-logo"
+# OpenAI Codex CLI
 
-<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-  <ToolLogo src="/logos/openai.svg" alt="Codex" size={34} />
-  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compat</span>
-</div>
+OpenAI Codex CLI memakai **Responses API** (`/v1/responses`). Saat ini 32 model
+Bedrock Fase 1 Nexotao mendukung `/v1/messages` dan
+`/v1/chat/completions`, tetapi belum mendukung `/v1/responses`.
 
-# Codex CLI
+Karena itu Codex CLI **belum didukung di Fase 1**. Mengubah
+`~/.codex/config.toml` saja tidak akan membuatnya jalan; request saat ini
+mengembalikan `model not available on this endpoint`.
 
-**Codex** adalah coding agent terminal dari OpenAI. Codex berbicara format
-**OpenAI-compat**, jadi arahkan ke endpoint `https://api.nexotao.com/v1` dan pakai
-model OpenAI-compat Nexotao: `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`,
-`gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, atau `DeepSeek-V4-Flash`.
+Untuk pengalaman coding agentic sekarang, pakai:
 
-<Callout type="info">
-  Untuk model **Claude**, pakai [Claude Code](/claude-code) (format Anthropic). Codex
-  tidak punya mode Anthropic.
-</Callout>
+- [Claude Code](/claude-code) dengan `claude-opus-4-6`,
+  `claude-sonnet-4-6`, atau `claude-haiku-4-5`.
+- [Agent terminal](/terminal-agents) yang mendukung OpenAI Chat Completions,
+  dengan `qwen3-coder-next`, `qwen3-coder-30b`, atau model lain yang memiliki
+  `supports_tools: true` di katalog.
 
-<Steps>
-
-### Install Codex
-
-Ikuti dokumentasi resmi OpenAI Codex. Cek instalasi:
-
-```bash
-codex --version
-```
-
-### Set API key sebagai environment variable
-
-Codex membaca key dari env var (bukan disimpan di file config).
-
-<Tabs items={["macOS / Linux", "Windows PowerShell"]}>
-  <Tabs.Tab>
-
-```bash
-# tambahkan ke ~/.zshrc atau ~/.bashrc
-export OPENAI_API_KEY="sk-nexo-..."
-```
-
-  </Tabs.Tab>
-  <Tabs.Tab>
-
-```powershell
-setx OPENAI_API_KEY "sk-nexo-..."
-```
-
-  </Tabs.Tab>
-</Tabs>
-
-### Daftarkan Nexotao sebagai provider
-
-Buka (atau buat) `~/.codex/config.toml` lalu isi:
-
-```toml
-# ~/.codex/config.toml
-model = "gpt-5.6-sol"         # model default; ganti sesuai kebutuhan
-model_provider = "nexotao"
-forced_login_method = "api"
-
-[model_providers.nexotao]
-name = "Nexotao"
-base_url = "https://api.nexotao.com/v1"   # WAJIB pakai /v1
-env_key = "OPENAI_API_KEY"                # nama env var berisi sk-nexo-...
-wire_api = "responses"                    # WAJIB "responses"; "chat" sudah dihapus Codex
-```
-
-### Jalankan
-
-Dari direktori proyekmu:
-
-```bash
-codex
-```
-
-Ganti model kapan saja lewat flag:
-
-```bash
-codex -m grok-4.3
-codex -m DeepSeek-V4-Pro
-```
-
-</Steps>
-
-## Catatan penting
-
-<Callout type="warning">
-  Dua nilai di `config.toml` paling sering salah: **`base_url` harus berakhiran
-  `/v1`** (Codex menambahkan `/responses` sendiri), dan **`wire_api` harus
-  `"responses"`**. Codex versi terbaru sudah **menghapus** `wire_api = "chat"`, jadi
-  konfigurasi lama tidak akan jalan.
-</Callout>
-
-- Nexotao mengekspos endpoint Responses (`/v1/responses`) dengan streaming penuh —
-  jadi Codex jalan normal.
-- **Provider ID** (`nexotao`) tidak boleh memakai nama cadangan seperti `openai`,
-  `ollama`, atau `lmstudio`.
-- Key **tidak** disimpan di `config.toml`; hanya nama env var-nya (`env_key`).
-
-Biaya dipotong dari saldo Rupiah per token. Lihat [Penagihan & Harga](/penagihan).
+Dukungan Codex baru bisa diaktifkan setelah adapter Responses Nexotao mendukung
+model Bedrock secara end-to-end. Cek halaman ini lagi sebelum mengubah
+konfigurasi Codex lokalmu.

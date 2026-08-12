@@ -1,97 +1,72 @@
 ---
 title: Model & Harga
-description: Model yang sama dengan Anthropic dan OpenAI, dibayar per token pakai QRIS. Daftar Model ID lengkap, panduan memilih model, dan tarif live per juta token dari GET /models.
+description: 32 model Fase 1, Model ID yang tepat, kompatibilitas agentic, dan tarif Rupiah live dari katalog Nexotao.
 ---
 
 import { LivePricing } from "../../components/live-pricing"
 
 # Model & Harga
 
-**Sama modelnya dengan Anthropic dan OpenAI langsung.** Bedanya: bayar per
-token pakai QRIS. Tanpa kartu USD, tanpa langganan bulanan, tanpa FX card fee.
+Fase 1 memiliki **32 model Amazon Bedrock aktif** dari 12 provider model. Semua
+memakai satu key Nexotao dan satu saldo Rupiah.
 
-## Nama tampilan vs Model ID
+## Kebijakan harga
 
-Nama seperti **GPT-5.6 Sol** adalah **nama tampilan** untuk dibaca manusia.
-Saat memanggil API, gunakan **Model ID** persis seperti `gpt-5.6-sol`.
-Model ID bersifat **case-sensitive**: jangan mengubah huruf besar/kecil dan
-jangan memakai nama tampilan sebagai nilai `model`.
+Harga retail Nexotao adalah **snapshot manual**, dihitung sebesar **75% dari
+harga on-demand AWS Bedrock US Standard** lalu dikonversi dengan kurs **Rp
+18.000/USD**. Artinya 25% di bawah acuan AWS tersebut ketika katalog ditetapkan;
+bukan berarti harga otomatis mengikuti satu harga "global" dunia.
 
-Lihat semua Model ID langsung dari katalog live:
+Katalog produksi adalah sumber kebenaran. Baca langsung sebelum membuat asumsi
+biaya:
 
 ```bash
-curl -s https://api.nexotao.com/models | jq -r '.models[].model'
+curl -s https://api.nexotao.com/models | jq '.models[] | {
+  model, display_name, provider, supports_tools, supports_vision,
+  context_window, input_per_million_micro, output_per_million_micro
+}'
 ```
 
-Seluruh 12 model live beserta Model ID-nya:
+## Model agentic (24)
 
-| Nama tampilan | Model ID untuk API |
+Model berikut lulus uji stabil round-trip tool call Nexotao dan mengembalikan
+`supports_tools: true`:
+
+| Provider | Model ID untuk API |
 | --- | --- |
-| DeepSeek V4 Flash | `DeepSeek-V4-Flash` |
-| DeepSeek V4 Pro | `DeepSeek-V4-Pro` |
-| GPT-5 Mini | `gpt-5-mini` |
-| GPT-5.6 Luna | `gpt-5.6-luna` |
-| GPT-5.6 Sol | `gpt-5.6-sol` |
-| GPT-5.6 Terra | `gpt-5.6-terra` |
-| Grok 4.3 | `grok-4.3` |
-| Claude Opus 4.6 | `claude-opus-4-6` |
-| Claude Opus 4.7 | `claude-opus-4-7` |
-| Claude Opus 4.8 | `claude-opus-4-8` |
-| Claude Opus 5 | `claude-opus-5` |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
+| Anthropic | `claude-opus-4-6`, `claude-opus-4-5`, `claude-sonnet-4-6`, `claude-sonnet-4-5`, `claude-haiku-4-5` |
+| Mistral | `mistral-large-3`, `devstral-2`, `magistral-small`, `ministral-14b`, `ministral-8b` |
+| Amazon | `nova-micro`, `nova-lite`, `nova-pro`, `nova-2-lite` |
+| Meta | `llama-4-maverick-17b` |
+| Qwen | `qwen3-32b`, `qwen3-coder-30b`, `qwen3-coder-next` |
+| NVIDIA | `nemotron-super-120b` |
+| Z.AI | `glm-5`, `glm-4-7` |
+| MiniMax | `minimax-m2` |
+| Moonshot | `kimi-k2-5` |
+| OpenAI OSS | `gpt-oss-120b` |
 
-Katalog live tetap yang menentukan — kalau tabel ini dan `GET /models` berbeda,
-percaya `GET /models`.
+Pilihan awal yang praktis:
 
-## Memilih model
+- Claude Code: `claude-opus-4-6`, `claude-sonnet-4-6`, atau `claude-haiku-4-5`.
+- Coding agent: `qwen3-coder-next`, `qwen3-coder-30b`, atau Claude.
+- Tugas agentic cepat dan hemat: `nova-micro`.
+- Agentic general-purpose: `gpt-oss-120b`, `glm-4-7`, atau `mistral-large-3`.
 
-Positioning tiap model. Untuk tarifnya, lihat tabel live di bawah.
+## Model chat-only (8)
 
-| Model | Cocok untuk |
-| --- | --- |
-| `DeepSeek-V4-Flash` | Volume tinggi & hemat: klasifikasi, ekstraksi, chat pendek. |
-| `DeepSeek-V4-Pro` | DeepSeek dengan kualitas lebih tinggi; konteks 131.072 token. |
-| `gpt-5-mini` | Tier OpenAI paling hemat — classifier, extract, batch. Mendukung vision. |
-| `gpt-5.6-luna` | Efisien untuk kerja harian dan volume tinggi. |
-| `gpt-5.6-terra` | Seimbang untuk coding, analisis, dan workflow agent. |
-| `gpt-5.6-sol` | Tier GPT-5.6 tertinggi; tarif input dan output sama rata. |
-| `grok-4.3` | Alternatif di luar keluarga GPT dan Claude. |
-| `claude-opus-4-6` | Opus yang **masih menerima** `temperature` / `top_p` / `top_k`. |
-| `claude-opus-4-7` | Opus generasi sebelumnya; parameter sampling tidak lagi diterima. |
-| `claude-opus-4-8` | Model reasoning terkuat untuk coding dan agentic. |
-| `claude-opus-5` | Opus generasi terbaru; konteks 1.000.000 token. |
-| `claude-sonnet-4-6` | Cepat + pintar untuk chat produk volume tinggi; sampling tetap berfungsi. |
+Model ini tersedia untuk chat dan text generation tetapi mengembalikan
+`supports_tools: false`; jangan pilih untuk client yang mewajibkan tool calling:
 
-Model Claude dan `gpt-5-mini` mendukung **vision** (input gambar); model lain
-teks saja. Cek `supports_vision` di `GET /models` untuk memastikan.
+`deepseek-r1`, `deepseek-v3-2`, `ministral-3b`, `llama-4-scout-17b`,
+`llama-3-3-70b`, `nemotron-nano-30b`, `gemma-3-27b`, `gpt-oss-20b`.
 
-> **Pilih model sesuai kerjaannya.** `DeepSeek` cocok untuk beban **volume
-> tinggi & hemat** — klasifikasi, ekstraksi, chat pendek — **bukan untuk
-> agentic/coding atau konteks besar**. Kapasitasnya kecil (~20k token/menit),
-> jadi satu request agentic/large-context bisa kena `429 server at capacity`.
-> Untuk **coding/agentic & konteks besar**, pakai **Claude (Opus/Sonnet)** atau
-> **GPT-5.6**.
+## Tarif live
 
-## Tarif live per juta token
-
-Tiap model punya tarif per juta token untuk **input**, **output**, dan (untuk
-Claude/GPT) **cache-read + cache-write**. Nilai di sini diambil langsung dari
-`GET /models` — selalu sinkron dengan katalog live, tanpa harga yang di-hardcode
-di halaman.
+Tarif di bawah diambil browser dari `GET /models`. Model ID bersifat
+case-sensitive. Kalau halaman ini dan API berbeda, percaya API.
 
 <LivePricing />
 
-## Cara membaca tarif
-
-- **Teks** — tarif per 1 juta token, terpisah untuk input dan output.
-- **Cache (Claude/GPT)** — cache-read jauh lebih murah dari input biasa; cache-write
-  sedikit lebih mahal dari input biasa. Detail di [Penagihan & Harga](/penagihan).
-- **Yang ditagih** — selalu `jumlah_token × tarif_model_saat_itu`, dibulatkan ke
-  atas. Tidak ada biaya per request atau biaya minimum.
-
-Butuh perkiraan biaya sebelum memanggil API? Ambil tarifnya dari
-`GET /models` lalu kalikan dengan perkiraan jumlah token-mu — atau lihat
-[nexotao.com/harga](https://nexotao.com/harga) untuk kalkulator dan
-perbandingan harga.
-
-Detail penagihan, cache, dan billing per request ada di [Penagihan & Harga](/penagihan).
+Semua tarif teks dihitung per 1 juta token, terpisah antara input dan output.
+Jumlah tagihan memakai tarif katalog produksi saat request diproses. Lihat
+[Penagihan & Harga](/penagihan) untuk detail pencatatan biaya.

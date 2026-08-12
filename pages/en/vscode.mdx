@@ -20,9 +20,9 @@ URL, and paste your `sk-nexo-...` API key.
 
 Remember the two modes:
 
-- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, models `gpt-5-mini`,
-  `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`.
-- **Anthropic** → base URL `https://api.nexotao.com`, models `claude-opus-4-8`,
+- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, models `nova-micro`,
+  `glm-4-7`, `deepseek-v3-2`, `gpt-oss-20b`.
+- **Anthropic** → base URL `https://api.nexotao.com`, models `claude-opus-4-6`,
   `claude-sonnet-4-6`, etc.
 
 ---
@@ -37,12 +37,12 @@ Remember the two modes:
    - **API Provider** → `OpenAI Compatible`
    - **Base URL** → `https://api.nexotao.com/v1`
    - **API Key** → `sk-nexo-...`
-   - **Model ID** → e.g. `gpt-5-mini`
+   - **Model ID** → e.g. `nova-micro`
 4. For **Claude** models:
    - **API Provider** → `Anthropic`
    - Check **Use custom base URL** → `https://api.nexotao.com` *(no `/v1`)*
    - **API Key** → `sk-nexo-...`
-   - **Model** → e.g. `claude-opus-4-8`
+   - **Model** → e.g. `claude-opus-4-6`
 
 <Callout type="warning">
   Do not set the OpenAI Compatible Base URL to `https://api.openai.com/v1` — that's
@@ -58,14 +58,14 @@ Roo Code is a Cline fork; the steps are similar.
 1. Install the **Roo Code** extension.
 2. Roo Code panel → **gear** icon → **API Provider**.
 3. **OpenAI Compatible**: Base URL `https://api.nexotao.com/v1`, API Key `sk-nexo-...`,
-   Model e.g. `gpt-5-mini`.
+   Model e.g. `nova-micro`.
 4. **Anthropic**: enable **Use custom base URL** → `https://api.nexotao.com`, API Key
-   `sk-nexo-...`, Model `claude-opus-4-8`.
+   `sk-nexo-...`, Model `claude-opus-4-6`.
 
 <Callout type="info">
   Roo Code uses **native tool calling** on the OpenAI Compatible path. The chosen
-  model must support function/tool calling — `gpt-5-mini` and the other Nexotao
-  models do.
+  model must support function/tool calling. `nova-micro` does; verify
+  `supports_tools: true` in `GET /models` for any other model.
 </Callout>
 
 ---
@@ -79,15 +79,15 @@ Continue is configured via `~/.continue/config.yaml`.
 ```yaml
 # ~/.continue/config.yaml
 models:
-  - name: GPT-5 Mini (Nexotao)
+  - name: Nova Micro (Nexotao)
     provider: openai
-    model: gpt-5-mini
+    model: nova-micro
     apiBase: https://api.nexotao.com/v1
     apiKey: sk-nexo-...
 
-  - name: Claude Opus 4.8 (Nexotao)
+  - name: Claude Opus 4.6 (Nexotao)
     provider: anthropic
-    model: claude-opus-4-8
+    model: claude-opus-4-6
     apiBase: https://api.nexotao.com
     apiKey: sk-nexo-...
 ```

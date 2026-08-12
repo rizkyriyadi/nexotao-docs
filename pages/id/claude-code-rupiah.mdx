@@ -51,10 +51,10 @@ Di balik layar ini mengatur:
 - `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
 - `ANTHROPIC_AUTH_TOKEN` = API key `sk-nexo-...` milikmu
 - `ANTHROPIC_MODEL` = model Claude yang kamu pilih di generator
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` = `claude-opus-4-6`
 - `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6` — tier sonnet tersedia
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-sonnet-4-6` juga. Tier haiku tidak ada di
-  katalog kami, jadi slot background dipetakan ke model Claude termurah yang tersedia
-  — Claude Code tetap jalan normal.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-haiku-4-5` — tersedia langsung untuk
+  background task dengan tarifnya sendiri
 - `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` agar kompatibel.
 
 ## 5. Jalankan Claude Code
@@ -101,7 +101,7 @@ curl -i https://api.nexotao.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-opus-4-8",
+    "model": "claude-opus-4-6",
     "max_tokens": 64,
     "messages": [{"role": "user", "content": "Hello"}]
   }'
@@ -132,8 +132,8 @@ streaming, lihat rinciannya di halaman **Usage** pada dashboard. Tanpa langganan
 saldo tidak kadaluarsa.
 
 **Model apa saja yang bisa dipakai di Claude Code?**
-Model Claude yang tersedia lewat gateway: Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, dan
-Sonnet 4.6. Pilih model utama di generator config di atas.
+Model Claude aktif adalah Opus 4.6, Opus 4.5, Sonnet 4.6, Sonnet 4.5, dan Haiku
+4.5. Pilih model utama di generator config di atas.
 
 ## Langkah berikutnya
 

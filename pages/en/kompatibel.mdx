@@ -28,7 +28,7 @@ the base URL + key, then pick a model.
 | Base URL | `https://api.nexotao.com/v1` |
 | API Key | `sk-nexo-...` |
 | Header | `Authorization: Bearer sk-nexo-...` |
-| Model | `gpt-5.6-terra`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`, `claude-opus-4-8` |
+| Model | `qwen3-coder-next`, `glm-4-7`, `deepseek-v3-2`, `gpt-oss-20b`, `claude-opus-4-6` |
 
 <Callout type="info">
   The OpenAI-compatible endpoint accepts **every model, including Claude** — so if
@@ -43,7 +43,7 @@ the base URL + key, then pick a model.
 | Base URL | `https://api.nexotao.com` |
 | API Key | `sk-nexo-...` |
 | Header | `x-api-key: sk-nexo-...` |
-| Model | `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6` |
+| Model | Any Phase 1 ID, for example `claude-opus-4-6` or `qwen3-coder-next` |
 
 ## Examples
 
@@ -55,7 +55,7 @@ from openai import OpenAI
 
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 resp = client.chat.completions.create(
-    model="gpt-5-mini",
+    model="nova-micro",
     messages=[{"role": "user", "content": "Hello"}],
 )
 print(resp.choices[0].message.content)
@@ -69,7 +69,7 @@ from anthropic import Anthropic
 
 client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
 msg = client.messages.create(
-    model="claude-opus-4-8",
+    model="claude-opus-4-6",
     max_tokens=256,
     messages=[{"role": "user", "content": "Hello"}],
 )

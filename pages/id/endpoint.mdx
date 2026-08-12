@@ -1,149 +1,63 @@
 ---
 title: Endpoint & Format
-description: Endpoint mana yang harus dipakai di Nexotao — /v1/chat/completions (format OpenAI, semua model termasuk Claude) atau /v1/messages (format Anthropic native). Panduan memilih plus contoh.
+description: Pakai seluruh 32 model Fase 1 Nexotao melalui format OpenAI Chat Completions atau Anthropic Messages.
 ---
 
 # Endpoint & Format
 
-Nexotao punya dua "pintu masuk" untuk chat. Keduanya memakai model yang sama —
-yang berbeda cuma **format** request-nya. Halaman ini bantu kamu memilih yang benar
-supaya request-mu tidak ditolak.
+Seluruh 32 model Fase 1 memakai Bedrock Converse dan bisa dipanggil lewat kedua
+endpoint chat. Pilih format yang sudah didukung client-mu.
 
-## Pilih dalam 5 detik
+| Format client | Endpoint | Base URL SDK | Autentikasi |
+| --- | --- | --- | --- |
+| OpenAI Chat Completions | `/v1/chat/completions` | `https://api.nexotao.com/v1` | `Authorization: Bearer sk-nexo-...` |
+| Anthropic Messages | `/v1/messages` | `https://api.nexotao.com` | `x-api-key: sk-nexo-...` |
 
-| Kalau kamu… | Pakai endpoint | Base URL |
-| --- | --- | --- |
-| Pakai **OpenAI SDK / library**, atau tool yang minta "OpenAI base URL" | **`/v1/chat/completions`** | `https://api.nexotao.com/v1` |
-| Pakai **Anthropic SDK**, atau ingin format Anthropic native | **`/v1/messages`** | `https://api.nexotao.com` |
-| Pakai **Codex** (OpenAI Responses API) | **`/v1/responses`** | `https://api.nexotao.com/v1` |
+> `/v1/responses` **belum tersedia untuk katalog Bedrock Fase 1**. OpenAI Codex
+> CLI membutuhkan endpoint itu, jadi untuk sekarang pakai Claude Code atau agent
+> lain yang kompatibel Chat Completions/Messages.
 
-> **Aturan emas:** `/v1/chat/completions` menerima **semua model — termasuk Claude**.
-> Kalau ragu, pakai ini. Nexotao otomatis menerjemahkan formatnya.
+## Format OpenAI
 
-## Kesalahan paling umum
-
-Mengirim **body format OpenAI** ke endpoint **`/v1/messages`**.
-
-`/v1/messages` adalah jalur Anthropic native: body diteruskan ke upstream tanpa
-diterjemahkan. Ciri OpenAI yang tersisa di body ditangani dengan dua cara berbeda —
-sebagian **dibuang diam-diam**, sebagian **menyebabkan request gagal**.
-
-### Field yang dibuang diam-diam (bukan ditolak)
-
-Field khusus OpenAI berikut **tidak punya padanan di Messages API**. Gateway
-membuangnya dari body sebelum meneruskan ke upstream, jadi request tetap jalan —
-tapi **nilai yang kamu kirim tidak berpengaruh sama sekali**, dan tidak ada
-peringatan apa pun di respons:
-
-`frequency_penalty`, `presence_penalty`, `n`, `seed`, `user`, `logit_bias`,
-`logprobs`, `top_logprobs`, `stream_options`, `parallel_tool_calls`,
-`response_format`, `output_format`
-
-Selain itu:
-
-- `stop` **diganti nama** menjadi `stop_sequences` (padanan Anthropic-nya), jadi
-  maksudmu tetap terjaga. Kalau `stop_sequences` sudah ada, `stop` dibuang saja.
-- `context_management` dibuang — beta context-editing Anthropic belum ada di
-  upstream kami, dan request akan gagal kalau field itu diteruskan.
-- `temperature`, `top_p`, dan `top_k` dibuang **khusus untuk `claude-opus-5`,
-  `claude-opus-4-8`, dan `claude-opus-4-7`** — ketiga model itu memang sudah tidak
-  menerima parameter sampling. Pada `claude-opus-4-6` dan `claude-sonnet-4-6`
-  ketiganya **tetap diteruskan dan berfungsi normal**.
-
-### Yang benar-benar membuat request gagal
-
-- **`role: "system"` di dalam `messages`.** Messages API hanya mengenal role `user`
-  dan `assistant`; instruksi sistem adalah field `system` **terpisah** di level atas.
-- **`max_tokens` tidak diisi.** Di format Anthropic field ini **wajib**.
-- **Field OpenAI di luar daftar buang di atas**, misalnya `max_completion_tokens`.
-  Field itu diteruskan apa adanya dan ditolak upstream sebagai input asing.
-
-Kegagalan-kegagalan itu muncul sebagai `400` dengan `code` `upstream.invalid_request`.
-
-**Solusi:** kirim ke `/v1/chat/completions` saja (base URL berakhiran `/v1`).
-Endpoint itu menerima format OpenAI persis apa adanya, termasuk untuk model Claude,
-lalu menerjemahkannya untukmu — `role: "system"` dipindahkan ke field `system`, dan
-`max_tokens` diisi default kalau kamu tidak mengirimnya.
-
-```diff
-- POST https://api.nexotao.com/v1/messages        (format Anthropic saja)
-+ POST https://api.nexotao.com/v1/chat/completions (format OpenAI, semua model)
-```
-
-## Cara 1 — Format OpenAI (paling umum)
-
-Endpoint `/v1/chat/completions`. Base URL **berakhiran `/v1`**, key dikirim lewat
-`Authorization: Bearer`. Bekerja untuk GPT, DeepSeek, Grok, **dan Claude**.
+Pakai untuk OpenAI SDK, Aider, Continue, dan client yang meminta OpenAI base URL:
 
 ```python
 from openai import OpenAI
 
-# Cukup ganti base URL — model apa pun, termasuk Claude
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
-resp = client.chat.completions.create(
-    model="claude-opus-4-8",  # atau gpt-5.6-terra, DeepSeek-V4-Pro, dst.
+response = client.chat.completions.create(
+    model="qwen3-coder-next",
     messages=[
         {"role": "system", "content": "Kamu asisten yang ringkas."},
-        {"role": "user", "content": "Jelaskan apa itu QRIS"},
+        {"role": "user", "content": "Jelaskan consistent hashing."},
     ],
 )
-print(resp.choices[0].message.content)
+print(response.choices[0].message.content)
 ```
 
-```bash
-curl https://api.nexotao.com/v1/chat/completions \
-  -H "Authorization: Bearer sk-nexo-..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "claude-opus-4-8",
-    "messages": [{"role": "user", "content": "Halo"}]
-  }'
-```
+## Format Anthropic
 
-## Cara 2 — Format Anthropic native
-
-Endpoint `/v1/messages`. Base URL **tanpa `/v1`**, key dikirim lewat `x-api-key`.
-Hanya untuk model Claude, dan body harus format Anthropic (system di **luar**
-`messages`, wajib `max_tokens`).
+Pakai untuk Anthropic SDK dan Claude Code. Endpoint yang sama juga menerima
+model Fase 1 non-Claude; misalnya `qwen3-coder-next` sudah divalidasi end-to-end
+melalui `/v1/messages`.
 
 ```python
 from anthropic import Anthropic
 
 client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
 
-msg = client.messages.create(
-    model="claude-opus-4-8",
+message = client.messages.create(
+    model="claude-opus-4-6",
     max_tokens=256,
-    system="Kamu asisten yang ringkas.",   # di luar messages
-    messages=[{"role": "user", "content": "Jelaskan apa itu QRIS"}],
+    system="Kamu asisten yang ringkas.",
+    messages=[{"role": "user", "content": "Jelaskan consistent hashing."}],
 )
-print(msg.content[0].text)
+print(message.content[0].text)
 ```
 
-```bash
-curl https://api.nexotao.com/v1/messages \
-  -H "x-api-key: sk-nexo-..." \
-  -H "anthropic-version: 2023-06-01" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "claude-opus-4-8",
-    "max_tokens": 256,
-    "messages": [{"role": "user", "content": "Halo"}]
-  }'
-```
+Dalam format Messages, `system` adalah field level atas dan `max_tokens` wajib.
+Jangan tempel body OpenAI ke `/v1/messages`; pakai `/v1/chat/completions`.
 
-## Perbedaan singkat
-
-| | `/v1/chat/completions` | `/v1/messages` |
-| --- | --- | --- |
-| Format | OpenAI | Anthropic native |
-| Base URL | `…/v1` | `…` (tanpa `/v1`) |
-| Header key | `Authorization: Bearer` | `x-api-key` |
-| Model | Semua (GPT, DeepSeek, Grok, Claude) | Claude saja |
-| `system` | di dalam `messages` | field terpisah |
-| Wajib `max_tokens` | tidak | ya |
-
-Belum tahu bedanya token, model, atau API key? Baca dulu
-[Konsep Dasar](/konsep). Mau langsung coba tanpa ngoding? Buka
-[Playground](/playground).
+Model ID bersifat case-sensitive. Salin dari `GET /models`, dan cek
+`supports_tools` sebelum memilih model untuk agent loop.

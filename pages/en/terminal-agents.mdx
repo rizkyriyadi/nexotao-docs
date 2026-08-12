@@ -30,13 +30,13 @@ Aider routes models through LiteLLM, so you can use the OpenAI-compat path
 export OPENAI_API_BASE=https://api.nexotao.com/v1
 export OPENAI_API_KEY=sk-nexo-...
 
-aider --model openai/gpt-5-mini
+aider --model openai/nova-micro
 ```
 
 - The `openai/` prefix is **required** — it tells Aider to use the OpenAI-compatible
   endpoint.
 - `OPENAI_API_BASE` must include `/v1`.
-- Other models: `openai/grok-4.3`, `openai/DeepSeek-V4-Pro`.
+- Other agentic models: `openai/qwen3-coder-next`, `openai/gpt-oss-120b`.
 
 </Tabs.Tab>
 <Tabs.Tab>
@@ -45,7 +45,7 @@ aider --model openai/gpt-5-mini
 export ANTHROPIC_API_BASE=https://api.nexotao.com
 export ANTHROPIC_API_KEY=sk-nexo-...
 
-aider --model anthropic/claude-opus-4-8
+aider --model anthropic/claude-opus-4-6
 ```
 
 - `ANTHROPIC_API_BASE` **without** `/v1`.
@@ -80,8 +80,8 @@ OpenCode is configured via `opencode.json` (in the project root or
         "apiKey": "{env:OPENAI_API_KEY}"
       },
       "models": {
-        "gpt-5-mini": {
-          "name": "GPT-5 Mini (Nexotao)",
+        "nova-micro": {
+          "name": "Nova Micro (Nexotao)",
           "limit": { "context": 128000, "output": 65536 }
         }
       }

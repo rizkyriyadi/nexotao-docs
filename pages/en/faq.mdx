@@ -43,21 +43,16 @@ pointed at Nexotao and paid for in Rupiah. See [Claude Code](/en/claude-code).
 
 ## How much does it cost?
 
-Live rates are on [Models & Pricing](/en/model-harga). They are currently well below
-official pricing — treat it as a promo price.
+Live rates are on [Models & Pricing](/en/model-harga). Phase 1 retail was set to
+75% of AWS Bedrock US Standard on-demand pricing at Rp 18,000/USD. It is a manual
+catalog policy, not an automatically synchronized global price.
 
-## Why does DeepSeek sometimes return 429 / "server at capacity"?
+## Which models work in coding agents?
 
-Because the request isn't a DeepSeek job. `DeepSeek-V4-Flash` is positioned for
-**high-volume, cheap** work — classification, extraction, short chat — and has a
-small capacity of about **20k tokens/minute (TPM)** per backend. A single
-**agentic/coding or large-context** request easily exceeds ~50k input tokens,
-overrunning one backend's entire per-minute budget, so it returns
-`429 server at capacity, retry shortly` — no number of parallel backends helps,
-because a single request cannot be split across backends.
+Use a model that reports `supports_tools: true` in `GET /models`. The catalog has
+24 models validated for stable tool-call round trips and 8 chat-only models.
 
 <Callout type="warning">
-  The fix isn't to keep retrying, it's to **use the right model**: for coding/agentic
-  and large context, select a **Claude (Opus/Sonnet)** model id directly (for example
-  `claude-opus-4-8`). DeepSeek stays the best pick for volume/cheap workloads.
+  Chat-only models such as `deepseek-r1`, `deepseek-v3-2`, and `gpt-oss-20b`
+  can answer text prompts, but should not be selected in clients that require tools.
 </Callout>

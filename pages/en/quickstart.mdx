@@ -53,7 +53,7 @@ from openai import OpenAI
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
 resp = client.chat.completions.create(
-    model="claude-opus-4-8",  # or gpt-5.6-terra, DeepSeek-V4-Pro, etc.
+    model="qwen3-coder-next",  # or claude-opus-4-6, nova-micro, etc.
     messages=[{"role": "user", "content": "Hello"}],
 )
 print(resp.choices[0].message.content)
@@ -62,7 +62,7 @@ print(resp.choices[0].message.content)
   </Tabs.Tab>
   <Tabs.Tab>
 
-Native Anthropic format (`/v1/messages`) — Claude only:
+Anthropic format (`/v1/messages`) — every Phase 1 model:
 
 ```bash
 curl https://api.nexotao.com/v1/messages \
@@ -70,7 +70,7 @@ curl https://api.nexotao.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-opus-4-8",
+    "model": "claude-opus-4-6",
     "max_tokens": 256,
     "messages": [{"role": "user", "content": "Hello"}]
   }'
@@ -87,7 +87,7 @@ import OpenAI from "openai"
 const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
 
 const resp = await client.chat.completions.create({
-  model: "gpt-5.6-terra",
+  model: "nova-micro",
   messages: [{ role: "user", content: "Hello" }],
 })
 console.log(resp.choices[0].message.content)
@@ -103,19 +103,14 @@ Every response includes an `X-Cost-Rp` header (the actual cost in Rupiah) and
 
 Same call, cheaper or stronger — just change the `model`:
 
-- `DeepSeek-V4-Flash` — ultra-cheap workhorse for **high-volume** work:
-  classification, extraction, short chat. Not for agentic/coding or large
-  context (~20k TPM capacity — heavy requests can hit `429 server at capacity`).
-- `claude-opus-4-8` — frontier reasoning for **coding/agentic & large context**.
-- `claude-opus-5` — the newest Opus, a **1M-token context**, with the same rate for
-  input and output (see [Models & Pricing](/en/model-harga)). Capacity is still limited,
-  so heavy agentic workloads are safer on Opus 4.8.
-- `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol` — the GPT-5.6 family from
-  efficient to balanced to the top tier, with Sol at Rp 7,000 input/output.
+- `claude-opus-4-6` — flagship reasoning, vision, tools, and a 1M-token context.
+- `qwen3-coder-next` — agentic coding with a 256K-token context.
+- `nova-micro` — the lowest-priced agentic model in the Phase 1 catalog.
+- `deepseek-v3-2` or `gpt-oss-20b` — chat-only; do not use them in clients that
+  require tool calling.
 
 <Callout type="warning">
-  Model ids are **case-sensitive** — use them exactly as listed. `deepseek-v4-pro` is
-  not the same model as `DeepSeek-V4-Pro`, and the request will be rejected.
+  Model IDs are **case-sensitive** — copy them exactly from `GET /models`.
 </Callout>
 
 Browse every model and today's price at

@@ -20,9 +20,9 @@ tempel API key `sk-nexo-...`.
 
 Ingat dua mode:
 
-- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, model `gpt-5-mini`,
-  `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`.
-- **Anthropic** → base URL `https://api.nexotao.com`, model `claude-opus-4-8`,
+- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, model `nova-micro`,
+  `glm-4-7`, `deepseek-v3-2`, `gpt-oss-20b`.
+- **Anthropic** → base URL `https://api.nexotao.com`, model `claude-opus-4-6`,
   `claude-sonnet-4-6`, dll.
 
 ---
@@ -37,12 +37,12 @@ Ingat dua mode:
    - **API Provider** → `OpenAI Compatible`
    - **Base URL** → `https://api.nexotao.com/v1`
    - **API Key** → `sk-nexo-...`
-   - **Model ID** → mis. `gpt-5-mini`
+   - **Model ID** → mis. `nova-micro`
 4. Untuk model **Claude**:
    - **API Provider** → `Anthropic`
    - Centang **Use custom base URL** → `https://api.nexotao.com` *(tanpa `/v1`)*
    - **API Key** → `sk-nexo-...`
-   - **Model** → mis. `claude-opus-4-8`
+   - **Model** → mis. `claude-opus-4-6`
 
 <Callout type="warning">
   Jangan isi Base URL OpenAI Compatible dengan `https://api.openai.com/v1` — itu
@@ -58,14 +58,14 @@ Roo Code adalah turunan Cline; langkahnya mirip.
 1. Install extension **Roo Code**.
 2. Panel Roo Code → ikon **gear** → **API Provider**.
 3. **OpenAI Compatible**: Base URL `https://api.nexotao.com/v1`, API Key `sk-nexo-...`,
-   Model mis. `gpt-5-mini`.
+   Model mis. `nova-micro`.
 4. **Anthropic**: aktifkan **Use custom base URL** → `https://api.nexotao.com`, API Key
-   `sk-nexo-...`, Model `claude-opus-4-8`.
+   `sk-nexo-...`, Model `claude-opus-4-6`.
 
 <Callout type="info">
   Roo Code memakai **native tool calling** untuk jalur OpenAI Compatible. Model yang
-  dipilih harus mendukung function/tool calling — `gpt-5-mini` dan model Nexotao
-  lainnya sudah mendukung.
+  dipilih harus mendukung function/tool calling. `nova-micro` mendukung; untuk
+  model lain, pastikan `supports_tools: true` di `GET /models`.
 </Callout>
 
 ---
@@ -79,15 +79,15 @@ Continue dikonfigurasi lewat file `~/.continue/config.yaml`.
 ```yaml
 # ~/.continue/config.yaml
 models:
-  - name: GPT-5 Mini (Nexotao)
+  - name: Nova Micro (Nexotao)
     provider: openai
-    model: gpt-5-mini
+    model: nova-micro
     apiBase: https://api.nexotao.com/v1
     apiKey: sk-nexo-...
 
-  - name: Claude Opus 4.8 (Nexotao)
+  - name: Claude Opus 4.6 (Nexotao)
     provider: anthropic
-    model: claude-opus-4-8
+    model: claude-opus-4-6
     apiBase: https://api.nexotao.com
     apiKey: sk-nexo-...
 ```

@@ -50,10 +50,10 @@ Under the hood this sets:
 - `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
 - `ANTHROPIC_AUTH_TOKEN` = your `sk-nexo-...` key
 - `ANTHROPIC_MODEL` = the Claude model you picked in the generator
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` = `claude-opus-4-6`
 - `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6` — the sonnet tier is available
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-sonnet-4-6` as well. There is no haiku tier
-  in our catalog, so the background slot maps to the cheapest available Claude model —
-  Claude Code keeps working normally.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-haiku-4-5` — available directly for
+  background tasks at its own rate
 - `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
 
 ## 5. Run Claude Code
@@ -100,7 +100,7 @@ curl -i https://api.nexotao.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-opus-4-8",
+    "model": "claude-opus-4-6",
     "max_tokens": 64,
     "messages": [{"role": "user", "content": "Hello"}]
   }'
@@ -131,8 +131,8 @@ responses, see the breakdown on the **Usage** page in the dashboard. No subscrip
 the balance never expires.
 
 **Which models can I use with Claude Code?**
-Claude models available through the gateway: Opus 5, Opus 4.8, Opus 4.7, Opus 4.6,
-and Sonnet 4.6. Pick the primary model in the config generator above.
+The active Claude models are Opus 4.6, Opus 4.5, Sonnet 4.6, Sonnet 4.5, and
+Haiku 4.5. Pick the primary model in the config generator above.
 
 ## Next steps
 

@@ -43,22 +43,17 @@ ke Nexotao dan dibayar pakai Rupiah. Lihat [Claude Code](/claude-code).
 
 ## Berapa harganya?
 
-Tarif live ada di [Model & Harga](/model-harga). Saat ini jauh di bawah harga
-official — anggap harga promo.
+Tarif live ada di [Model & Harga](/model-harga). Retail Fase 1 ditetapkan sebesar
+75% dari harga on-demand AWS Bedrock US Standard pada kurs Rp 18.000/USD. Ini
+kebijakan katalog manual, bukan harga global yang tersinkron otomatis.
 
-## Kenapa DeepSeek kadang balas 429 / "server at capacity"?
+## Model mana yang bisa dipakai coding agent?
 
-Karena request-nya bukan untuk DeepSeek. `DeepSeek-V4-Flash` diposisikan untuk
-kerjaan **volume tinggi & hemat** — klasifikasi, ekstraksi, chat pendek — dan
-kapasitasnya kecil, sekitar **20k token/menit (TPM)** per backend. Satu request
-**agentic/coding atau konteks besar** gampang menembus ~50k token input, sudah
-melampaui jatah satu backend, jadi balas `429 server at capacity, retry shortly`
-— sebanyak apa pun backend paralel tidak menolong, karena satu request tidak
-bisa dipecah antar-backend.
+Pakai model yang mengembalikan `supports_tools: true` di `GET /models`. Katalog
+memiliki 24 model yang sudah divalidasi untuk round-trip tool call stabil dan 8
+model chat-only.
 
 <Callout type="warning">
-  Solusinya bukan retry berulang, tapi **pakai model yang tepat**: untuk
-  coding/agentic dan konteks besar, pilih langsung id model **Claude
-  (Opus/Sonnet)**, misalnya `claude-opus-4-8`. DeepSeek tetap pilihan terbaik untuk
-  beban volume/murah.
+  Model chat-only seperti `deepseek-r1`, `deepseek-v3-2`, dan `gpt-oss-20b`
+  bisa menjawab prompt teks, tetapi jangan dipilih di client yang mewajibkan tools.
 </Callout>

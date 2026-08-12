@@ -1,159 +1,58 @@
 ---
 title: Context Window & Compaction
-description: How Nexotao's context window works, how to calibrate your client (Claude Code) to it, and what to do when a prompt is too long. Use compaction to keep long sessions going.
+description: Read each Nexotao model's context window and keep long agent sessions healthy with compaction.
 ---
 
 # Context Window & Compaction
 
-Long sessions — especially with coding agents like **Claude Code** — keep growing
-the conversation until it no longer fits the model's **context window**. This page
-explains the window we publish, how to calibrate your client to it, and how to keep
-a session going with **compaction** instead of hitting an error.
-
-## Why context windows exist
-
-Every model can only read a limited number of tokens at once — its **context
-window**. The whole conversation (your messages, the model's replies, tool output,
-and files the agent has read) counts against it. When the running total approaches
-the window, the next request can be rejected as *prompt too long*.
-
-### Our published value: read it from the API
-
-We publish the real, verified window for each live model — **don't hard-guess
-200k**. Read it from the model list so your client calibrates to the true number:
+The context window includes the conversation, model replies, tool output, and
+files read by an agent. Read the production value instead of assuming every
+model has 200K tokens:
 
 ```bash
-# Public catalog (no key) — includes context_window per model
-curl https://api.nexotao.com/models
-
-# OpenAI-format list (requires key) — used by clients like Claude Code, n8n
-curl https://api.nexotao.com/v1/models \
-  -H "Authorization: Bearer sk-nexo-..."
+curl -s https://api.nexotao.com/models | jq -r \
+  '.models[] | [.model, .context_window] | @tsv'
 ```
 
-Each model object carries a `context_window` field (token count).
+## Current Phase 1 windows
 
-> **This field can be `null`.** When present, the number is authoritative — in sync
-> with what the gateway actually serves. But `context_window` is only published for
-> models whose hard limit we have verified. Right now **6 of the 12 live models**
-> carry a number; the rest are `null` because the provider has not published a firm
-> limit. Don't read `null` as "unlimited", and don't substitute a 200k guess — treat
-> it as *unknown*, then rely on client-side compaction plus the explicit `400` you get
-> when a prompt is genuinely too long.
-
-The currently published values:
-
-| Model | `context_window` |
+| Context | Model IDs |
 | --- | --- |
-| `claude-opus-5` | 1,000,000 |
-| `claude-opus-4-8` | 350,000 |
-| `claude-opus-4-7` | 350,000 |
-| `claude-opus-4-6` | 350,000 |
-| `claude-sonnet-4-6` | 350,000 |
-| `DeepSeek-V4-Pro` | 131,072 |
+| 10,000,000 | `llama-4-scout-17b` |
+| 1,000,000 | `claude-opus-4-6`, `claude-sonnet-4-6`, `nova-2-lite`, `llama-4-maverick-17b`, `minimax-m2` |
+| 300,000 | `nova-lite`, `nova-pro` |
+| 256,000 | `mistral-large-3`, `devstral-2`, `qwen3-coder-30b`, `qwen3-coder-next`, `nemotron-super-120b`, `nemotron-nano-30b`, `kimi-k2-5` |
+| 203,000 | `glm-4-7` |
+| 200,000 | `claude-opus-4-5`, `claude-sonnet-4-5`, `claude-haiku-4-5`, `glm-5` |
+| 164,000 | `deepseek-v3-2` |
+| 128,000 | `deepseek-r1`, `magistral-small`, `ministral-14b`, `ministral-8b`, `ministral-3b`, `nova-micro`, `llama-3-3-70b`, `gemma-3-27b`, `gpt-oss-120b`, `gpt-oss-20b` |
+| 32,000 | `qwen3-32b` |
 
-The remaining models (`DeepSeek-V4-Flash`, `gpt-5-mini`, `gpt-5.6-luna`,
-`gpt-5.6-sol`, `gpt-5.6-terra`, `grok-4.3`) return `null`. This table can change —
-read it from the API rather than copying it.
+The API is authoritative if these values change.
 
-> **Honest note.** For the Claude models, our published window is **larger than the
-> legacy 200k** that many clients still assume by default — 350k tokens across the
-> Opus 4.x line and Sonnet 4.6, and 1M tokens for `claude-opus-5`. The figure is **per
-> model**: don't hard-guess 200k, and don't carry one model's window over to another.
-> Because the real window is bigger than the old 200k default, a client that hasn't
-> been calibrated will compact *earlier* than it needs to — you simply lose some usable
-> context, nothing breaks.
+## Claude Code setup
 
-## Client-side compaction
-
-**Compaction** replaces a long history with a shorter summary so the session can
-continue. Clients in the Claude Code family do this for you:
-
-- **Autocompact** — as the conversation nears the context window, the client
-  automatically summarizes older turns and continues. The threshold is set from the
-  window the client *believes* the model has. Many clients still assume the old 200k
-  default, which is **smaller** than our real window, so they autocompact earlier than
-  necessary. Calibrate the client to our published `context_window` and autocompact
-  fires at the true threshold, letting you use the full window.
-- **`/compact`** — run this command anytime to compact **manually**. Useful before a
-  big task, or right after the agent has read a lot of files. You can add a hint,
-  e.g. `/compact keep the API design decisions and the failing test`.
-- **`/clear`** — start a fresh context when the current task is done and you don't
-  need the history. The cheapest way to reclaim the full window.
-
-### Point the client at Nexotao and the right models
-
-So compaction calibrates correctly, point the client at our base URL and the live
-model ids:
+Use active Claude IDs so Claude Code can calibrate and compact correctly:
 
 | Setting | Value |
 | --- | --- |
 | `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` |
-| `ANTHROPIC_AUTH_TOKEN` | your `sk-nexo-...` API key |
-| `ANTHROPIC_MODEL` | `claude-opus-4-8` (main model) |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-8` |
+| `ANTHROPIC_AUTH_TOKEN` | your `sk-nexo-...` key |
+| `ANTHROPIC_MODEL` | `claude-opus-4-6` |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-6` |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-4-6` |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-sonnet-4-6` (background slot) |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-haiku-4-5` |
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
 
-**The sonnet tier is available** — `claude-sonnet-4-6` is a live model with its own
-rate, so use it directly in the sonnet slot. What is **not** available is the haiku
-tier, so the background slot also points at `claude-sonnet-4-6` (the cheapest Claude
-model we carry). If your client still sends `claude-haiku-4-5`, the gateway routes it
-to `claude-opus-4-8` and bills it at the Opus rate.
+See [Claude Code](/en/claude-code) for the config generator.
 
-Older versions of this guide mentioned `ANTHROPIC_SMALL_FAST_MODEL`. Our generator
-now emits `ANTHROPIC_DEFAULT_SONNET_MODEL` and `ANTHROPIC_DEFAULT_HAIKU_MODEL` — use
-those two. See [Claude Code](/en/claude-code) for the full config and the interactive
-generator.
+## Keep long sessions healthy
 
-## Per-client setup
+- Let the client autocompact as it approaches the published window.
+- Run `/compact` before a large task or after reading many files.
+- Run `/clear` when the current task is complete and history is no longer useful.
+- For clients without compaction, trim or summarize old turns yourself.
 
-### Claude Code (and the Claude Code family)
-
-1. Set the variables above (or use the generator on the [Claude Code](/en/claude-code)
-   page to produce `~/.claude/settings.json`).
-2. **Window:** Claude Code derives the window from the model. Read the exact number
-   from `context_window` in `/v1/models`. For the Claude models it's **larger** than
-   the legacy 200k some clients still assume, so a stale assumption only makes the
-   client compact *early* (you lose usable context, nothing breaks). Where your client
-   lets you set the model's context window, set it to the published value so
-   autocompact and `/compact` trigger at the true threshold.
-3. Run `claude` and use `/compact` / `/clear` to manage long sessions.
-
-### Other OpenAI-compatible clients
-
-For tools that speak the OpenAI format (n8n, scripts, custom apps):
-
-- Base URL: `https://api.nexotao.com/v1`
-- Models: `claude-opus-4-8` (Anthropic-style via `/v1/messages`) or
-  `gpt-5-mini` (OpenAI-style via `/v1/chat/completions`).
-- These clients usually don't compact automatically — keep your own history short:
-  trim or summarize old turns before each call, and read `context_window` from
-  `/v1/models` to know your budget. If the field is `null` for the model you use, trim
-  against your own history size and treat a `400`
-  `upstream.context_length_exceeded` as the signal to summarize.
-
-## When a prompt exceeds the window
-
-If a request is too large, our gateway returns an **honest upstream error** (not a
-generic 502), so your client can react:
-
-| Status | `code` | Meaning | What to do |
-| --- | --- | --- | --- |
-| `400` | `upstream.context_length_exceeded` | The prompt exceeds the model's context window | Compact, summarize, or start fresh — see below |
-| `413` | `request.too_large` | The request body exceeds the gateway's size limit | Run `/compact` or start a new session |
-| `429` | `upstream.rate_limited` | Rate limited upstream | Back off and retry; we forward `Retry-After` when present |
-
-Recovery options, easiest first:
-
-1. **Compact** — run `/compact` (Claude Code) to summarize the history and continue
-   the same task.
-2. **Start a fresh session** — `/clear`, or open a new chat, when the current task is
-   done. Paste only the summary you still need.
-3. **Split the input** — if a single file or paste is the problem, send it in smaller
-   chunks rather than one oversized message.
-
-Usage is billed from your Rupiah balance the same way regardless of how you manage
-context — see [Billing & Pricing](/en/penagihan). More on error codes is in the
-[Error Codes](/en/errors); common questions are in the [FAQ](/en/faq).
+If the prompt is too large, the gateway returns `400
+upstream.context_length_exceeded`; compact, summarize, or split the input. A
+`413 request.too_large` means the HTTP body itself exceeds the gateway limit.

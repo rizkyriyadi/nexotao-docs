@@ -51,7 +51,7 @@ from openai import OpenAI
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
 resp = client.chat.completions.create(
-    model="claude-opus-4-8",  # atau gpt-5.6-terra, DeepSeek-V4-Pro, dst.
+    model="qwen3-coder-next",  # atau claude-opus-4-6, nova-micro, dst.
     messages=[{"role": "user", "content": "Halo"}],
 )
 print(resp.choices[0].message.content)
@@ -60,7 +60,7 @@ print(resp.choices[0].message.content)
   </Tabs.Tab>
   <Tabs.Tab>
 
-Format Anthropic native (`/v1/messages`) — hanya Claude:
+Format Anthropic (`/v1/messages`) — semua model Fase 1:
 
 ```bash
 curl https://api.nexotao.com/v1/messages \
@@ -68,7 +68,7 @@ curl https://api.nexotao.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-opus-4-8",
+    "model": "claude-opus-4-6",
     "max_tokens": 256,
     "messages": [{"role": "user", "content": "Halo"}]
   }'
@@ -85,7 +85,7 @@ import OpenAI from "openai"
 const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
 
 const resp = await client.chat.completions.create({
-  model: "gpt-5.6-terra",
+  model: "nova-micro",
   messages: [{ role: "user", content: "Halo" }],
 })
 console.log(resp.choices[0].message.content)
@@ -101,19 +101,14 @@ Setiap respons menyertakan header `X-Cost-Rp` (biaya aktual dalam Rupiah) dan
 
 Panggilan yang sama, lebih murah atau lebih kuat — cukup ubah `model`:
 
-- `DeepSeek-V4-Flash` — workhorse super murah untuk kerjaan **volume tinggi**:
-  klasifikasi, ekstraksi, chat pendek. Bukan untuk agentic/coding atau konteks
-  besar (kapasitas ~20k TPM — request berat bisa kena `429 server at capacity`).
-- `claude-opus-4-8` — reasoning frontier untuk **coding/agentic & konteks besar**.
-- `claude-opus-5` — Opus terbaru, **konteks 1 juta token**, tarif input dan output
-  sama rata (lihat [Model & Harga](/model-harga)). Kapasitasnya masih terbatas, jadi
-  beban agentic berat lebih aman di Opus 4.8.
-- `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol` — keluarga GPT-5.6 dari tier
-  efisien, seimbang, sampai tier tertinggi dengan tarif Sol Rp 7.000 input/output.
+- `claude-opus-4-6` — reasoning flagship, vision, tools, dan konteks 1 juta token.
+- `qwen3-coder-next` — coding agentic dengan konteks 256 ribu token.
+- `nova-micro` — model agentic dengan harga paling rendah di katalog Fase 1.
+- `deepseek-v3-2` atau `gpt-oss-20b` — chat-only; jangan dipakai di client yang
+  mewajibkan tool calling.
 
 <Callout type="warning">
-  Id model bersifat **case-sensitive** — tulis persis seperti tertera. `deepseek-v4-pro`
-  bukan model yang sama dengan `DeepSeek-V4-Pro`, dan request-nya akan ditolak.
+  Model ID bersifat **case-sensitive** — salin persis dari `GET /models`.
 </Callout>
 
 Lihat semua model dan harga hari ini di

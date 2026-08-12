@@ -48,14 +48,14 @@ const T = {
 } as const
 
 const FALLBACK_MODELS = [
-  "claude-opus-5",
-  "claude-opus-4-8",
+  "claude-opus-4-6",
   "claude-sonnet-4-6",
-  "gpt-5.6-terra",
-  "gpt-5.6-luna",
-  "gpt-5-mini",
-  "DeepSeek-V4-Pro",
-  "DeepSeek-V4-Flash",
+  "qwen3-coder-next",
+  "nova-micro",
+  "mistral-large-3",
+  "gpt-oss-120b",
+  "deepseek-v3-2",
+  "gpt-oss-20b",
 ]
 
 type Result = {
@@ -81,7 +81,7 @@ export function Playground() {
 
   const [apiKey, setApiKey] = useState("")
   const [models, setModels] = useState<string[] | null>(null)
-  const [model, setModel] = useState("claude-opus-4-8")
+  const [model, setModel] = useState("claude-opus-4-6")
   const [system, setSystem] = useState("")
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)

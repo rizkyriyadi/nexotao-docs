@@ -38,7 +38,7 @@ the base URL and API key in your existing tools:
 
 Which one to pick: **[Endpoints & Formats](/en/endpoint)**. Not sure how to connect your
 coding tool? Every step-by-step guide lives under **[Integrations](/en/integrasi)** —
-Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, OpenCode, plus
+Claude Code, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, OpenCode, plus
 the universal pattern for any other tool.
 
 ## Next steps
@@ -47,7 +47,7 @@ the universal pattern for any other tool.
 - [Quickstart](/en/quickstart) — from sign-up to your first request.
 - [Playground](/en/playground) — try the API in your browser, no code.
 - [Endpoints & Formats](/en/endpoint) — pick the right endpoint.
-- [Integrations](/en/integrasi) — connect Claude Code, Codex, VS Code, and more.
+- [Integrations](/en/integrasi) — connect Claude Code, VS Code, terminal agents, and more.
 - [Billing & Pricing](/en/penagihan) — the Rupiah balance system.
 
 ---
@@ -193,7 +193,7 @@ from openai import OpenAI
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
 resp = client.chat.completions.create(
-    model="claude-opus-4-8",  # or gpt-5.6-terra, DeepSeek-V4-Pro, etc.
+    model="qwen3-coder-next",  # or claude-opus-4-6, nova-micro, etc.
     messages=[{"role": "user", "content": "Hello"}],
 )
 print(resp.choices[0].message.content)
@@ -202,7 +202,7 @@ print(resp.choices[0].message.content)
   </Tabs.Tab>
   <Tabs.Tab>
 
-Native Anthropic format (`/v1/messages`) — Claude only:
+Anthropic format (`/v1/messages`) — every Phase 1 model:
 
 ```bash
 curl https://api.nexotao.com/v1/messages \
@@ -210,7 +210,7 @@ curl https://api.nexotao.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-opus-4-8",
+    "model": "claude-opus-4-6",
     "max_tokens": 256,
     "messages": [{"role": "user", "content": "Hello"}]
   }'
@@ -227,7 +227,7 @@ import OpenAI from "openai"
 const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
 
 const resp = await client.chat.completions.create({
-  model: "gpt-5.6-terra",
+  model: "nova-micro",
   messages: [{ role: "user", content: "Hello" }],
 })
 console.log(resp.choices[0].message.content)
@@ -243,19 +243,14 @@ Every response includes an `X-Cost-Rp` header (the actual cost in Rupiah) and
 
 Same call, cheaper or stronger — just change the `model`:
 
-- `DeepSeek-V4-Flash` — ultra-cheap workhorse for **high-volume** work:
-  classification, extraction, short chat. Not for agentic/coding or large
-  context (~20k TPM capacity — heavy requests can hit `429 server at capacity`).
-- `claude-opus-4-8` — frontier reasoning for **coding/agentic & large context**.
-- `claude-opus-5` — the newest Opus, a **1M-token context**, with the same rate for
-  input and output (see [Models & Pricing](/en/model-harga)). Capacity is still limited,
-  so heavy agentic workloads are safer on Opus 4.8.
-- `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol` — the GPT-5.6 family from
-  efficient to balanced to the top tier, with Sol at Rp 7,000 input/output.
+- `claude-opus-4-6` — flagship reasoning, vision, tools, and a 1M-token context.
+- `qwen3-coder-next` — agentic coding with a 256K-token context.
+- `nova-micro` — the lowest-priced agentic model in the Phase 1 catalog.
+- `deepseek-v3-2` or `gpt-oss-20b` — chat-only; do not use them in clients that
+  require tool calling.
 
 <Callout type="warning">
-  Model ids are **case-sensitive** — use them exactly as listed. `deepseek-v4-pro` is
-  not the same model as `DeepSeek-V4-Pro`, and the request will be rejected.
+  Model IDs are **case-sensitive** — copy them exactly from `GET /models`.
 </Callout>
 
 Browse every model and today's price at
@@ -301,146 +296,64 @@ Source: https://docs.nexotao.com/en/endpoint
 
 # Endpoints & Formats
 
-Nexotao has two "front doors" for chat. Both use the same models — only the request
-**format** differs. This page helps you pick the right one so your requests don't get
-rejected.
+All 32 Phase 1 models are backed by Bedrock Converse and can be called through
+either chat endpoint. Choose the wire format your client already supports.
 
-## Choose in 5 seconds
+| Client format | Endpoint | SDK base URL | Authentication |
+| --- | --- | --- | --- |
+| OpenAI Chat Completions | `/v1/chat/completions` | `https://api.nexotao.com/v1` | `Authorization: Bearer sk-nexo-...` |
+| Anthropic Messages | `/v1/messages` | `https://api.nexotao.com` | `x-api-key: sk-nexo-...` |
 
-| If you… | Use endpoint | Base URL |
-| --- | --- | --- |
-| Use the **OpenAI SDK / library**, or a tool that asks for an "OpenAI base URL" | **`/v1/chat/completions`** | `https://api.nexotao.com/v1` |
-| Use the **Anthropic SDK**, or want native Anthropic format | **`/v1/messages`** | `https://api.nexotao.com` |
-| Use **Codex** (OpenAI Responses API) | **`/v1/responses`** | `https://api.nexotao.com/v1` |
+> `/v1/responses` is **not available for the Bedrock Phase 1 catalog**. OpenAI
+> Codex CLI requires that endpoint, so use Claude Code or another Chat
+> Completions/Messages-compatible agent for now.
 
-> **Golden rule:** `/v1/chat/completions` accepts **every model — including Claude**.
-> When in doubt, use it. Nexotao translates the format automatically.
+## OpenAI format
 
-## The most common mistake
-
-Sending an **OpenAI-format body** to the **`/v1/messages`** endpoint.
-
-`/v1/messages` is the native Anthropic path: the body is forwarded upstream without
-translation. Leftover OpenAI markers are handled in two different ways — some are
-**silently stripped**, others **make the request fail**.
-
-### Fields that are silently stripped (not rejected)
-
-These OpenAI-only fields have **no Messages API equivalent**. The gateway removes
-them from the body before forwarding, so the request still succeeds — but **the
-values you send have no effect at all**, and nothing in the response warns you:
-
-`frequency_penalty`, `presence_penalty`, `n`, `seed`, `user`, `logit_bias`,
-`logprobs`, `top_logprobs`, `stream_options`, `parallel_tool_calls`,
-`response_format`, `output_format`
-
-In addition:
-
-- `stop` is **renamed** to `stop_sequences` (its Anthropic equivalent), so your
-  intent survives. If `stop_sequences` is already set, `stop` is simply dropped.
-- `context_management` is stripped — Anthropic's context-editing beta isn't
-  available on our upstream, and forwarding the field would fail the request.
-- `temperature`, `top_p`, and `top_k` are stripped **only for `claude-opus-5`,
-  `claude-opus-4-8`, and `claude-opus-4-7`**, which no longer accept sampling
-  parameters. On `claude-opus-4-6` and `claude-sonnet-4-6` all three are
-  **forwarded and work normally**.
-
-### What actually fails the request
-
-- **`role: "system"` inside `messages`.** The Messages API only knows the `user` and
-  `assistant` roles; system instructions go in a **separate** top-level `system` field.
-- **A missing `max_tokens`.** In Anthropic format this field is **required**.
-- **OpenAI fields outside the strip list above**, such as `max_completion_tokens`.
-  Those are forwarded as-is and rejected upstream as unknown input.
-
-These failures surface as a `400` with the `code` `upstream.invalid_request`.
-
-**Fix:** just send it to `/v1/chat/completions` (base URL ending in `/v1`). That
-endpoint accepts OpenAI format as-is, including for Claude models, and translates it
-for you — `role: "system"` is moved into the `system` field, and `max_tokens` gets a
-default when you omit it.
-
-```diff
-- POST https://api.nexotao.com/v1/messages         (Anthropic format only)
-+ POST https://api.nexotao.com/v1/chat/completions  (OpenAI format, every model)
-```
-
-## Option 1 — OpenAI format (most common)
-
-Endpoint `/v1/chat/completions`. Base URL **ends in `/v1`**, key sent via
-`Authorization: Bearer`. Works for GPT, DeepSeek, Grok, **and Claude**.
+Use this for the OpenAI SDK, Aider, Continue, and clients that ask for an OpenAI
+base URL:
 
 ```python
 from openai import OpenAI
 
-# Just change the base URL — any model, including Claude
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
-resp = client.chat.completions.create(
-    model="claude-opus-4-8",  # or gpt-5.6-terra, DeepSeek-V4-Pro, etc.
+response = client.chat.completions.create(
+    model="qwen3-coder-next",
     messages=[
         {"role": "system", "content": "You are a concise assistant."},
-        {"role": "user", "content": "What is consistent hashing?"},
+        {"role": "user", "content": "Explain consistent hashing."},
     ],
 )
-print(resp.choices[0].message.content)
+print(response.choices[0].message.content)
 ```
 
-```bash
-curl https://api.nexotao.com/v1/chat/completions \
-  -H "Authorization: Bearer sk-nexo-..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "claude-opus-4-8",
-    "messages": [{"role": "user", "content": "Hello"}]
-  }'
-```
+## Anthropic format
 
-## Option 2 — Native Anthropic format
-
-Endpoint `/v1/messages`. Base URL **without `/v1`**, key sent via `x-api-key`. Claude
-models only, and the body must be Anthropic format (system **outside** `messages`,
-`max_tokens` required).
+Use this for the Anthropic SDK and Claude Code. The same endpoint also accepts
+non-Claude Phase 1 models; for example, `qwen3-coder-next` has been validated
+end-to-end through `/v1/messages`.
 
 ```python
 from anthropic import Anthropic
 
 client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
 
-msg = client.messages.create(
-    model="claude-opus-4-8",
+message = client.messages.create(
+    model="claude-opus-4-6",
     max_tokens=256,
-    system="You are a concise assistant.",   # outside messages
-    messages=[{"role": "user", "content": "What is consistent hashing?"}],
+    system="You are a concise assistant.",
+    messages=[{"role": "user", "content": "Explain consistent hashing."}],
 )
-print(msg.content[0].text)
+print(message.content[0].text)
 ```
 
-```bash
-curl https://api.nexotao.com/v1/messages \
-  -H "x-api-key: sk-nexo-..." \
-  -H "anthropic-version: 2023-06-01" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "claude-opus-4-8",
-    "max_tokens": 256,
-    "messages": [{"role": "user", "content": "Hello"}]
-  }'
-```
+In Messages format, `system` is a top-level field and `max_tokens` is required.
+Do not paste an OpenAI body into `/v1/messages`; use `/v1/chat/completions`
+instead.
 
-## At a glance
-
-| | `/v1/chat/completions` | `/v1/messages` |
-| --- | --- | --- |
-| Format | OpenAI | Native Anthropic |
-| Base URL | `…/v1` | `…` (no `/v1`) |
-| Key header | `Authorization: Bearer` | `x-api-key` |
-| Models | All (GPT, DeepSeek, Grok, Claude) | Claude only |
-| `system` | inside `messages` | separate field |
-| `max_tokens` required | no | yes |
-
-New to tokens, models, or API keys? Start with [Core Concepts](/en/konsep). Want to
-try it without any code? Open the [Playground](/en/playground).
+Model IDs are case-sensitive. Copy them from `GET /models`, and check
+`supports_tools` before selecting a model for an agent loop.
 
 ---
 
@@ -517,7 +430,7 @@ curl https://api.nexotao.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-opus-4-8",
+    "model": "claude-opus-4-6",
     "max_tokens": 512,
     "messages": [{"role": "user", "content": "Explain what QRIS is"}]
   }'
@@ -534,7 +447,7 @@ from openai import OpenAI
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 
 resp = client.chat.completions.create(
-    model="gpt-5-mini",
+    model="nova-micro",
     messages=[{"role": "user", "content": "Explain what QRIS is"}],
 )
 print(resp.choices[0].message.content)
@@ -549,7 +462,7 @@ import OpenAI from "openai"
 const client = new OpenAI({ baseURL: "https://api.nexotao.com/v1", apiKey: "sk-nexo-..." })
 
 const resp = await client.chat.completions.create({
-  model: "gpt-5-mini",
+  model: "nova-micro",
   messages: [{ role: "user", content: "Explain what QRIS is" }],
 })
 console.log(resp.choices[0].message.content)
@@ -564,7 +477,7 @@ Set `stream: true` to receive the answer token by token over Server-Sent Events.
 
 ```python
 stream = client.chat.completions.create(
-    model="gpt-5-mini",
+    model="nova-micro",
     messages=[{"role": "user", "content": "Write a short poem"}],
     stream=True,
 )
@@ -589,158 +502,57 @@ Source: https://docs.nexotao.com/en/context-window
 
 # Context Window & Compaction
 
-Long sessions — especially with coding agents like **Claude Code** — keep growing
-the conversation until it no longer fits the model's **context window**. This page
-explains the window we publish, how to calibrate your client to it, and how to keep
-a session going with **compaction** instead of hitting an error.
-
-## Why context windows exist
-
-Every model can only read a limited number of tokens at once — its **context
-window**. The whole conversation (your messages, the model's replies, tool output,
-and files the agent has read) counts against it. When the running total approaches
-the window, the next request can be rejected as *prompt too long*.
-
-### Our published value: read it from the API
-
-We publish the real, verified window for each live model — **don't hard-guess
-200k**. Read it from the model list so your client calibrates to the true number:
+The context window includes the conversation, model replies, tool output, and
+files read by an agent. Read the production value instead of assuming every
+model has 200K tokens:
 
 ```bash
-# Public catalog (no key) — includes context_window per model
-curl https://api.nexotao.com/models
-
-# OpenAI-format list (requires key) — used by clients like Claude Code, n8n
-curl https://api.nexotao.com/v1/models \
-  -H "Authorization: Bearer sk-nexo-..."
+curl -s https://api.nexotao.com/models | jq -r \
+  '.models[] | [.model, .context_window] | @tsv'
 ```
 
-Each model object carries a `context_window` field (token count).
+## Current Phase 1 windows
 
-> **This field can be `null`.** When present, the number is authoritative — in sync
-> with what the gateway actually serves. But `context_window` is only published for
-> models whose hard limit we have verified. Right now **6 of the 12 live models**
-> carry a number; the rest are `null` because the provider has not published a firm
-> limit. Don't read `null` as "unlimited", and don't substitute a 200k guess — treat
-> it as *unknown*, then rely on client-side compaction plus the explicit `400` you get
-> when a prompt is genuinely too long.
-
-The currently published values:
-
-| Model | `context_window` |
+| Context | Model IDs |
 | --- | --- |
-| `claude-opus-5` | 1,000,000 |
-| `claude-opus-4-8` | 350,000 |
-| `claude-opus-4-7` | 350,000 |
-| `claude-opus-4-6` | 350,000 |
-| `claude-sonnet-4-6` | 350,000 |
-| `DeepSeek-V4-Pro` | 131,072 |
+| 10,000,000 | `llama-4-scout-17b` |
+| 1,000,000 | `claude-opus-4-6`, `claude-sonnet-4-6`, `nova-2-lite`, `llama-4-maverick-17b`, `minimax-m2` |
+| 300,000 | `nova-lite`, `nova-pro` |
+| 256,000 | `mistral-large-3`, `devstral-2`, `qwen3-coder-30b`, `qwen3-coder-next`, `nemotron-super-120b`, `nemotron-nano-30b`, `kimi-k2-5` |
+| 203,000 | `glm-4-7` |
+| 200,000 | `claude-opus-4-5`, `claude-sonnet-4-5`, `claude-haiku-4-5`, `glm-5` |
+| 164,000 | `deepseek-v3-2` |
+| 128,000 | `deepseek-r1`, `magistral-small`, `ministral-14b`, `ministral-8b`, `ministral-3b`, `nova-micro`, `llama-3-3-70b`, `gemma-3-27b`, `gpt-oss-120b`, `gpt-oss-20b` |
+| 32,000 | `qwen3-32b` |
 
-The remaining models (`DeepSeek-V4-Flash`, `gpt-5-mini`, `gpt-5.6-luna`,
-`gpt-5.6-sol`, `gpt-5.6-terra`, `grok-4.3`) return `null`. This table can change —
-read it from the API rather than copying it.
+The API is authoritative if these values change.
 
-> **Honest note.** For the Claude models, our published window is **larger than the
-> legacy 200k** that many clients still assume by default — 350k tokens across the
-> Opus 4.x line and Sonnet 4.6, and 1M tokens for `claude-opus-5`. The figure is **per
-> model**: don't hard-guess 200k, and don't carry one model's window over to another.
-> Because the real window is bigger than the old 200k default, a client that hasn't
-> been calibrated will compact *earlier* than it needs to — you simply lose some usable
-> context, nothing breaks.
+## Claude Code setup
 
-## Client-side compaction
-
-**Compaction** replaces a long history with a shorter summary so the session can
-continue. Clients in the Claude Code family do this for you:
-
-- **Autocompact** — as the conversation nears the context window, the client
-  automatically summarizes older turns and continues. The threshold is set from the
-  window the client *believes* the model has. Many clients still assume the old 200k
-  default, which is **smaller** than our real window, so they autocompact earlier than
-  necessary. Calibrate the client to our published `context_window` and autocompact
-  fires at the true threshold, letting you use the full window.
-- **`/compact`** — run this command anytime to compact **manually**. Useful before a
-  big task, or right after the agent has read a lot of files. You can add a hint,
-  e.g. `/compact keep the API design decisions and the failing test`.
-- **`/clear`** — start a fresh context when the current task is done and you don't
-  need the history. The cheapest way to reclaim the full window.
-
-### Point the client at Nexotao and the right models
-
-So compaction calibrates correctly, point the client at our base URL and the live
-model ids:
+Use active Claude IDs so Claude Code can calibrate and compact correctly:
 
 | Setting | Value |
 | --- | --- |
 | `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` |
-| `ANTHROPIC_AUTH_TOKEN` | your `sk-nexo-...` API key |
-| `ANTHROPIC_MODEL` | `claude-opus-4-8` (main model) |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-8` |
+| `ANTHROPIC_AUTH_TOKEN` | your `sk-nexo-...` key |
+| `ANTHROPIC_MODEL` | `claude-opus-4-6` |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | `claude-opus-4-6` |
 | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `claude-sonnet-4-6` |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-sonnet-4-6` (background slot) |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | `claude-haiku-4-5` |
 | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1` |
 
-**The sonnet tier is available** — `claude-sonnet-4-6` is a live model with its own
-rate, so use it directly in the sonnet slot. What is **not** available is the haiku
-tier, so the background slot also points at `claude-sonnet-4-6` (the cheapest Claude
-model we carry). If your client still sends `claude-haiku-4-5`, the gateway routes it
-to `claude-opus-4-8` and bills it at the Opus rate.
+See [Claude Code](/en/claude-code) for the config generator.
 
-Older versions of this guide mentioned `ANTHROPIC_SMALL_FAST_MODEL`. Our generator
-now emits `ANTHROPIC_DEFAULT_SONNET_MODEL` and `ANTHROPIC_DEFAULT_HAIKU_MODEL` — use
-those two. See [Claude Code](/en/claude-code) for the full config and the interactive
-generator.
+## Keep long sessions healthy
 
-## Per-client setup
+- Let the client autocompact as it approaches the published window.
+- Run `/compact` before a large task or after reading many files.
+- Run `/clear` when the current task is complete and history is no longer useful.
+- For clients without compaction, trim or summarize old turns yourself.
 
-### Claude Code (and the Claude Code family)
-
-1. Set the variables above (or use the generator on the [Claude Code](/en/claude-code)
-   page to produce `~/.claude/settings.json`).
-2. **Window:** Claude Code derives the window from the model. Read the exact number
-   from `context_window` in `/v1/models`. For the Claude models it's **larger** than
-   the legacy 200k some clients still assume, so a stale assumption only makes the
-   client compact *early* (you lose usable context, nothing breaks). Where your client
-   lets you set the model's context window, set it to the published value so
-   autocompact and `/compact` trigger at the true threshold.
-3. Run `claude` and use `/compact` / `/clear` to manage long sessions.
-
-### Other OpenAI-compatible clients
-
-For tools that speak the OpenAI format (n8n, scripts, custom apps):
-
-- Base URL: `https://api.nexotao.com/v1`
-- Models: `claude-opus-4-8` (Anthropic-style via `/v1/messages`) or
-  `gpt-5-mini` (OpenAI-style via `/v1/chat/completions`).
-- These clients usually don't compact automatically — keep your own history short:
-  trim or summarize old turns before each call, and read `context_window` from
-  `/v1/models` to know your budget. If the field is `null` for the model you use, trim
-  against your own history size and treat a `400`
-  `upstream.context_length_exceeded` as the signal to summarize.
-
-## When a prompt exceeds the window
-
-If a request is too large, our gateway returns an **honest upstream error** (not a
-generic 502), so your client can react:
-
-| Status | `code` | Meaning | What to do |
-| --- | --- | --- | --- |
-| `400` | `upstream.context_length_exceeded` | The prompt exceeds the model's context window | Compact, summarize, or start fresh — see below |
-| `413` | `request.too_large` | The request body exceeds the gateway's size limit | Run `/compact` or start a new session |
-| `429` | `upstream.rate_limited` | Rate limited upstream | Back off and retry; we forward `Retry-After` when present |
-
-Recovery options, easiest first:
-
-1. **Compact** — run `/compact` (Claude Code) to summarize the history and continue
-   the same task.
-2. **Start a fresh session** — `/clear`, or open a new chat, when the current task is
-   done. Paste only the summary you still need.
-3. **Split the input** — if a single file or paste is the problem, send it in smaller
-   chunks rather than one oversized message.
-
-Usage is billed from your Rupiah balance the same way regardless of how you manage
-context — see [Billing & Pricing](/en/penagihan). More on error codes is in the
-[Error Codes](/en/errors); common questions are in the [FAQ](/en/faq).
+If the prompt is too large, the gateway returns `400
+upstream.context_length_exceeded`; compact, summarize, or split the input. A
+`413 request.too_large` means the HTTP body itself exceeds the gateway limit.
 
 ---
 
@@ -754,12 +566,12 @@ import { ToolGrid, ToolLogo } from "../../components/tool-logo"
 # Integrations
 
 Nexotao is not a new model you have to learn from scratch. It's a **gateway** to the
-AI models you already use — Claude, GPT, DeepSeek, Grok — except the **base URL** and
+AI models you already use — Claude, Qwen, Nova, DeepSeek, and more — except the **base URL** and
 **API key** point to Nexotao, and usage is billed from a Rupiah balance.
 
-That means any coding tool that lets you point at a custom endpoint **works with
-Nexotao**. This page explains the integration pattern, then links to step-by-step
-guides per tool.
+Tools that support OpenAI Chat Completions or Anthropic Messages can connect to
+Nexotao. Tools that require another protocol, such as Codex with the Responses
+API, are not automatically compatible.
 
 ## Two "modes" — this is all you need to remember
 
@@ -768,8 +580,8 @@ up any tool, even ones not listed below.
 
 | Mode | Base URL | Header / env | Model | Used for |
 | ---- | -------- | ------------ | ----- | -------- |
-| **Anthropic-compatible** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | `claude-opus-4-8`, `claude-sonnet-4-6`, … | **Claude** models & tools that speak the Anthropic format (Claude Code, Cline in Anthropic mode) |
-| **OpenAI-compatible** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, … | **OpenAI/DeepSeek/Grok** models & OpenAI-format tools (Codex, Aider, Continue, etc.) |
+| **Anthropic-compatible** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | All 32 Phase 1 models | Tools that speak Anthropic Messages, including Claude Code |
+| **OpenAI-compatible** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | All 32 Phase 1 models | Tools that speak OpenAI Chat Completions, including Aider and Continue |
 
 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
   <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
@@ -796,7 +608,7 @@ up any tool, even ones not listed below.
 
 <ToolGrid items={[
   { logo: "/logos/claude.svg", name: "Claude Code", desc: "Anthropic's CLI coding agent. Copy-paste config generator.", href: "/claude-code", mode: "anthropic" },
-  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "OpenAI's terminal coding agent, pointed at Nexotao models.", href: "/codex", mode: "openai" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Not supported in Phase 1 because Codex requires the Responses API.", href: "/codex", mode: "openai" },
   { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "AI extensions in VS Code — custom OpenAI/Anthropic providers.", href: "/vscode", mode: "both" },
   { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Terminal coding agents. Env / config-file setup.", href: "/terminal-agents", mode: "both" },
   { logo: "/logos/cursor.svg", name: "Any other tool (universal)", desc: "Cursor, Copilot, or anything that accepts a custom base URL.", href: "/kompatibel", mode: "both" },
@@ -826,8 +638,8 @@ Full details in [Quickstart](/en/quickstart) and [Authentication](/en/autentikas
 
 See the live list & rates on [Models & Pricing](/en/model-harga). In short:
 
-- **Anthropic-compat:** `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`
-- **OpenAI-compat:** `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`
+- **Agentic examples:** `claude-opus-4-6`, `qwen3-coder-next`, `nova-micro`, `gpt-oss-120b`.
+- **Chat-only examples:** `deepseek-v3-2`, `gpt-oss-20b`. Do not use these in clients that require tools.
 
 ---
 
@@ -941,10 +753,10 @@ Under the hood this sets:
 - `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
 - `ANTHROPIC_AUTH_TOKEN` = your `sk-nexo-...` key
 - `ANTHROPIC_MODEL` = the Claude model you picked in the generator
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` = `claude-opus-4-6`
 - `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6` — the sonnet tier is available
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-sonnet-4-6` as well. There is no haiku tier
-  in our catalog, so the background slot maps to the cheapest available Claude model —
-  Claude Code keeps working normally.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-haiku-4-5` — available directly for
+  background tasks at its own rate
 - `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
 
 ## 5. Run Claude Code
@@ -991,7 +803,7 @@ curl -i https://api.nexotao.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "claude-opus-4-8",
+    "model": "claude-opus-4-6",
     "max_tokens": 64,
     "messages": [{"role": "user", "content": "Hello"}]
   }'
@@ -1022,8 +834,8 @@ responses, see the breakdown on the **Usage** page in the dashboard. No subscrip
 the balance never expires.
 
 **Which models can I use with Claude Code?**
-Claude models available through the gateway: Opus 5, Opus 4.8, Opus 4.7, Opus 4.6,
-and Sonnet 4.6. Pick the primary model in the config generator above.
+The active Claude models are Opus 4.6, Opus 4.5, Sonnet 4.6, Sonnet 4.5, and
+Haiku 4.5. Pick the primary model in the config generator above.
 
 ## Next steps
 
@@ -1033,112 +845,31 @@ and Sonnet 4.6. Pick the primary model in the config generator above.
 
 ---
 
-# Codex CLI
+# OpenAI Codex CLI
 
 Source: https://docs.nexotao.com/en/codex
 
-import { Callout, Steps, Tabs } from "nextra/components"
-import { ToolLogo } from "../../components/tool-logo"
+# OpenAI Codex CLI
 
-<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-  <ToolLogo src="/logos/openai.svg" alt="Codex" size={34} />
-  <span style={{ fontSize: 13, color: "#A1A1AA" }}>Mode: OpenAI-compatible</span>
-</div>
+OpenAI Codex CLI uses the **Responses API** (`/v1/responses`). Nexotao's 32
+Bedrock Phase 1 models currently support `/v1/messages` and
+`/v1/chat/completions`, but not `/v1/responses`.
 
-# Codex CLI
+Therefore Codex CLI is **not supported in Phase 1**. Changing only
+`~/.codex/config.toml` will not make it work; requests currently return `model
+not available on this endpoint`.
 
-**Codex** is OpenAI's terminal coding agent. It speaks the **OpenAI-compatible**
-format, so point it at `https://api.nexotao.com/v1` and use Nexotao's OpenAI-compat
-models: `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-5-mini`, `grok-4.3`,
-`DeepSeek-V4-Pro`, or `DeepSeek-V4-Flash`.
+For an agentic coding experience today, use:
 
-<Callout type="info">
-  For **Claude** models, use [Claude Code](/en/claude-code) (Anthropic format). Codex
-  has no Anthropic mode.
-</Callout>
+- [Claude Code](/en/claude-code) with `claude-opus-4-6`,
+  `claude-sonnet-4-6`, or `claude-haiku-4-5`.
+- [Terminal agents](/en/terminal-agents) that support OpenAI Chat Completions,
+  with `qwen3-coder-next`, `qwen3-coder-30b`, or another model whose catalog
+  entry has `supports_tools: true`.
 
-<Steps>
-
-### Install Codex
-
-Follow OpenAI's official Codex docs. Verify:
-
-```bash
-codex --version
-```
-
-### Set the API key as an environment variable
-
-Codex reads the key from an env var (it is not stored in the config file).
-
-<Tabs items={["macOS / Linux", "Windows PowerShell"]}>
-  <Tabs.Tab>
-
-```bash
-# add to ~/.zshrc or ~/.bashrc
-export OPENAI_API_KEY="sk-nexo-..."
-```
-
-  </Tabs.Tab>
-  <Tabs.Tab>
-
-```powershell
-setx OPENAI_API_KEY "sk-nexo-..."
-```
-
-  </Tabs.Tab>
-</Tabs>
-
-### Register Nexotao as a provider
-
-Open (or create) `~/.codex/config.toml` and add:
-
-```toml
-# ~/.codex/config.toml
-model = "gpt-5.6-sol"         # default model; change as needed
-model_provider = "nexotao"
-forced_login_method = "api"
-
-[model_providers.nexotao]
-name = "Nexotao"
-base_url = "https://api.nexotao.com/v1"   # MUST include /v1
-env_key = "OPENAI_API_KEY"                # env var holding sk-nexo-...
-wire_api = "responses"                    # REQUIRED "responses"; Codex removed "chat"
-```
-
-### Run
-
-From your project directory:
-
-```bash
-codex
-```
-
-Switch models anytime via a flag:
-
-```bash
-codex -m grok-4.3
-codex -m DeepSeek-V4-Pro
-```
-
-</Steps>
-
-## Important notes
-
-<Callout type="warning">
-  Two values in `config.toml` are the usual culprits: **`base_url` must end in `/v1`**
-  (Codex appends `/responses` itself), and **`wire_api` must be `"responses"`**.
-  Recent Codex versions **removed** `wire_api = "chat"`, so older configs will not
-  work.
-</Callout>
-
-- Nexotao exposes the Responses API (`/v1/responses`) with full streaming — so Codex
-  works out of the box.
-- The **provider ID** (`nexotao`) cannot reuse reserved names like `openai`, `ollama`,
-  or `lmstudio`.
-- The key is **not** stored in `config.toml`; only the env var name (`env_key`) is.
-
-Usage is billed from your Rupiah balance per token. See [Billing & Pricing](/en/penagihan).
+Codex support can be enabled only after the Nexotao Responses adapter supports
+Bedrock models end to end. Check this page again before changing your local
+Codex configuration.
 
 ---
 
@@ -1163,9 +894,9 @@ URL, and paste your `sk-nexo-...` API key.
 
 Remember the two modes:
 
-- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, models `gpt-5-mini`,
-  `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`.
-- **Anthropic** → base URL `https://api.nexotao.com`, models `claude-opus-4-8`,
+- **OpenAI Compatible** → base URL `https://api.nexotao.com/v1`, models `nova-micro`,
+  `glm-4-7`, `deepseek-v3-2`, `gpt-oss-20b`.
+- **Anthropic** → base URL `https://api.nexotao.com`, models `claude-opus-4-6`,
   `claude-sonnet-4-6`, etc.
 
 ---
@@ -1180,12 +911,12 @@ Remember the two modes:
    - **API Provider** → `OpenAI Compatible`
    - **Base URL** → `https://api.nexotao.com/v1`
    - **API Key** → `sk-nexo-...`
-   - **Model ID** → e.g. `gpt-5-mini`
+   - **Model ID** → e.g. `nova-micro`
 4. For **Claude** models:
    - **API Provider** → `Anthropic`
    - Check **Use custom base URL** → `https://api.nexotao.com` *(no `/v1`)*
    - **API Key** → `sk-nexo-...`
-   - **Model** → e.g. `claude-opus-4-8`
+   - **Model** → e.g. `claude-opus-4-6`
 
 <Callout type="warning">
   Do not set the OpenAI Compatible Base URL to `https://api.openai.com/v1` — that's
@@ -1201,14 +932,14 @@ Roo Code is a Cline fork; the steps are similar.
 1. Install the **Roo Code** extension.
 2. Roo Code panel → **gear** icon → **API Provider**.
 3. **OpenAI Compatible**: Base URL `https://api.nexotao.com/v1`, API Key `sk-nexo-...`,
-   Model e.g. `gpt-5-mini`.
+   Model e.g. `nova-micro`.
 4. **Anthropic**: enable **Use custom base URL** → `https://api.nexotao.com`, API Key
-   `sk-nexo-...`, Model `claude-opus-4-8`.
+   `sk-nexo-...`, Model `claude-opus-4-6`.
 
 <Callout type="info">
   Roo Code uses **native tool calling** on the OpenAI Compatible path. The chosen
-  model must support function/tool calling — `gpt-5-mini` and the other Nexotao
-  models do.
+  model must support function/tool calling. `nova-micro` does; verify
+  `supports_tools: true` in `GET /models` for any other model.
 </Callout>
 
 ---
@@ -1222,15 +953,15 @@ Continue is configured via `~/.continue/config.yaml`.
 ```yaml
 # ~/.continue/config.yaml
 models:
-  - name: GPT-5 Mini (Nexotao)
+  - name: Nova Micro (Nexotao)
     provider: openai
-    model: gpt-5-mini
+    model: nova-micro
     apiBase: https://api.nexotao.com/v1
     apiKey: sk-nexo-...
 
-  - name: Claude Opus 4.8 (Nexotao)
+  - name: Claude Opus 4.6 (Nexotao)
     provider: anthropic
-    model: claude-opus-4-8
+    model: claude-opus-4-6
     apiBase: https://api.nexotao.com
     apiKey: sk-nexo-...
 ```
@@ -1302,13 +1033,13 @@ Aider routes models through LiteLLM, so you can use the OpenAI-compat path
 export OPENAI_API_BASE=https://api.nexotao.com/v1
 export OPENAI_API_KEY=sk-nexo-...
 
-aider --model openai/gpt-5-mini
+aider --model openai/nova-micro
 ```
 
 - The `openai/` prefix is **required** — it tells Aider to use the OpenAI-compatible
   endpoint.
 - `OPENAI_API_BASE` must include `/v1`.
-- Other models: `openai/grok-4.3`, `openai/DeepSeek-V4-Pro`.
+- Other agentic models: `openai/qwen3-coder-next`, `openai/gpt-oss-120b`.
 
 </Tabs.Tab>
 <Tabs.Tab>
@@ -1317,7 +1048,7 @@ aider --model openai/gpt-5-mini
 export ANTHROPIC_API_BASE=https://api.nexotao.com
 export ANTHROPIC_API_KEY=sk-nexo-...
 
-aider --model anthropic/claude-opus-4-8
+aider --model anthropic/claude-opus-4-6
 ```
 
 - `ANTHROPIC_API_BASE` **without** `/v1`.
@@ -1352,8 +1083,8 @@ OpenCode is configured via `opencode.json` (in the project root or
         "apiKey": "{env:OPENAI_API_KEY}"
       },
       "models": {
-        "gpt-5-mini": {
-          "name": "GPT-5 Mini (Nexotao)",
+        "nova-micro": {
+          "name": "Nova Micro (Nexotao)",
           "limit": { "context": 128000, "output": 65536 }
         }
       }
@@ -1411,7 +1142,7 @@ the base URL + key, then pick a model.
 | Base URL | `https://api.nexotao.com/v1` |
 | API Key | `sk-nexo-...` |
 | Header | `Authorization: Bearer sk-nexo-...` |
-| Model | `gpt-5.6-terra`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`, `claude-opus-4-8` |
+| Model | `qwen3-coder-next`, `glm-4-7`, `deepseek-v3-2`, `gpt-oss-20b`, `claude-opus-4-6` |
 
 <Callout type="info">
   The OpenAI-compatible endpoint accepts **every model, including Claude** — so if
@@ -1426,7 +1157,7 @@ the base URL + key, then pick a model.
 | Base URL | `https://api.nexotao.com` |
 | API Key | `sk-nexo-...` |
 | Header | `x-api-key: sk-nexo-...` |
-| Model | `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6` |
+| Model | Any Phase 1 ID, for example `claude-opus-4-6` or `qwen3-coder-next` |
 
 ## Examples
 
@@ -1438,7 +1169,7 @@ from openai import OpenAI
 
 client = OpenAI(base_url="https://api.nexotao.com/v1", api_key="sk-nexo-...")
 resp = client.chat.completions.create(
-    model="gpt-5-mini",
+    model="nova-micro",
     messages=[{"role": "user", "content": "Hello"}],
 )
 print(resp.choices[0].message.content)
@@ -1452,7 +1183,7 @@ from anthropic import Anthropic
 
 client = Anthropic(base_url="https://api.nexotao.com", api_key="sk-nexo-...")
 msg = client.messages.create(
-    model="claude-opus-4-8",
+    model="claude-opus-4-6",
     max_tokens=256,
     messages=[{"role": "user", "content": "Hello"}],
 )
@@ -1507,95 +1238,70 @@ import { LivePricing } from "../../components/live-pricing"
 
 # Models & Pricing
 
-**The same models as Anthropic and OpenAI direct.** The difference: pay per
-token with QRIS. No USD card, no monthly subscription, no FX card fee.
+Phase 1 has **32 active Amazon Bedrock models** from 12 model providers. All use
+one Nexotao key and one Rupiah balance.
 
-## Display name vs Model ID
+## Pricing policy
 
-Names such as **GPT-5.6 Sol** are human-readable **display names**. When calling
-the API, use the exact **Model ID**, such as `gpt-5.6-sol`. Model IDs are
-**case-sensitive**: do not change capitalization or pass the display name as
-the `model` value.
+Nexotao retail rates are a **manual snapshot**, calculated as **75% of AWS
+Bedrock US Standard on-demand pricing** and converted at **Rp 18,000/USD**. That
+means 25% below that AWS reference at the time the catalog was set; it does not
+mean rates automatically follow a single worldwide or "global" price.
 
-List every Model ID directly from the live catalog:
+The production catalog is the source of truth. Read it before making cost
+assumptions:
 
 ```bash
-curl -s https://api.nexotao.com/models | jq -r '.models[].model'
+curl -s https://api.nexotao.com/models | jq '.models[] | {
+  model, display_name, provider, supports_tools, supports_vision,
+  context_window, input_per_million_micro, output_per_million_micro
+}'
 ```
 
-All 12 live models and their Model IDs:
+## Agentic models (24)
 
-| Display name | API Model ID |
+These passed Nexotao's stable tool-call round-trip test and report
+`supports_tools: true`:
+
+| Provider | API Model IDs |
 | --- | --- |
-| DeepSeek V4 Flash | `DeepSeek-V4-Flash` |
-| DeepSeek V4 Pro | `DeepSeek-V4-Pro` |
-| GPT-5 Mini | `gpt-5-mini` |
-| GPT-5.6 Luna | `gpt-5.6-luna` |
-| GPT-5.6 Sol | `gpt-5.6-sol` |
-| GPT-5.6 Terra | `gpt-5.6-terra` |
-| Grok 4.3 | `grok-4.3` |
-| Claude Opus 4.6 | `claude-opus-4-6` |
-| Claude Opus 4.7 | `claude-opus-4-7` |
-| Claude Opus 4.8 | `claude-opus-4-8` |
-| Claude Opus 5 | `claude-opus-5` |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
+| Anthropic | `claude-opus-4-6`, `claude-opus-4-5`, `claude-sonnet-4-6`, `claude-sonnet-4-5`, `claude-haiku-4-5` |
+| Mistral | `mistral-large-3`, `devstral-2`, `magistral-small`, `ministral-14b`, `ministral-8b` |
+| Amazon | `nova-micro`, `nova-lite`, `nova-pro`, `nova-2-lite` |
+| Meta | `llama-4-maverick-17b` |
+| Qwen | `qwen3-32b`, `qwen3-coder-30b`, `qwen3-coder-next` |
+| NVIDIA | `nemotron-super-120b` |
+| Z.AI | `glm-5`, `glm-4-7` |
+| MiniMax | `minimax-m2` |
+| Moonshot | `kimi-k2-5` |
+| OpenAI OSS | `gpt-oss-120b` |
 
-The live catalog is what counts — if this table and `GET /models` disagree,
-trust `GET /models`.
+Good defaults:
 
-## Choosing a model
+- Claude Code: `claude-opus-4-6`, `claude-sonnet-4-6`, or `claude-haiku-4-5`.
+- Coding agents: `qwen3-coder-next`, `qwen3-coder-30b`, or Claude.
+- Fast and economical agentic work: `nova-micro`.
+- General-purpose agentic work: `gpt-oss-120b`, `glm-4-7`, or `mistral-large-3`.
 
-What each model is for. For its rates, see the live table below.
+## Chat-only models (8)
 
-| Model | Best for |
-| --- | --- |
-| `DeepSeek-V4-Flash` | High-volume, cheap work: classification, extraction, short chat. |
-| `DeepSeek-V4-Pro` | Higher-quality DeepSeek; 131,072-token context. |
-| `gpt-5-mini` | OpenAI's cheapest tier — classifiers, extraction, batch. Supports vision. |
-| `gpt-5.6-luna` | Efficient for everyday work and high-volume tasks. |
-| `gpt-5.6-terra` | Balanced for coding, analysis, and agent workflows. |
-| `gpt-5.6-sol` | Top GPT-5.6 tier; the same rate for input and output. |
-| `grok-4.3` | An alternative outside the GPT and Claude families. |
-| `claude-opus-4-6` | The Opus that **still accepts** `temperature` / `top_p` / `top_k`. |
-| `claude-opus-4-7` | Previous-generation Opus; sampling parameters no longer accepted. |
-| `claude-opus-4-8` | The strongest reasoning model for coding and agentic work. |
-| `claude-opus-5` | The newest Opus; 1,000,000-token context. |
-| `claude-sonnet-4-6` | Fast + smart for high-volume product chat; sampling still works. |
+These are available for chat and text generation but report
+`supports_tools: false`; do not select them for a client that requires tool
+calling:
 
-The Claude models and `gpt-5-mini` support **vision** (image input); the rest are
-text-only. Check `supports_vision` in `GET /models` to confirm.
+`deepseek-r1`, `deepseek-v3-2`, `ministral-3b`, `llama-4-scout-17b`,
+`llama-3-3-70b`, `nemotron-nano-30b`, `gemma-3-27b`, `gpt-oss-20b`.
 
-> **Match the model to the job.** `DeepSeek` is great for **high-volume, cheap**
-> workloads — classification, extraction, short chat — but **not for
-> agentic/coding or large context**. Its capacity is small (~20k tokens/min), so
-> a single agentic or large-context request can hit `429 server at capacity`.
-> For **coding/agentic & large context**, use **Claude (Opus/Sonnet)** or
-> **GPT-5.6**.
+## Live rates
 
-## Live per-million-token rates
-
-Every model has per-million-token rates for **input**, **output**, and (for
-Claude/GPT) **cache-read + cache-write**. The values here come straight from
-`GET /models` — always in sync with the live catalog, with no hardcoded prices on
-the page.
+Rates below are fetched in the browser from `GET /models`. Model IDs are
+case-sensitive. If this page and the API ever disagree, trust the API.
 
 <LivePricing />
 
-## How to read the rates
-
-- **Text** — rate per 1 million tokens, separately for input and output.
-- **Cache (Claude/GPT)** — cache reads are much cheaper than the standard input
-  rate; cache writes are slightly more. Full breakdown in [Billing & Pricing](/en/penagihan).
-- **What you're billed** — always `token_count × model_rate_at_the_time`, rounded
-  up. There is no per-request fee and no minimum charge.
-
-Need a cost estimate before you call the API? Take the rate from `GET /models` and
-multiply it by your expected token count — or see
-[nexotao.com/harga](https://nexotao.com/harga) for a calculator and price
-comparisons.
-
-Billing details, cache mechanics, and per-request accounting live in
-[Billing & Pricing](/en/penagihan).
+Every text rate is per 1 million tokens, separately for input and output. The
+amount billed is based on the production catalog rate at request time. See
+[Billing & Pricing](/en/penagihan) for accounting details.
 
 ---
 
@@ -1647,7 +1353,7 @@ The response carries the final, reconciled numbers:
 
 ```json
 {
-  "model": "claude-opus-4-8",
+  "model": "claude-opus-4-6",
   "input_tokens": 1240,
   "output_tokens": 380,
   "cache_read_tokens": 0,
@@ -1697,7 +1403,7 @@ Base URL: `https://api.nexotao.com`. Authentication via API key — see
 | `GET` | `/v1/models` | OpenAI-format model list (requires key) — used by n8n etc. |
 | `GET` | `/v1/models/{id}` | Single model detail, OpenAI format (requires key) |
 | `POST` | `/v1/chat/completions` | Chat, OpenAI format (DeepSeek and Claude) |
-| `POST` | `/v1/responses` | OpenAI Responses format — supports streaming; used by Codex CLI |
+| `POST` | `/v1/responses` | OpenAI Responses format — route exists, but no Bedrock Phase 1 model is available on it yet |
 | `POST` | `/v1/messages` | Chat, Anthropic format (Claude models) |
 
 ## Response headers
@@ -2394,23 +2100,18 @@ pointed at Nexotao and paid for in Rupiah. See [Claude Code](/en/claude-code).
 
 ## How much does it cost?
 
-Live rates are on [Models & Pricing](/en/model-harga). They are currently well below
-official pricing — treat it as a promo price.
+Live rates are on [Models & Pricing](/en/model-harga). Phase 1 retail was set to
+75% of AWS Bedrock US Standard on-demand pricing at Rp 18,000/USD. It is a manual
+catalog policy, not an automatically synchronized global price.
 
-## Why does DeepSeek sometimes return 429 / "server at capacity"?
+## Which models work in coding agents?
 
-Because the request isn't a DeepSeek job. `DeepSeek-V4-Flash` is positioned for
-**high-volume, cheap** work — classification, extraction, short chat — and has a
-small capacity of about **20k tokens/minute (TPM)** per backend. A single
-**agentic/coding or large-context** request easily exceeds ~50k input tokens,
-overrunning one backend's entire per-minute budget, so it returns
-`429 server at capacity, retry shortly` — no number of parallel backends helps,
-because a single request cannot be split across backends.
+Use a model that reports `supports_tools: true` in `GET /models`. The catalog has
+24 models validated for stable tool-call round trips and 8 chat-only models.
 
 <Callout type="warning">
-  The fix isn't to keep retrying, it's to **use the right model**: for coding/agentic
-  and large context, select a **Claude (Opus/Sonnet)** model id directly (for example
-  `claude-opus-4-8`). DeepSeek stays the best pick for volume/cheap workloads.
+  Chat-only models such as `deepseek-r1`, `deepseek-v3-2`, and `gpt-oss-20b`
+  can answer text prompts, but should not be selected in clients that require tools.
 </Callout>
 
 ---

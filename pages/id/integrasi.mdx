@@ -1,6 +1,6 @@
 ---
 title: Integrasi — Semua Tool AI
-description: Cara menghubungkan Claude Code, Codex, VS Code (Cline, Roo Code, Continue, Kilo Code), Aider, dan OpenCode ke Nexotao. Bayar pakai Rupiah, tanpa kartu kredit luar negeri.
+description: Cara menghubungkan Claude Code, extension VS Code, Aider, dan OpenCode ke Nexotao, plus status kompatibilitas Codex saat ini.
 ---
 
 import { Callout, Steps } from "nextra/components"
@@ -9,13 +9,13 @@ import { ToolGrid, ToolLogo } from "../../components/tool-logo"
 # Integrasi
 
 Nexotao bukan model baru yang harus kamu pelajari dari nol. Nexotao adalah **gerbang
-(gateway)** ke model AI yang sudah kamu pakai — Claude, GPT, DeepSeek, Grok — hanya
+(gateway)** ke model AI yang sudah kamu pakai — Claude, Qwen, Nova, DeepSeek, dan lainnya — hanya
 saja **base URL** dan **API key**-nya diganti ke Nexotao, dan tagihannya dipotong dari
 saldo Rupiah.
 
-Artinya: tool coding apa pun yang bisa diarahkan ke endpoint kustom **bisa dipakai
-dengan Nexotao**. Halaman ini menjelaskan pola integrasinya, lalu tautan step-by-step
-per tool.
+Tool yang mendukung OpenAI Chat Completions atau Anthropic Messages bisa terhubung
+ke Nexotao. Tool yang mewajibkan protokol lain, seperti Codex dengan Responses API,
+tidak otomatis kompatibel.
 
 ## Dua "mode" — cukup ingat ini
 
@@ -24,8 +24,8 @@ menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
 
 | Mode | Base URL | Header / env | Model | Dipakai untuk |
 | ---- | -------- | ------------ | ----- | ------------- |
-| **Anthropic-compat** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | `claude-opus-4-8`, `claude-sonnet-4-6`, … | Model **Claude** & tool yang berbicara format Anthropic (Claude Code, Cline mode Anthropic) |
-| **OpenAI-compat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, … | Model **OpenAI/DeepSeek/Grok** & tool format OpenAI (Codex, Aider, Continue, dll.) |
+| **Anthropic-compat** | `https://api.nexotao.com` | `x-api-key` / `ANTHROPIC_AUTH_TOKEN` + `ANTHROPIC_BASE_URL` | Semua 32 model Fase 1 | Tool berformat Anthropic Messages, termasuk Claude Code |
+| **OpenAI-compat** | `https://api.nexotao.com/v1` | `Authorization: Bearer` / `OPENAI_API_KEY` + `OPENAI_BASE_URL` | Semua 32 model Fase 1 | Tool berformat OpenAI Chat Completions, termasuk Aider dan Continue |
 
 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "18px 0" }}>
   <ToolLogo src="/logos/claude.svg" alt="Claude" size={26} />
@@ -51,7 +51,7 @@ menyambungkan tool apa pun, bahkan yang tidak ada di daftar bawah.
 
 <ToolGrid items={[
   { logo: "/logos/claude.svg", name: "Claude Code", desc: "Coding agent CLI dari Anthropic. Generator config siap-tempel.", href: "/claude-code", mode: "anthropic" },
-  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Coding agent terminal dari OpenAI, diarahkan ke model Nexotao.", href: "/codex", mode: "openai" },
+  { logo: "/logos/openai.svg", name: "Codex CLI", desc: "Belum didukung di Fase 1 karena Codex mewajibkan Responses API.", href: "/codex", mode: "openai" },
   { logo: "/logos/vscode.svg", name: "VS Code (Cline, Roo, Continue, Kilo)", desc: "Extension AI di VS Code — provider kustom OpenAI/Anthropic.", href: "/vscode", mode: "both" },
   { logo: "/logos/opencode.svg", name: "Aider & OpenCode", desc: "Agent coding di terminal. Konfigurasi env / config file.", href: "/terminal-agents", mode: "both" },
   { logo: "/logos/cursor.svg", name: "Tool lain (universal)", desc: "Cursor, Copilot, atau tool apa pun yang menerima base URL kustom.", href: "/kompatibel", mode: "both" },
@@ -81,5 +81,5 @@ Detail ada di [Quickstart](/quickstart) dan [Autentikasi](/autentikasi).
 
 Lihat daftar & tarif live di [Model & Harga](/model-harga). Ringkas:
 
-- **Anthropic-compat:** `claude-opus-5`, `claude-opus-4-8`, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`
-- **OpenAI-compat:** `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-5.6-sol`, `gpt-5-mini`, `grok-4.3`, `DeepSeek-V4-Pro`, `DeepSeek-V4-Flash`
+- **Contoh agentic:** `claude-opus-4-6`, `qwen3-coder-next`, `nova-micro`, `gpt-oss-120b`.
+- **Contoh chat-only:** `deepseek-v3-2`, `gpt-oss-20b`. Jangan pakai untuk client yang mewajibkan tools.
