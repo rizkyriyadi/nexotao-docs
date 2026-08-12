@@ -13,6 +13,9 @@ export type Model = {
   display_name: string
   tier: string
   provider: string
+  api_style?: "anthropic" | "openai" | ""
+  supports_tools?: boolean
+  agentic?: boolean
   supports_vision: boolean
   modality: Modality
   input_per_million_micro: number
@@ -39,13 +42,20 @@ export function modalityLabel(modality: Modality, locale: Locale = "id"): string
   return locale === "en" ? MODALITY_LABEL_EN[modality] : MODALITY_LABEL[modality]
 }
 
-// `provider` dari GET /models menamai FORMAT WIRE ("anthropic" | "openai"),
-// bukan tempat model di-host. Nilai tak dikenal sengaja dipetakan ke "—",
-// bukan ditampilkan mentah: tabel ini publik, jadi id provider baru tidak boleh
-// bocor ke halaman harga hanya karena katalog bertambah.
+// Public vendor ids returned by GET /models.
 export const VENDOR: Record<string, string> = {
+  amazon: "Amazon",
   anthropic: "Anthropic",
-  openai: "OpenAI / DeepSeek",
+  deepseek: "DeepSeek",
+  google: "Google",
+  meta: "Meta",
+  minimax: "MiniMax",
+  mistral: "Mistral AI",
+  moonshot: "Moonshot AI",
+  nvidia: "NVIDIA",
+  openai: "OpenAI",
+  qwen: "Qwen",
+  zai: "Z.AI",
 }
 
 export function vendorLabel(provider: string): string {
@@ -131,13 +141,21 @@ export function priceLines(m: Model, locale: Locale = "id"): { label: string; va
   ]
 }
 
-// Katalog dulu memuat id provider yang menyebut tempat hosting; sekarang hanya
-// format wire. Normalisasi saat baca membuat bundle ini cocok dengan versi
-// server mana pun, jadi urutan deploy tidak menciptakan jeda di mana semua
-// baris jatuh ke "—". Hapus pemangkas prefiks ini kalau tidak ada lagi server
-// ter-deploy yang mengirim bentuk lama.
-function normalizeProvider(provider: string): string {
-  return provider.startsWith("azure-") ? provider.slice("azure-".length) : provider
+// Older API revisions used `provider` for the wire format. Preserve support for
+// those responses while keeping the new vendor/api_style contract.
+function normalizeModel(model: Model): Model {
+  const legacyProvider = model.provider.startsWith("azure-")
+    ? model.provider.slice("azure-".length)
+    : model.provider
+  const apiStyle = model.api_style || (legacyProvider === "anthropic" || legacyProvider === "openai" ? legacyProvider : "")
+  const supportsTools = model.supports_tools ?? model.agentic ?? false
+  return {
+    ...model,
+    provider: model.api_style ? model.provider : legacyProvider,
+    api_style: apiStyle,
+    supports_tools: supportsTools,
+    agentic: model.agentic ?? supportsTools,
+  }
 }
 
 export async function fetchModels(): Promise<Model[]> {
@@ -145,5 +163,5 @@ export async function fetchModels(): Promise<Model[]> {
   if (!res.ok) throw new Error(`models ${res.status}`)
   const data = await res.json()
   const models = (data.models ?? []) as Model[]
-  return models.map((m) => ({ ...m, provider: normalizeProvider(m.provider) }))
+  return models.map(normalizeModel)
 }

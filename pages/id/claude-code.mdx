@@ -22,14 +22,10 @@ pakai versi `export` untuk shell.
 
 - `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
 - `ANTHROPIC_MODEL` = model Claude yang kamu pilih di generator.
-- `ANTHROPIC_DEFAULT_OPUS_MODEL` = model tier opus dari katalog live.
-- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`. **Tier sonnet tersedia**
-  dan dipakai apa adanya.
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = juga `claude-sonnet-4-6`. Tier haiku **tidak**
-  ada di katalog kami, jadi slot background diarahkan ke model Claude termurah yang
-  tersedia. Kalau klienmu tetap mengirim `claude-haiku-4-5`, gateway mengalihkannya
-  ke `claude-opus-4-8` dan **menagihnya dengan tarif Opus** — set variabel ini supaya
-  tidak kena tarif itu.
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` = `claude-opus-4-6`.
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-haiku-4-5`. Haiku sekarang tersedia
+  langsung, termasuk untuk background task, dan ditagih dengan tarif Haiku sendiri.
 - `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` agar kompatibel.
 
 ## Langkah per sistem operasi

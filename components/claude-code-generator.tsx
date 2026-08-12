@@ -28,22 +28,20 @@ const T = {
 type Dict = { [K in keyof (typeof T)["id"]]: string }
 
 const ANTHROPIC_BASE_URL = "https://api.nexotao.com"
-const FALLBACK_OPUS = "claude-opus-5"
-// Claude Code has no haiku-tier model in this catalog, so its sonnet and
-// background (haiku) slots both map to the sonnet tier — the cheapest Claude
-// model that is actually live.
-const FALLBACK_BG = "claude-sonnet-4-6"
+const FALLBACK_OPUS = "claude-opus-4-6"
+const FALLBACK_SONNET = "claude-sonnet-4-6"
+const FALLBACK_HAIKU = "claude-haiku-4-5"
 // Only used when GET /models is unreachable; the live catalog wins otherwise.
 const FALLBACK_CLAUDE_MODELS = [
-  "claude-opus-5",
-  "claude-opus-4-8",
-  "claude-opus-4-7",
   "claude-opus-4-6",
+  "claude-opus-4-5",
   "claude-sonnet-4-6",
+  "claude-sonnet-4-5",
+  "claude-haiku-4-5",
 ]
 const KEY_PLACEHOLDER = "sk-nexo-..."
 
-function buildSettings(token: string, model: string, opus: string, background: string) {
+function buildSettings(token: string, model: string, opus: string, sonnet: string, haiku: string) {
   return JSON.stringify(
     {
       env: {
@@ -51,8 +49,8 @@ function buildSettings(token: string, model: string, opus: string, background: s
         ANTHROPIC_AUTH_TOKEN: token,
         ANTHROPIC_MODEL: model,
         ANTHROPIC_DEFAULT_OPUS_MODEL: opus,
-        ANTHROPIC_DEFAULT_SONNET_MODEL: background,
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: background,
+        ANTHROPIC_DEFAULT_SONNET_MODEL: sonnet,
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: haiku,
         CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS: "1",
       },
       skipDangerousModePermissionPrompt: true,
@@ -62,14 +60,14 @@ function buildSettings(token: string, model: string, opus: string, background: s
   )
 }
 
-function buildExports(token: string, model: string, opus: string, background: string) {
+function buildExports(token: string, model: string, opus: string, sonnet: string, haiku: string) {
   return [
     `export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL}"`,
     `export ANTHROPIC_AUTH_TOKEN="${token}"`,
     `export ANTHROPIC_MODEL="${model}"`,
     `export ANTHROPIC_DEFAULT_OPUS_MODEL="${opus}"`,
-    `export ANTHROPIC_DEFAULT_SONNET_MODEL="${background}"`,
-    `export ANTHROPIC_DEFAULT_HAIKU_MODEL="${background}"`,
+    `export ANTHROPIC_DEFAULT_SONNET_MODEL="${sonnet}"`,
+    `export ANTHROPIC_DEFAULT_HAIKU_MODEL="${haiku}"`,
     `export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS="1"`,
   ].join("\n")
 }
@@ -132,17 +130,18 @@ export function ClaudeCodeGenerator() {
   const claudeModels = models.filter((m) => m.provider === "anthropic")
   const selectedModel =
     model || claudeModels.find((m) => m.tier === "opus")?.model || claudeModels[0]?.model || FALLBACK_OPUS
-  const opus = models.find((m) => m.tier === "opus")?.model ?? FALLBACK_OPUS
-  const background = models.find((m) => m.tier === "sonnet")?.model ?? FALLBACK_BG
+  const opus = models.find((m) => m.model === FALLBACK_OPUS)?.model ?? models.find((m) => m.tier === "opus")?.model ?? FALLBACK_OPUS
+  const sonnet = models.find((m) => m.model === FALLBACK_SONNET)?.model ?? models.find((m) => m.tier === "sonnet")?.model ?? FALLBACK_SONNET
+  const haiku = models.find((m) => m.model === FALLBACK_HAIKU)?.model ?? models.find((m) => m.tier === "haiku")?.model ?? FALLBACK_HAIKU
   const token = key.trim() || KEY_PLACEHOLDER
 
   const settings = useMemo(
-    () => buildSettings(token, selectedModel, opus, background),
-    [token, selectedModel, opus, background]
+    () => buildSettings(token, selectedModel, opus, sonnet, haiku),
+    [token, selectedModel, opus, sonnet, haiku]
   )
   const exports = useMemo(
-    () => buildExports(token, selectedModel, opus, background),
-    [token, selectedModel, opus, background]
+    () => buildExports(token, selectedModel, opus, sonnet, haiku),
+    [token, selectedModel, opus, sonnet, haiku]
   )
 
   return (
@@ -191,7 +190,7 @@ export function ClaudeCodeGenerator() {
           </select>
           <p className="nx-note" style={{ marginTop: 6 }}>
             {t.modelHelpA}
-            {background}.
+            {haiku}.
           </p>
         </div>
       </div>

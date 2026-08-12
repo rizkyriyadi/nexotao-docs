@@ -22,14 +22,10 @@ Pick a model and paste your API key; copy the result into
 
 - `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
 - `ANTHROPIC_MODEL` = the Claude model you pick in the generator.
-- `ANTHROPIC_DEFAULT_OPUS_MODEL` = the opus-tier model from the live catalog.
-- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`. **The sonnet tier is
-  available** and is used as-is.
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-sonnet-4-6` as well. There is **no**
-  haiku tier in our catalog, so the background slot points at the cheapest available
-  Claude model. If your client still sends `claude-haiku-4-5`, the gateway routes it
-  to `claude-opus-4-8` and **bills it at the Opus rate** — set this variable to avoid
-  that.
+- `ANTHROPIC_DEFAULT_OPUS_MODEL` = `claude-opus-4-6`.
+- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`.
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-haiku-4-5`. Haiku is now available
+  directly for background tasks and is billed at its own Haiku rate.
 - `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
 
 ## Steps per operating system
