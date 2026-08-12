@@ -1245,10 +1245,10 @@ memakai satu key Nexotao dan satu saldo Rupiah.
 
 ## Kebijakan harga
 
-Harga retail Nexotao adalah **snapshot manual**, dihitung sebesar **75% dari
+Harga retail Nexotao adalah **snapshot manual**, dihitung sebesar **100% dari
 harga on-demand AWS Bedrock US Standard** lalu dikonversi dengan kurs **Rp
-18.000/USD**. Artinya 25% di bawah acuan AWS tersebut ketika katalog ditetapkan;
-bukan berarti harga otomatis mengikuti satu harga "global" dunia.
+18.000/USD**. Tarifnya sama dengan acuan resmi US Standard tersebut; bukan
+berarti harga otomatis mengikuti satu harga "global" dunia.
 
 Katalog produksi adalah sumber kebenaran. Baca langsung sebelum membuat asumsi
 biaya:
@@ -2102,9 +2102,9 @@ ke Nexotao dan dibayar pakai Rupiah. Lihat [Claude Code](/claude-code).
 
 ## Berapa harganya?
 
-Tarif live ada di [Model & Harga](/model-harga). Retail Fase 1 ditetapkan sebesar
-75% dari harga on-demand AWS Bedrock US Standard pada kurs Rp 18.000/USD. Ini
-kebijakan katalog manual, bukan harga global yang tersinkron otomatis.
+Tarif live ada di [Model & Harga](/model-harga). Retail Fase 1 setara 100% harga
+on-demand AWS Bedrock US Standard pada kurs Rp 18.000/USD. Ini snapshot katalog
+manual, bukan harga global yang tersinkron otomatis.
 
 ## Model mana yang bisa dipakai coding agent?
 
