@@ -10,6 +10,20 @@ import { LivePricing } from "../../components/live-pricing"
 Nexotao memakai sistem **token-based** dengan **satu saldo Rupiah**. Tidak ada kredit
 terpisah — semua pemakaian dipotong dari saldo yang sama.
 
+Tarif model **tanpa markup**. Setiap Rp 1 saldo bernilai Rp 1 pemakaian model.
+
+## Biaya saat top-up
+
+Saat membeli saldo, rincian pembayaran dipisahkan menjadi:
+
+- **Saldo dibeli** — nilai yang masuk ke akun dan dapat dipakai untuk model.
+- **Biaya layanan** — biaya Nexotao untuk pembelian saldo.
+- **Biaya pembayaran** — fee QRIS dari penyedia pembayaran, jika berlaku.
+- **Biaya jaringan** — fee jaringan untuk top-up crypto, jika berlaku.
+
+Jumlah setiap komponen dan total pembayaran ditampilkan sebelum kamu membayar.
+Biaya layanan tidak mengubah nilai saldo yang diterima.
+
 ## Satuan biaya
 
 | Jenis | Dasar penagihan |
@@ -70,7 +84,8 @@ gangguan sementara; ulangi dengan backoff.
 
 ## Harga live
 
-Tabel berikut diambil langsung dari katalog live `GET /models` (hanya harga jual):
+Tabel berikut diambil langsung dari katalog live `GET /models` dan menampilkan tarif
+model tanpa markup. Biaya top-up tidak termasuk dalam tarif token:
 
 <LivePricing />
 

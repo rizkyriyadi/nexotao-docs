@@ -10,6 +10,20 @@ import { LivePricing } from "../../components/live-pricing"
 Nexotao uses a **token-based** system with **a single Rupiah balance**. There are no
 separate credits — all usage is drawn from the same balance.
 
+Model rates have **no markup**. Every Rp 1 of balance funds Rp 1 of model usage.
+
+## Fees when topping up
+
+When you buy balance, the payment breakdown is separated into:
+
+- **Balance purchased** — the amount added to your account for model usage.
+- **Service fee** — Nexotao's fee for purchasing balance.
+- **Payment fee** — the QRIS provider fee, when applicable.
+- **Network fee** — the network fee for a crypto top-up, when applicable.
+
+Each component and the total payment are shown before you pay. The service fee does
+not change the balance you receive.
+
 ## Cost units
 
 | Type | Billing basis |
@@ -70,8 +84,8 @@ backoff.
 
 ## Live pricing
 
-The table below is pulled directly from the live `GET /models` catalog (sell prices
-only):
+The table below is pulled directly from the live `GET /models` catalog and shows
+model rates with no markup. Top-up fees are not part of the token rates:
 
 <LivePricing />
 

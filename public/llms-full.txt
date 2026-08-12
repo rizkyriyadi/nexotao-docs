@@ -163,8 +163,9 @@ Buat akun gratis di [nexotao.com](https://nexotao.com). Cukup email dan kata san
 ### Top-up saldo
 
 Isi saldo Rupiah mulai Rp 10.000 lewat **QRIS** atau **crypto (USDT / USDC)**. Saldo
-tidak kedaluwarsa dan dipotong per token sesuai pemakaian — tanpa langganan. Isi
-Rp 150.000+ dapat bonus saldo **+6%**, Rp 500.000+ dapat **+15%**.
+tidak kedaluwarsa dan dipotong per token sesuai pemakaian — tanpa langganan. Tarif
+model tanpa markup; biaya layanan serta fee QRIS atau jaringan crypto ditampilkan
+terpisah sebelum pembayaran.
 
 ### Buat API key
 
@@ -739,7 +740,8 @@ Buka **Top Up** di dashboard lalu bayar via **QRIS**, mulai dari **Rp 10.000**. 
 dalam Rupiah, dipotong per token sesuai pemakaian, **tidak ada masa kadaluarsa**, dan
 **tanpa langganan**.
 
-Top up lebih besar dapat bonus: **+6%** untuk Rp 150.000 dan **+15%** untuk Rp 500.000.
+Tarif model tanpa markup. Biaya layanan serta fee QRIS ditampilkan terpisah sebelum
+kamu membayar; nilai saldo yang dipilih tetap masuk penuh untuk pemakaian model.
 
 ## 3. Buat API key
 
@@ -1332,6 +1334,20 @@ import { LivePricing } from "../../components/live-pricing"
 Nexotao memakai sistem **token-based** dengan **satu saldo Rupiah**. Tidak ada kredit
 terpisah — semua pemakaian dipotong dari saldo yang sama.
 
+Tarif model **tanpa markup**. Setiap Rp 1 saldo bernilai Rp 1 pemakaian model.
+
+## Biaya saat top-up
+
+Saat membeli saldo, rincian pembayaran dipisahkan menjadi:
+
+- **Saldo dibeli** — nilai yang masuk ke akun dan dapat dipakai untuk model.
+- **Biaya layanan** — biaya Nexotao untuk pembelian saldo.
+- **Biaya pembayaran** — fee QRIS dari penyedia pembayaran, jika berlaku.
+- **Biaya jaringan** — fee jaringan untuk top-up crypto, jika berlaku.
+
+Jumlah setiap komponen dan total pembayaran ditampilkan sebelum kamu membayar.
+Biaya layanan tidak mengubah nilai saldo yang diterima.
+
 ## Satuan biaya
 
 | Jenis | Dasar penagihan |
@@ -1392,7 +1408,8 @@ gangguan sementara; ulangi dengan backoff.
 
 ## Harga live
 
-Tabel berikut diambil langsung dari katalog live `GET /models` (hanya harga jual):
+Tabel berikut diambil langsung dari katalog live `GET /models` dan menampilkan tarif
+model tanpa markup. Biaya top-up tidak termasuk dalam tarif token:
 
 <LivePricing />
 
@@ -2099,8 +2116,15 @@ sampai habis.
 
 ## Bagaimana cara membayar?
 
-Top-up lewat QRIS. Tanpa langganan — kamu hanya membayar saldo yang diisi, dan
-terpotong sesuai pemakaian.
+Top-up lewat QRIS atau crypto. Nilai saldo masuk 1:1 untuk pemakaian model. Biaya
+layanan serta fee QRIS atau jaringan crypto ditampilkan sebagai komponen terpisah
+sebelum kamu membayar.
+
+## Apakah tarif model diberi markup?
+
+Tidak. Tarif model sama dengan tarif resmi Standard upstream yang tercantum di
+katalog. Nexotao menagihkan biaya layanan ketika kamu membeli saldo, bukan dengan
+menaikkan tarif token.
 
 ## Bisa dipakai untuk Claude Code?
 
@@ -2119,7 +2143,8 @@ ke Nexotao dan dibayar pakai Rupiah. Lihat [Claude Code](/claude-code).
 
 Tarif live ada di [Model & Harga](/model-harga). Retail Fase 1 setara 100% harga
 Standard upstream masing-masing pada kurs Rp 18.000/USD: AWS Bedrock untuk 32
-model dan Azure/OpenAI untuk GPT-5.6 Terra serta Luna. Ini snapshot manual.
+model dan Azure/OpenAI untuk GPT-5.6 Terra serta Luna. Biaya top-up ditampilkan
+terpisah sebelum pembayaran. Ini snapshot manual.
 
 ## Model mana yang bisa dipakai coding agent?
 
