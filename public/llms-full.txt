@@ -1644,7 +1644,7 @@ pada body.
 | --- | --- | --- | --- |
 | `request.invalid` | Body tidak terbaca, `model` kosong/bukan string, `input` kosong pada `/v1/responses`, model tidak tersedia di endpoint tersebut, atau gambar dikirim ke model tanpa dukungan vision | Perbaiki body permintaan | `false` |
 | `request.invalid_request` | Bentuk permintaan ditolak sebelum mencapai backend — mis. body bukan objek JSON, pesan user berisi konten kosong, atau `tools` tidak berbentuk array objek dengan `input_schema` yang punya `type` di akar | Perbaiki struktur pesan/tool | `false` |
-| `request.unsupported_feature` | Fitur yang diminta tidak dilayani untuk model itu di endpoint itu — mis. structured outputs atau web search Claude di luar `/v1/messages`, atau tool-use pada model DeepSeek | Pindah ke endpoint/model yang mendukung; lihat `hint` bila ada | `false` |
+| `request.unsupported_feature` | Fitur yang diminta tidak dilayani untuk model itu di endpoint itu — mis. tool web search bawaan (tidak tersedia di model mana pun), structured outputs Claude di luar `/v1/messages`, atau tool-use pada model DeepSeek | Pindah ke endpoint/model yang mendukung; lihat `hint` bila ada | `false` |
 | `model.unknown` | `model` tidak ada di katalog | Cek id model di `GET /v1/models` atau [Model & Harga](/model-harga) | `false` |
 | `upstream.context_length_exceeded` | Prompt melebihi context window model | Kecilkan input atau aktifkan kompaksi — lihat [Context Window](/context-window) | `false` |
 | `upstream.invalid_request` | Backend model menolak bentuk permintaan | Periksa parameter yang tidak lazim (mis. sampling di luar rentang) | `false` |

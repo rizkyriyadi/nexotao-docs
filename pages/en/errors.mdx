@@ -141,7 +141,7 @@ body.
 | --- | --- | --- | --- |
 | `request.invalid` | Body unreadable, `model` missing or not a string, empty `input` on `/v1/responses`, model not available on that endpoint, or images sent to a model without vision support | Fix the request body | `false` |
 | `request.invalid_request` | Request shape rejected before it reaches a backend — e.g. body is not a JSON object, a user message has empty content, or `tools` is not an array of objects whose `input_schema` has a root `type` | Fix the message/tool structure | `false` |
-| `request.unsupported_feature` | The requested feature is not served for that model on that endpoint — e.g. Claude structured outputs or web search outside `/v1/messages`, or tool use on a DeepSeek model | Move to a supporting endpoint/model; check `hint` if present | `false` |
+| `request.unsupported_feature` | The requested feature is not served for that model on that endpoint — e.g. the native web search tool (not offered on any model), Claude structured outputs outside `/v1/messages`, or tool use on a DeepSeek model | Move to a supporting endpoint/model; check `hint` if present | `false` |
 | `model.unknown` | `model` is not in the catalogue | Check the model id via `GET /v1/models` or [Models & Pricing](/en/model-harga) | `false` |
 | `upstream.context_length_exceeded` | The prompt exceeds the model's context window | Reduce input or enable compaction — see [Context Window](/en/context-window) | `false` |
 | `upstream.invalid_request` | The model backend rejected the request shape | Check unusual parameters (e.g. sampling values out of range) | `false` |

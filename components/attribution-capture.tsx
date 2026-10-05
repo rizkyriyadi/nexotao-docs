@@ -1,75 +1,56 @@
-import { useEffect } from "react"
-import { captureFirstTouch } from "@/lib/attribution"
+import { useEffect, useRef } from "react"
+import { useRouter } from "next/router"
+import { captureFirstTouch, readAnonId } from "@/lib/attribution"
 
 // Prod backend is hardcoded across docs (lib/models.ts) — env-first mirrors the
 // web-app pattern while defaulting to the same host the rest of the site uses.
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.nexotao.com"
-// Once-per-visitor guard for the landing beacon. Scoped by anon id so a rotated
-// cookie re-fires exactly once.
-const BEACON_FLAG = "nex_landing_sent"
 
-// Renders nothing. On first mount it captures first-touch attribution into
-// first-party cookies and fires a single best-effort landing beacon. Mounted in
-// the Nextra _app so docs.nexotao.com traffic lands in landing_events too —
-// measurement only, zero UI impact, never blocks render. Ported from the web app
-// (web/components/analytics/attribution-capture.tsx); no "use client" here because
-// docs is a Next.js pages-router app (the effect is client-only regardless).
+// Renders nothing. Captures first-touch attribution into first-party cookies
+// (shared with www and dashboard) and records a page_view product event (POST
+// /events, source "docs") for every route. The first one of a load carries the
+// first-touch UTM and referrer. Mounted in the Nextra _app; pages router, so the
+// effect is client-only without "use client". Measurement only.
 export function AttributionCapture() {
+  const { asPath } = useRouter()
+  const path = asPath.split(/[?#]/)[0]
+  const first = useRef(true)
+
   useEffect(() => {
-    let captured: ReturnType<typeof captureFirstTouch>
+    let attr: ReturnType<typeof captureFirstTouch>["attr"] | undefined
     try {
-      captured = captureFirstTouch()
+      attr = captureFirstTouch().attr
     } catch {
-      return // never let attribution break the page
+      // never let attribution break the page
     }
-    const { attr, anonId } = captured
-    if (!anonId) return
-
-    // Fire the landing beacon at most once per visitor.
-    let alreadySent = false
-    try {
-      alreadySent = localStorage.getItem(BEACON_FLAG) === anonId
-    } catch {
-      /* storage blocked (private mode) — fall through and attempt once */
+    const body: Record<string, unknown> = {
+      source: "docs",
+      anon_id: readAnonId() ?? "",
+      events: [{ name: "page_view", path }],
     }
-    if (alreadySent) return
-
-    const body = JSON.stringify({
-      anon_id: anonId,
-      utm_source: attr.utm_source,
-      utm_medium: attr.utm_medium,
-      utm_campaign: attr.utm_campaign,
-      utm_term: attr.utm_term,
-      utm_content: attr.utm_content,
-      referrer_host: attr.referrer_host,
-      landing_path: attr.landing_path,
-    })
-
-    // Fire-and-forget. keepalive lets it survive a fast navigation; we swallow
-    // all errors (ad-blockers, offline, backend down) — conversion truth is
-    // server-side, so a lost beacon only affects the visit-count denominator.
+    if (first.current && attr) {
+      const { referrer_host, utm_source, utm_medium, utm_campaign, utm_term, utm_content } = attr
+      const utm = Object.fromEntries(
+        Object.entries({ utm_source, utm_medium, utm_campaign, utm_term, utm_content }).filter(([, v]) => v),
+      )
+      body.referrer_host = referrer_host
+      if (Object.keys(utm).length) body.utm = utm
+    }
+    first.current = false
     try {
-      fetch(`${API_BASE}/events/landing`, {
+      fetch(`${API_BASE}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body,
+        body: JSON.stringify(body),
         keepalive: true,
         credentials: "omit",
+      }).catch(() => {
+        /* best-effort */
       })
-        .then(() => {
-          try {
-            localStorage.setItem(BEACON_FLAG, anonId)
-          } catch {
-            /* ignore */
-          }
-        })
-        .catch(() => {
-          /* best-effort */
-        })
     } catch {
       /* best-effort */
     }
-  }, [])
+  }, [path])
 
   return null
 }

@@ -34,7 +34,11 @@ function readCookie(name: string): string | undefined {
 function writeCookie(name: string, value: string) {
   if (typeof document === "undefined") return
   const secure = typeof location !== "undefined" && location.protocol === "https:" ? "; Secure" : ""
-  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${ATTR_MAX_AGE_SEC}; SameSite=Lax${secure}`
+  // Shared by www, docs and dashboard so a visit here and the later signup
+  // carry the same anon id. Host-only elsewhere (localhost, previews).
+  const domain =
+    typeof location !== "undefined" && /(^|\.)nexotao\.com$/.test(location.hostname) ? "; Domain=.nexotao.com" : ""
+  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${ATTR_MAX_AGE_SEC}; SameSite=Lax${secure}${domain}`
 }
 
 // Trim and length-cap a captured value; drop empties. Mirrors the backend's
@@ -91,6 +95,11 @@ export function readAttribution(): Attribution | undefined {
     /* corrupt cookie — treat as absent */
   }
   return undefined
+}
+
+// The stable anonymous id, if this browser has one.
+export function readAnonId(): string | undefined {
+  return readCookie(ANON_COOKIE)
 }
 
 // Build the payload of attribution keys to forward (beacon).
