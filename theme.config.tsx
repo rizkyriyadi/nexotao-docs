@@ -7,8 +7,15 @@ const OG_IMAGE = "https://docs.nexotao.com/og.png"
 
 const Logo = () => (
   <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 600 }}>
-    {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img src="/nexotao-logo.svg" alt="Nexotao" width={22} height={22} style={{ borderRadius: 6 }} />
+    {/* Tile follows the text color with the n cut out, so it reads in light and dark mode. */}
+    <svg width={22} height={22} viewBox="0 0 64 64" fill="none" aria-hidden>
+      <mask id="nx-mark-cut">
+        <rect width="64" height="64" fill="#fff" />
+        <path d="M22 46V31a10 10 0 0 1 20 0v15" stroke="#000" strokeWidth="6.5" strokeLinecap="round" />
+      </mask>
+      <rect width="64" height="64" rx="15" fill="currentColor" mask="url(#nx-mark-cut)" />
+      <circle cx="47" cy="17" r="4.5" fill="#D97757" />
+    </svg>
     <span>
       Nexotao <span style={{ color: "#A1A1AA", fontWeight: 400 }}>Docs</span>
     </span>
