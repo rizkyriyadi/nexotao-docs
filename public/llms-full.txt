@@ -653,6 +653,7 @@ Lihat daftar & tarif live di [Model & Harga](/model-harga). Ringkas:
 
 Source: https://docs.nexotao.com/id/claude-code
 
+import { Callout } from "nextra/components"
 import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
 
 # Claude Code
@@ -661,47 +662,75 @@ Jalankan coding agent **Claude Code** lewat akses Nexotao dan bayar pakai Rupiah
 Cukup arahkan Claude Code ke base URL Nexotao dan pakai API key-mu — tanpa kartu
 kredit luar negeri.
 
-## Generator config
+<Callout type="info">
+  Baru bikin API key di dashboard? Dialog "Kunci berhasil dibuat" sudah langsung
+  menampilkan perintah setup dengan key-mu terisi. Halaman ini untuk setup ulang
+  atau di komputer lain.
+</Callout>
 
-Pilih model dan tempel API key; salin hasilnya ke `~/.claude/settings.json`, atau
-pakai versi `export` untuk shell.
+## 1. Install Claude Code
+
+Lewati kalau `claude` sudah terpasang.
+
+**Windows** — buka **PowerShell** (bukan Command Prompt). Claude Code di Windows
+butuh [Git for Windows](https://git-scm.com/downloads/win); install dulu kalau
+belum ada.
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**macOS / Linux**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+## 2. Simpan config Nexotao
+
+Tempel API key, pilih sistem operasi, lalu salin perintah pertama ke terminal.
+Perintah itu membuat folder `.claude`, mencadangkan `settings.json` lama (kalau
+ada) ke `settings.json.bak`, dan menulis config baru. Tidak perlu membuka atau
+mengedit file apa pun.
 
 <ClaudeCodeGenerator />
 
-## Catatan konfigurasi
+<Callout type="warning">
+  **Masih pakai saldo trial?** Pilih "Masih saldo trial" di generator. Saldo trial
+  hanya bisa dipakai model tertentu; kalau config menunjuk model Claude, setiap
+  request ditolak dengan `billing.trial_model_restricted` sampai kamu top up.
+</Callout>
 
-- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
-- `ANTHROPIC_MODEL` = model Claude yang kamu pilih di generator.
-- `ANTHROPIC_DEFAULT_OPUS_MODEL` = `claude-opus-4-6`.
-- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`.
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-haiku-4-5`. Haiku sekarang tersedia
-  langsung, termasuk untuk background task, dan ditagih dengan tarif Haiku sendiri.
-- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` agar kompatibel.
+## 3. Jalankan
 
-## Langkah per sistem operasi
+Buka terminal **baru** di folder proyekmu lalu jalankan:
 
-### macOS / Linux (Ubuntu)
+```bash
+claude
+```
 
-1. Install Claude Code (lihat dokumentasi resmi Anthropic).
-2. Simpan config di `~/.claude/settings.json` dari generator di atas, **atau** tempel
-   blok `export` ke `~/.zshrc` / `~/.bashrc`:
+## Isi config
 
-   ```bash
-   source ~/.zshrc   # atau ~/.bashrc
-   ```
-3. Jalankan `claude` dari direktori proyekmu.
+| Variabel | Isi |
+|---|---|
+| `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` (tanpa `/v1`) |
+| `ANTHROPIC_AUTH_TOKEN` | API key `sk-nexo-...` milikmu |
+| `ANTHROPIC_MODEL` | Model utama. Default generator: Sonnet terbaru di katalog |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` / `_SONNET_` / `_HAIKU_` | Model untuk tiap alias Claude Code. Haiku dipakai untuk background task |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1`, agar kompatibel |
 
-### Windows
+Semua slot model harus menunjuk model yang bisa dipakai key-mu. Kalau hanya
+`ANTHROPIC_MODEL` yang diganti, background task tetap memanggil model Haiku.
 
-1. Install Claude Code.
-2. Buat berkas `settings.json` di `%USERPROFILE%\.claude\settings.json` dengan isi
-   dari generator, atau set environment variable lewat PowerShell:
+## Kalau ada masalah
 
-   ```powershell
-   setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
-   setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
-   ```
-3. Buka terminal baru lalu jalankan `claude`.
+- **`claude` tidak dikenal** — tutup lalu buka lagi terminalnya setelah install.
+- **Error 401** — API key salah atau sudah dicabut. Buat key baru di dashboard lalu
+  jalankan lagi perintah langkah 2.
+- **Error 403 `billing.trial_model_restricted`** — config menunjuk model di luar
+  saldo trial. Jalankan ulang generator dengan "Masih saldo trial", atau top up.
+- **Mau kembali ke config lama** — salin `settings.json.bak` menjadi `settings.json`
+  di folder yang sama.
 
 Biaya pemakaian Claude Code dipotong dari saldo Rupiah, sama seperti panggilan teks
 biasa. Lihat [Penagihan & Harga](/penagihan).
@@ -857,21 +886,49 @@ Model Claude aktif adalah Opus 4.6, Opus 4.5, Sonnet 4.6, Sonnet 4.5, dan Haiku
 
 Source: https://docs.nexotao.com/id/codex
 
+import { Callout, Tabs } from "nextra/components"
+
 # OpenAI Codex CLI
 
-OpenAI Codex CLI memakai **Responses API** (`/v1/responses`). Nexotao mendukung
-Codex melalui `gpt-5.6-terra` dan `gpt-5.6-luna`; 32 model Bedrock tetap memakai
-`/v1/messages` atau `/v1/chat/completions`.
+OpenAI Codex CLI memakai **Responses API** (`/v1/responses`). Di Nexotao, endpoint
+ini melayani model keluarga GPT-5.6 (`gpt-5.6-terra`, `gpt-5.6-sol`,
+`gpt-5.6-luna`). Model lain tetap dipakai lewat `/v1/messages` atau
+`/v1/chat/completions`.
 
-Simpan API key sebagai environment variable:
+<Callout type="info">
+  Baru bikin API key di dashboard? Dialog "Kunci berhasil dibuat" sudah langsung
+  menampilkan perintah setup Codex dengan key-mu terisi.
+</Callout>
+
+## 1. Install Codex CLI
+
+Codex CLI butuh [Node.js LTS](https://nodejs.org). Kalau perintah `npm` tidak
+dikenal, install Node.js dulu lalu buka terminal baru.
 
 ```bash
-export NEXOTAO_API_KEY="sk-nexo-..."
+npm install -g @openai/codex
 ```
 
-Lalu tambahkan provider Nexotao ke `~/.codex/config.toml`:
+## 2. Simpan API key dan config
 
-```toml
+Ganti `sk-nexo-...` dengan API key milikmu. Perintah ini menyimpan key sebagai
+environment variable, mencadangkan `config.toml` lama (kalau ada) ke
+`config.toml.bak`, lalu menulis config Nexotao.
+
+<Tabs items={["Windows (PowerShell)", "macOS / Linux"]}>
+<Tabs.Tab>
+
+Buka **PowerShell** (bukan Command Prompt), lalu tempel:
+
+```powershell
+setx NEXOTAO_API_KEY "sk-nexo-..." | Out-Null
+$env:NEXOTAO_API_KEY = "sk-nexo-..."
+
+$dir = Join-Path $env:USERPROFILE ".codex"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+$file = Join-Path $dir "config.toml"
+if (Test-Path $file) { Copy-Item $file "$file.bak" -Force }
+$body = @'
 model = "gpt-5.6-terra"
 model_provider = "nexotao"
 model_reasoning_effort = "none"
@@ -881,11 +938,67 @@ name = "Nexotao"
 base_url = "https://api.nexotao.com/v1"
 env_key = "NEXOTAO_API_KEY"
 wire_api = "responses"
+'@
+[System.IO.File]::WriteAllText($file, $body)
+Write-Host "Config Nexotao tersimpan di $file"
 ```
 
-Pakai `gpt-5.6-terra` untuk kualitas coding yang lebih tinggi atau ganti ke
-`gpt-5.6-luna` untuk pekerjaan cepat dan ringan. Jangan tempel API key langsung
-ke file konfigurasi; `env_key` membuat Codex membacanya dari environment.
+</Tabs.Tab>
+<Tabs.Tab>
+
+```bash
+RC="$HOME/.$(basename "$SHELL")rc"
+echo 'export NEXOTAO_API_KEY="sk-nexo-..."' >> "$RC"
+export NEXOTAO_API_KEY="sk-nexo-..."
+
+mkdir -p ~/.codex
+[ -f ~/.codex/config.toml ] && cp ~/.codex/config.toml ~/.codex/config.toml.bak
+cat > ~/.codex/config.toml <<'EOF'
+model = "gpt-5.6-terra"
+model_provider = "nexotao"
+model_reasoning_effort = "none"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"
+env_key = "NEXOTAO_API_KEY"
+wire_api = "responses"
+EOF
+echo "Config Nexotao tersimpan di ~/.codex/config.toml"
+```
+
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="warning">
+  **Masih pakai saldo trial?** Ganti `gpt-5.6-terra` menjadi `gpt-5.6-luna` di
+  perintah di atas. Saldo trial hanya bisa dipakai model tertentu; model lain
+  ditolak dengan `billing.trial_model_restricted` sampai kamu top up.
+</Callout>
+
+## 3. Jalankan
+
+Buka terminal **baru** di folder proyekmu lalu jalankan:
+
+```bash
+codex
+```
+
+Pakai `gpt-5.6-terra` untuk kualitas coding yang lebih tinggi atau `gpt-5.6-luna`
+untuk pekerjaan cepat dan ringan — ganti baris `model` di `config.toml`. Jangan
+tempel API key langsung ke file konfigurasi; `env_key` membuat Codex membacanya
+dari environment.
+
+## Kalau ada masalah
+
+- **`npm` atau `codex` tidak dikenal** — install Node.js LTS, lalu tutup dan buka
+  lagi terminalnya.
+- **Codex minta login ke akun OpenAI** — pastikan `model_provider = "nexotao"` ada
+  di `config.toml` dan terminal dibuka setelah `NEXOTAO_API_KEY` disimpan.
+- **Error 401** — API key salah atau sudah dicabut; jalankan lagi langkah 2 dengan
+  key baru.
+- **Error 403 `billing.trial_model_restricted`** — ganti model ke `gpt-5.6-luna`
+  atau top up.
 
 ---
 

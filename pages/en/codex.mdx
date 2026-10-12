@@ -1,23 +1,50 @@
 ---
 title: OpenAI Codex CLI
-description: Connect Codex CLI to GPT-5.6 Terra or Luna through the Nexotao Responses API.
+description: Connect Codex CLI to GPT-5.6 through the Nexotao Responses API. Steps for Windows (PowerShell), macOS, and Linux.
 ---
+
+import { Callout, Tabs } from "nextra/components"
 
 # OpenAI Codex CLI
 
-OpenAI Codex CLI uses the **Responses API** (`/v1/responses`). Nexotao supports
-Codex through `gpt-5.6-terra` and `gpt-5.6-luna`; the 32 Bedrock models continue
-to use `/v1/messages` or `/v1/chat/completions`.
+OpenAI Codex CLI uses the **Responses API** (`/v1/responses`). On Nexotao this
+endpoint serves the GPT-5.6 family (`gpt-5.6-terra`, `gpt-5.6-sol`,
+`gpt-5.6-luna`). Other models keep using `/v1/messages` or `/v1/chat/completions`.
 
-Store your API key in an environment variable:
+<Callout type="info">
+  Just created an API key in the dashboard? The "Key created" dialog already shows
+  Codex setup commands with your key filled in.
+</Callout>
+
+## 1. Install Codex CLI
+
+Codex CLI needs [Node.js LTS](https://nodejs.org). If `npm` is not recognized,
+install Node.js first and open a new terminal.
 
 ```bash
-export NEXOTAO_API_KEY="sk-nexo-..."
+npm install -g @openai/codex
 ```
 
-Then add the Nexotao provider to `~/.codex/config.toml`:
+## 2. Save the API key and config
 
-```toml
+Replace `sk-nexo-...` with your own API key. These commands store the key as an
+environment variable, back up an existing `config.toml` to `config.toml.bak`, and
+write the Nexotao config.
+
+<Tabs items={["Windows (PowerShell)", "macOS / Linux"]}>
+<Tabs.Tab>
+
+Open **PowerShell** (not Command Prompt) and paste:
+
+```powershell
+setx NEXOTAO_API_KEY "sk-nexo-..." | Out-Null
+$env:NEXOTAO_API_KEY = "sk-nexo-..."
+
+$dir = Join-Path $env:USERPROFILE ".codex"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+$file = Join-Path $dir "config.toml"
+if (Test-Path $file) { Copy-Item $file "$file.bak" -Force }
+$body = @'
 model = "gpt-5.6-terra"
 model_provider = "nexotao"
 model_reasoning_effort = "none"
@@ -27,8 +54,62 @@ name = "Nexotao"
 base_url = "https://api.nexotao.com/v1"
 env_key = "NEXOTAO_API_KEY"
 wire_api = "responses"
+'@
+[System.IO.File]::WriteAllText($file, $body)
+Write-Host "Nexotao config saved to $file"
 ```
 
-Use `gpt-5.6-terra` for stronger coding quality, or switch to `gpt-5.6-luna`
-for fast, lightweight work. Do not paste the API key directly into the config;
-`env_key` makes Codex read it from the environment.
+</Tabs.Tab>
+<Tabs.Tab>
+
+```bash
+RC="$HOME/.$(basename "$SHELL")rc"
+echo 'export NEXOTAO_API_KEY="sk-nexo-..."' >> "$RC"
+export NEXOTAO_API_KEY="sk-nexo-..."
+
+mkdir -p ~/.codex
+[ -f ~/.codex/config.toml ] && cp ~/.codex/config.toml ~/.codex/config.toml.bak
+cat > ~/.codex/config.toml <<'EOF'
+model = "gpt-5.6-terra"
+model_provider = "nexotao"
+model_reasoning_effort = "none"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"
+env_key = "NEXOTAO_API_KEY"
+wire_api = "responses"
+EOF
+echo "Nexotao config saved to ~/.codex/config.toml"
+```
+
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="warning">
+  **Still on the trial balance?** Change `gpt-5.6-terra` to `gpt-5.6-luna` in the
+  commands above. The trial balance only works with specific models; others are
+  refused with `billing.trial_model_restricted` until you top up.
+</Callout>
+
+## 3. Run it
+
+Open a **new** terminal in your project folder and run:
+
+```bash
+codex
+```
+
+Use `gpt-5.6-terra` for stronger coding quality or `gpt-5.6-luna` for fast,
+lightweight work — change the `model` line in `config.toml`. Do not paste the API
+key directly into the config; `env_key` makes Codex read it from the environment.
+
+## Troubleshooting
+
+- **`npm` or `codex` is not recognized** — install Node.js LTS, then close and
+  reopen the terminal.
+- **Codex asks you to sign in to OpenAI** — make sure `model_provider = "nexotao"`
+  is in `config.toml` and the terminal was opened after `NEXOTAO_API_KEY` was saved.
+- **Error 401** — the API key is wrong or revoked; rerun step 2 with a new key.
+- **Error 403 `billing.trial_model_restricted`** — switch the model to
+  `gpt-5.6-luna` or top up.

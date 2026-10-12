@@ -1,8 +1,9 @@
 ---
 title: Claude Code
-description: Use the Claude Code coding agent through Nexotao and pay in Rupiah. Per-OS steps plus an interactive settings.json config generator.
+description: Use the Claude Code coding agent through Nexotao and pay in Rupiah. One command for Windows, macOS, and Linux — no manual settings.json editing.
 ---
 
+import { Callout } from "nextra/components"
 import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
 
 # Claude Code
@@ -11,47 +12,77 @@ Run the **Claude Code** coding agent through Nexotao access and pay in Rupiah. J
 point Claude Code at the Nexotao base URL and use your API key — no foreign credit
 card.
 
-## Config generator
+<Callout type="info">
+  Just created an API key in the dashboard? The "Key created" dialog already shows
+  setup commands with your key filled in. This page is for setting up again or on
+  another computer.
+</Callout>
 
-Pick a model and paste your API key; copy the result into
-`~/.claude/settings.json`, or use the `export` version for your shell.
+## 1. Install Claude Code
+
+Skip this if `claude` is already installed.
+
+**Windows** — open **PowerShell** (not Command Prompt). Claude Code on Windows
+needs [Git for Windows](https://git-scm.com/downloads/win); install it first if
+you don't have it.
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**macOS / Linux**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+## 2. Save the Nexotao config
+
+Paste your API key, pick your operating system, then copy the first command into
+your terminal. It creates the `.claude` folder, backs up an existing
+`settings.json` to `settings.json.bak`, and writes the new config. No file to open
+or edit.
 
 <ClaudeCodeGenerator />
 
-## Configuration notes
+<Callout type="warning">
+  **Still on the trial balance?** Choose "Still on the trial balance" in the
+  generator. The trial balance only works with specific models; if the config
+  points at a Claude model, every request is refused with
+  `billing.trial_model_restricted` until you top up.
+</Callout>
 
-- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
-- `ANTHROPIC_MODEL` = the Claude model you pick in the generator.
-- `ANTHROPIC_DEFAULT_OPUS_MODEL` = `claude-opus-4-6`.
-- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`.
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-haiku-4-5`. Haiku is now available
-  directly for background tasks and is billed at its own Haiku rate.
-- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
+## 3. Run it
 
-## Steps per operating system
+Open a **new** terminal in your project folder and run:
 
-### macOS / Linux (Ubuntu)
+```bash
+claude
+```
 
-1. Install Claude Code (see Anthropic's official documentation).
-2. Save the config to `~/.claude/settings.json` from the generator above, **or**
-   paste the `export` block into `~/.zshrc` / `~/.bashrc`:
+## What the config contains
 
-   ```bash
-   source ~/.zshrc   # or ~/.bashrc
-   ```
-3. Run `claude` from your project directory.
+| Variable | Value |
+|---|---|
+| `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` (no `/v1`) |
+| `ANTHROPIC_AUTH_TOKEN` | Your `sk-nexo-...` API key |
+| `ANTHROPIC_MODEL` | Primary model. Generator default: the newest Sonnet in the catalog |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` / `_SONNET_` / `_HAIKU_` | Model behind each Claude Code alias. Haiku runs background tasks |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1`, for compatibility |
 
-### Windows
+Every model slot must point at a model your key can use. If you only change
+`ANTHROPIC_MODEL`, background tasks still call the Haiku model.
 
-1. Install Claude Code.
-2. Create a `settings.json` file at `%USERPROFILE%\.claude\settings.json` with the
-   contents from the generator, or set environment variables via PowerShell:
+## Troubleshooting
 
-   ```powershell
-   setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
-   setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
-   ```
-3. Open a new terminal and run `claude`.
+- **`claude` is not recognized** — close and reopen the terminal after installing.
+- **Error 401** — the API key is wrong or revoked. Create a new key in the
+  dashboard and run the step 2 command again.
+- **Error 403 `billing.trial_model_restricted`** — the config points at a model
+  outside the trial balance. Rerun the generator with "Still on the trial balance",
+  or top up.
+- **Want your old config back** — copy `settings.json.bak` over `settings.json` in
+  the same folder.
 
 Claude Code usage is deducted from your Rupiah balance, just like a regular text
 call. See [Billing & Pricing](/en/penagihan).

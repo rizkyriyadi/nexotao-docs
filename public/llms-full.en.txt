@@ -653,6 +653,7 @@ See the live list & rates on [Models & Pricing](/en/model-harga). In short:
 
 Source: https://docs.nexotao.com/en/claude-code
 
+import { Callout } from "nextra/components"
 import { ClaudeCodeGenerator } from "../../components/claude-code-generator"
 
 # Claude Code
@@ -661,47 +662,77 @@ Run the **Claude Code** coding agent through Nexotao access and pay in Rupiah. J
 point Claude Code at the Nexotao base URL and use your API key — no foreign credit
 card.
 
-## Config generator
+<Callout type="info">
+  Just created an API key in the dashboard? The "Key created" dialog already shows
+  setup commands with your key filled in. This page is for setting up again or on
+  another computer.
+</Callout>
 
-Pick a model and paste your API key; copy the result into
-`~/.claude/settings.json`, or use the `export` version for your shell.
+## 1. Install Claude Code
+
+Skip this if `claude` is already installed.
+
+**Windows** — open **PowerShell** (not Command Prompt). Claude Code on Windows
+needs [Git for Windows](https://git-scm.com/downloads/win); install it first if
+you don't have it.
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**macOS / Linux**
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+## 2. Save the Nexotao config
+
+Paste your API key, pick your operating system, then copy the first command into
+your terminal. It creates the `.claude` folder, backs up an existing
+`settings.json` to `settings.json.bak`, and writes the new config. No file to open
+or edit.
 
 <ClaudeCodeGenerator />
 
-## Configuration notes
+<Callout type="warning">
+  **Still on the trial balance?** Choose "Still on the trial balance" in the
+  generator. The trial balance only works with specific models; if the config
+  points at a Claude model, every request is refused with
+  `billing.trial_model_restricted` until you top up.
+</Callout>
 
-- `ANTHROPIC_BASE_URL` = `https://api.nexotao.com`
-- `ANTHROPIC_MODEL` = the Claude model you pick in the generator.
-- `ANTHROPIC_DEFAULT_OPUS_MODEL` = `claude-opus-4-6`.
-- `ANTHROPIC_DEFAULT_SONNET_MODEL` = `claude-sonnet-4-6`.
-- `ANTHROPIC_DEFAULT_HAIKU_MODEL` = `claude-haiku-4-5`. Haiku is now available
-  directly for background tasks and is billed at its own Haiku rate.
-- `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` for compatibility.
+## 3. Run it
 
-## Steps per operating system
+Open a **new** terminal in your project folder and run:
 
-### macOS / Linux (Ubuntu)
+```bash
+claude
+```
 
-1. Install Claude Code (see Anthropic's official documentation).
-2. Save the config to `~/.claude/settings.json` from the generator above, **or**
-   paste the `export` block into `~/.zshrc` / `~/.bashrc`:
+## What the config contains
 
-   ```bash
-   source ~/.zshrc   # or ~/.bashrc
-   ```
-3. Run `claude` from your project directory.
+| Variable | Value |
+|---|---|
+| `ANTHROPIC_BASE_URL` | `https://api.nexotao.com` (no `/v1`) |
+| `ANTHROPIC_AUTH_TOKEN` | Your `sk-nexo-...` API key |
+| `ANTHROPIC_MODEL` | Primary model. Generator default: the newest Sonnet in the catalog |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` / `_SONNET_` / `_HAIKU_` | Model behind each Claude Code alias. Haiku runs background tasks |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | `1`, for compatibility |
 
-### Windows
+Every model slot must point at a model your key can use. If you only change
+`ANTHROPIC_MODEL`, background tasks still call the Haiku model.
 
-1. Install Claude Code.
-2. Create a `settings.json` file at `%USERPROFILE%\.claude\settings.json` with the
-   contents from the generator, or set environment variables via PowerShell:
+## Troubleshooting
 
-   ```powershell
-   setx ANTHROPIC_BASE_URL "https://api.nexotao.com"
-   setx ANTHROPIC_AUTH_TOKEN "sk-nexo-..."
-   ```
-3. Open a new terminal and run `claude`.
+- **`claude` is not recognized** — close and reopen the terminal after installing.
+- **Error 401** — the API key is wrong or revoked. Create a new key in the
+  dashboard and run the step 2 command again.
+- **Error 403 `billing.trial_model_restricted`** — the config points at a model
+  outside the trial balance. Rerun the generator with "Still on the trial balance",
+  or top up.
+- **Want your old config back** — copy `settings.json.bak` over `settings.json` in
+  the same folder.
 
 Claude Code usage is deducted from your Rupiah balance, just like a regular text
 call. See [Billing & Pricing](/en/penagihan).
@@ -856,21 +887,48 @@ Haiku 4.5. Pick the primary model in the config generator above.
 
 Source: https://docs.nexotao.com/en/codex
 
+import { Callout, Tabs } from "nextra/components"
+
 # OpenAI Codex CLI
 
-OpenAI Codex CLI uses the **Responses API** (`/v1/responses`). Nexotao supports
-Codex through `gpt-5.6-terra` and `gpt-5.6-luna`; the 32 Bedrock models continue
-to use `/v1/messages` or `/v1/chat/completions`.
+OpenAI Codex CLI uses the **Responses API** (`/v1/responses`). On Nexotao this
+endpoint serves the GPT-5.6 family (`gpt-5.6-terra`, `gpt-5.6-sol`,
+`gpt-5.6-luna`). Other models keep using `/v1/messages` or `/v1/chat/completions`.
 
-Store your API key in an environment variable:
+<Callout type="info">
+  Just created an API key in the dashboard? The "Key created" dialog already shows
+  Codex setup commands with your key filled in.
+</Callout>
+
+## 1. Install Codex CLI
+
+Codex CLI needs [Node.js LTS](https://nodejs.org). If `npm` is not recognized,
+install Node.js first and open a new terminal.
 
 ```bash
-export NEXOTAO_API_KEY="sk-nexo-..."
+npm install -g @openai/codex
 ```
 
-Then add the Nexotao provider to `~/.codex/config.toml`:
+## 2. Save the API key and config
 
-```toml
+Replace `sk-nexo-...` with your own API key. These commands store the key as an
+environment variable, back up an existing `config.toml` to `config.toml.bak`, and
+write the Nexotao config.
+
+<Tabs items={["Windows (PowerShell)", "macOS / Linux"]}>
+<Tabs.Tab>
+
+Open **PowerShell** (not Command Prompt) and paste:
+
+```powershell
+setx NEXOTAO_API_KEY "sk-nexo-..." | Out-Null
+$env:NEXOTAO_API_KEY = "sk-nexo-..."
+
+$dir = Join-Path $env:USERPROFILE ".codex"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+$file = Join-Path $dir "config.toml"
+if (Test-Path $file) { Copy-Item $file "$file.bak" -Force }
+$body = @'
 model = "gpt-5.6-terra"
 model_provider = "nexotao"
 model_reasoning_effort = "none"
@@ -880,11 +938,65 @@ name = "Nexotao"
 base_url = "https://api.nexotao.com/v1"
 env_key = "NEXOTAO_API_KEY"
 wire_api = "responses"
+'@
+[System.IO.File]::WriteAllText($file, $body)
+Write-Host "Nexotao config saved to $file"
 ```
 
-Use `gpt-5.6-terra` for stronger coding quality, or switch to `gpt-5.6-luna`
-for fast, lightweight work. Do not paste the API key directly into the config;
-`env_key` makes Codex read it from the environment.
+</Tabs.Tab>
+<Tabs.Tab>
+
+```bash
+RC="$HOME/.$(basename "$SHELL")rc"
+echo 'export NEXOTAO_API_KEY="sk-nexo-..."' >> "$RC"
+export NEXOTAO_API_KEY="sk-nexo-..."
+
+mkdir -p ~/.codex
+[ -f ~/.codex/config.toml ] && cp ~/.codex/config.toml ~/.codex/config.toml.bak
+cat > ~/.codex/config.toml <<'EOF'
+model = "gpt-5.6-terra"
+model_provider = "nexotao"
+model_reasoning_effort = "none"
+
+[model_providers.nexotao]
+name = "Nexotao"
+base_url = "https://api.nexotao.com/v1"
+env_key = "NEXOTAO_API_KEY"
+wire_api = "responses"
+EOF
+echo "Nexotao config saved to ~/.codex/config.toml"
+```
+
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="warning">
+  **Still on the trial balance?** Change `gpt-5.6-terra` to `gpt-5.6-luna` in the
+  commands above. The trial balance only works with specific models; others are
+  refused with `billing.trial_model_restricted` until you top up.
+</Callout>
+
+## 3. Run it
+
+Open a **new** terminal in your project folder and run:
+
+```bash
+codex
+```
+
+Use `gpt-5.6-terra` for stronger coding quality or `gpt-5.6-luna` for fast,
+lightweight work — change the `model` line in `config.toml`. Do not paste the API
+key directly into the config; `env_key` makes Codex read it from the environment.
+
+## Troubleshooting
+
+- **`npm` or `codex` is not recognized** — install Node.js LTS, then close and
+  reopen the terminal.
+- **Codex asks you to sign in to OpenAI** — make sure `model_provider = "nexotao"`
+  is in `config.toml` and the terminal was opened after `NEXOTAO_API_KEY` was saved.
+- **Error 401** — the API key is wrong or revoked; rerun step 2 with a new key.
+- **Error 403 `billing.trial_model_restricted`** — switch the model to
+  `gpt-5.6-luna` or top up.
 
 ---
 

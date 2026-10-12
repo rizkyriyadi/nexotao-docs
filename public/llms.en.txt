@@ -13,9 +13,9 @@
 - [Text & Chat](https://docs.nexotao.com/en/teks): Nexotao text endpoints — /v1/messages (Anthropic) and /v1/chat/completions (OpenAI), including SSE streaming. curl, Python, and Node examples.
 - [Context Window & Compaction](https://docs.nexotao.com/en/context-window): Read each Nexotao model's context window and keep long agent sessions healthy with compaction.
 - [Integrations — Every AI Tool](https://docs.nexotao.com/en/integrasi): How to connect Claude Code, VS Code extensions, Aider, and OpenCode to Nexotao, plus the current Codex compatibility status.
-- [Claude Code](https://docs.nexotao.com/en/claude-code): Use the Claude Code coding agent through Nexotao and pay in Rupiah. Per-OS steps plus an interactive settings.json config generator.
+- [Claude Code](https://docs.nexotao.com/en/claude-code): Use the Claude Code coding agent through Nexotao and pay in Rupiah. One command for Windows, macOS, and Linux — no manual settings.json editing.
 - [Run Claude Code in Rupiah (no foreign card)](https://docs.nexotao.com/en/claude-code-rupiah): Step-by-step guide to run the Claude Code coding agent from Indonesia and pay in Rupiah — no foreign credit card. Sign up, top up via QRIS, point Claude Code at an Anthropic-compatible base URL, and verify the cost per request.
-- [OpenAI Codex CLI](https://docs.nexotao.com/en/codex): Connect Codex CLI to GPT-5.6 Terra or Luna through the Nexotao Responses API.
+- [OpenAI Codex CLI](https://docs.nexotao.com/en/codex): Connect Codex CLI to GPT-5.6 through the Nexotao Responses API. Steps for Windows (PowerShell), macOS, and Linux.
 - [VS Code (Cline, Roo Code, Continue, Kilo Code)](https://docs.nexotao.com/en/vscode): Connect VS Code AI extensions — Cline, Roo Code, Continue.dev, Kilo Code — to Nexotao via an OpenAI-compatible or Anthropic custom provider. Step by step.
 - [Aider & OpenCode](https://docs.nexotao.com/en/terminal-agents): Use the Aider and OpenCode terminal coding agents with Nexotao. Env-var and config-file setup for both OpenAI-compat and Claude models.
 - [Any Other Tool (Universal)](https://docs.nexotao.com/en/kompatibel): The universal pattern for connecting any AI tool to Nexotao — Cursor, the OpenAI/Anthropic SDKs, LangChain, or any new tool that accepts a custom base URL.
